@@ -11,6 +11,8 @@ import GameObject.Rectangle;
 import GameObject.SpriteSheet;
 import Utils.Direction;
 
+// keyboard support should include: WASD and the arrow keys
+
 public abstract class Player extends GameObject {
     // values that affect player movement
     // these should be set in a subclass
