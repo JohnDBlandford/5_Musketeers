@@ -4,17 +4,19 @@ import GameObject.Sprite;
 
 import java.util.Map;
 
-public sealed abstract class Sword extends Item {
-    private final int physicalAtkDmg;
-    private ItemBuffs critChance;
-    private ItemBuffs atkBoost;
-    private ItemBuffs critDmg;
+public sealed abstract class Sword extends Item permits RustedShortSword,
+        BentKitchenCleaver, ScavengersFalchion, FamineEdgeBlade,
+WraithboneSaber {
+    protected int physicalAtkDmg;
+    protected ItemBuffs critChance;
+    protected ItemBuffs atkBoost;
+    protected ItemBuffs critDmg;
 
-    Sword(String itemName, ItemBuffs buffName, Sprite itemLook,
-          ItemRarity itemRarity, Map<String, Item> itemAbilities,
+    Sword(String itemName, Sprite itemLook,
+          ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
           Map<ItemBuffs, Item> itemBuffs, int physicalAtkDmg,
           ItemBuffs critChance, ItemBuffs atkBoost, ItemBuffs critDmg) {
-        super(itemName, buffName, itemLook, itemRarity, itemAbilities,
+        super(itemName, itemLook, itemRarity, itemAbilities,
                 itemBuffs);
         this.physicalAtkDmg = physicalAtkDmg;
         this.critChance = critChance;

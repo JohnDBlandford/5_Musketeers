@@ -4,7 +4,9 @@ import GameObject.Sprite;
 
 import java.util.Map;
 
-public sealed abstract class Shield extends Item {
+public sealed abstract class Shield extends Item permits
+        WarpedBucklerShield, PatchedWoodShield, ScavengersRoundShield,
+        FamineEdgeAegis, WraithboneBulwarkShield {
     private double blockChance;
     private double blockAmount;
     private ItemBuffs bonusDef;
@@ -12,7 +14,7 @@ public sealed abstract class Shield extends Item {
     private ItemBuffs thorns;
 
     Shield(String itemName, ItemBuffs buffName, Sprite itemLook,
-           ItemRarity itemRarity, Map<String, Item> itemAbilities,
+           ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
            Map<ItemBuffs, Item> itemBuffs, double blockChance,
            double blockAmount, ItemBuffs bonusDef, ItemBuffs defBoost,
            ItemBuffs thorns) {

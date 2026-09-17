@@ -4,14 +4,16 @@ import GameObject.Sprite;
 
 import java.util.Map;
 
-public sealed abstract class Armor extends Item {
+public sealed abstract class Armor extends Item permits
+        BeggarsWrapsArmor, PatchedLeatherArmor, ScavengersHideArmor,
+        FamineEdgeVestmentsArmor, WraithboneMailArmor {
     private ItemBuffs bonusDef;
     private ItemBuffs bonusMaxHP;
     private ItemBuffs spdBoost;
     private ItemBuffs dmgReduction;
 
     Armor(String itemName, ItemBuffs buffName, Sprite itemLook,
-          ItemRarity itemRarity, Map<String, Item> itemAbilities,
+          ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
           Map<ItemBuffs, Item> itemBuffs, ItemBuffs bonusDef,
           ItemBuffs bonusMaxHP, ItemBuffs spdBoost,
           ItemBuffs dmgReduction) {

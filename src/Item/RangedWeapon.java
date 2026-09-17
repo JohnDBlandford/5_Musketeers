@@ -4,7 +4,9 @@ import GameObject.Sprite;
 
 import java.util.Map;
 
-public sealed abstract class RangedWeapon extends Item {
+public sealed abstract class RangedWeapon extends Item permits
+        CrackedHuntingBow, SplinteredSling, ScavengersCrossBow,
+        FamineEdgeLongbow, WraithboneRepeater {
     private int rangedDmg;
     private ItemBuffs accuracy;
     private ItemBuffs critChance;
@@ -13,7 +15,7 @@ public sealed abstract class RangedWeapon extends Item {
     private ItemBuffs critDmg;
 
     RangedWeapon(String itemName, ItemBuffs buffName, Sprite itemLook,
-                 ItemRarity itemRarity, Map<String, Item> itemAbilities,
+                 ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
                  Map<ItemBuffs, Item> itemBuffs, int rangedDmg,
                  ItemBuffs critChance, ItemBuffs atkBoost, ItemBuffs critDmg,
                  ItemBuffs accuracy, ItemBuffs piercing) {

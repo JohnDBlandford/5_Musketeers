@@ -10,14 +10,14 @@ import java.util.Map;
 // specific class needed
 public sealed abstract class Item permits Sword, RangedWeapon, Shield,
         Armor {
-   private final String itemName;
-   private ItemBuffs buffName;
-    private final Sprite itemLook;
-    private ItemRarity itemRarity;
+   protected final String itemName;
+   protected ItemBuffs buffName;
+    protected Sprite itemLook;
+    protected ItemRarity itemRarity;
     // string equals the item ability description. once we decide on what
     // item abilities there will be, the String becomes a ItemAbility enum
-    private Map<String, Item> itemAbilities;
-    private Map<ItemBuffs, Item> itemBuffs;
+    protected Map<ItemAbilities, Item> itemAbilities;
+    protected Map<ItemBuffs, Item> itemBuffs;
 
     public enum EquippedStatus {
         EQUIPPED, NOT_EQUIPPED
@@ -30,16 +30,19 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
     public enum ItemBuffs {
         CRIT_CHANCE, ATK_BOOST, CRIT_DMG, ACCURACY, PIERCING,
         BONUS_DEF, DEF_BOOST, THORNS, BONUS_MAX_HP,
-        SPD_BOOST, DMG_REDUCTION
+        SPD_BOOST, DMG_REDUCTION, NONE
+    }
+
+    public enum ItemAbilities {
+        NONE
     }
 
     // protected constructor to prevent instantiation outside of this package
     // but also allows subclasses to see it
-    protected Item(String itemName, ItemBuffs buffName, Sprite itemLook,
-                   ItemRarity itemRarity, Map<String, Item> itemAbilities,
+    protected Item(String itemName, Sprite itemLook,
+                   ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
                    Map<ItemBuffs, Item> itemBuffs) {
         this.itemName = itemName;
-        this.buffName = buffName;
         this.itemLook = itemLook;
         this.itemRarity = itemRarity;
         this.itemAbilities = itemAbilities;
@@ -58,7 +61,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
     // note that these two methods return the entire map every time they are
     // called. i think i may have two more methods to just get an index from
     // the maps
-    public Map<String, Item> getTotalItemAbilities(Item item) {
+    public Map<ItemAbilities, Item> getTotalItemAbilities(Item item) {
         return this.itemAbilities;
     }
     public Map<ItemBuffs, Item> getTotalItemBuffs(Item item) {
@@ -66,7 +69,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
     }
 
     public void addItemAbility(Item item) {
-        String key = item.getItemName();
+        ItemAbilities key = ItemAbilities.valueOf(item.getItemName());
         // put instead of putIfAbsent because we do want to be able to
         // upgrade items which putIfAbsent wouldnt allow for
         itemAbilities.put(key, item);
@@ -77,6 +80,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
         itemBuffs.put(key, item);
     }
 
+    // fix this later
     @Override
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
