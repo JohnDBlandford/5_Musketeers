@@ -18,6 +18,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
     // item abilities there will be, the String becomes a ItemAbility enum
     protected Map<ItemAbilities, Item> itemAbilities;
     protected Map<ItemBuffs, Item> itemBuffs;
+    protected EquippedStatus equippedStatus = EquippedStatus.NOT_EQUIPPED;
 
     public enum EquippedStatus {
         EQUIPPED, NOT_EQUIPPED
@@ -55,7 +56,11 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
     public ItemRarity getItemRarity() { return this.itemRarity; }
     // init as not equipped
     public EquippedStatus getItemEquippedStatus() {
-        return EquippedStatus.NOT_EQUIPPED;
+        return this.equippedStatus;
+    }
+
+    public void setEquippedStatus(EquippedStatus newEquippedStatus) {
+        this.equippedStatus = newEquippedStatus;
     }
 
     // note that these two methods return the entire map every time they are
