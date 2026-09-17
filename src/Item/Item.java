@@ -59,6 +59,8 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
         return this.equippedStatus;
     }
 
+    // use for when the player picks up a new item to add to the future
+    // inventory system
     public void setEquippedStatus(EquippedStatus newEquippedStatus) {
         this.equippedStatus = newEquippedStatus;
     }
