@@ -12,12 +12,12 @@ public sealed abstract class Armor extends Item permits
     private ItemBuffs spdBoost;
     private ItemBuffs dmgReduction;
 
-    Armor(String itemName, ItemBuffs buffName, Sprite itemLook,
+    Armor(String itemName, Sprite itemLook,
           ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
           Map<ItemBuffs, Item> itemBuffs, ItemBuffs bonusDef,
           ItemBuffs bonusMaxHP, ItemBuffs spdBoost,
           ItemBuffs dmgReduction) {
-        super(itemName, buffName, itemLook, itemRarity, itemAbilities,
+        super(itemName, itemLook, itemRarity, itemAbilities,
                 itemBuffs);
         this.bonusDef = bonusDef;
         this.bonusMaxHP = bonusMaxHP;

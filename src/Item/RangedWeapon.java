@@ -14,12 +14,12 @@ public sealed abstract class RangedWeapon extends Item permits
     private ItemBuffs atkBoost;
     private ItemBuffs critDmg;
 
-    RangedWeapon(String itemName, ItemBuffs buffName, Sprite itemLook,
+    RangedWeapon(String itemName, Sprite itemLook,
                  ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
                  Map<ItemBuffs, Item> itemBuffs, int rangedDmg,
                  ItemBuffs critChance, ItemBuffs atkBoost, ItemBuffs critDmg,
                  ItemBuffs accuracy, ItemBuffs piercing) {
-        super(itemName, buffName, itemLook, itemRarity, itemAbilities,
+        super(itemName, itemLook, itemRarity, itemAbilities,
                 itemBuffs);
         this.rangedDmg = rangedDmg;
         this.critChance = critChance;

@@ -13,12 +13,12 @@ public sealed abstract class Shield extends Item permits
     private ItemBuffs defBoost;
     private ItemBuffs thorns;
 
-    Shield(String itemName, ItemBuffs buffName, Sprite itemLook,
+    Shield(String itemName, Sprite itemLook,
            ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
            Map<ItemBuffs, Item> itemBuffs, double blockChance,
            double blockAmount, ItemBuffs bonusDef, ItemBuffs defBoost,
            ItemBuffs thorns) {
-        super(itemName, buffName, itemLook, itemRarity, itemAbilities,
+        super(itemName, itemLook, itemRarity, itemAbilities,
                 itemBuffs);
         this.blockChance = blockChance;
         this.blockAmount = blockAmount;
