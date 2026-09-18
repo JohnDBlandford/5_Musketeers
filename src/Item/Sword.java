@@ -24,6 +24,8 @@ WraithboneSaber {
         this.buff3 = critDmg;
     }
 
+    public abstract double getItemBuffModifiers(ItemBuffs buff);
+
     public int getPhysicalAtkDmg() { return this.physicalAtkDmg; }
     public ItemBuffs getCritChance() { return this.buff1; }
     public ItemBuffs getAtkBoost() { return this.buff2; }

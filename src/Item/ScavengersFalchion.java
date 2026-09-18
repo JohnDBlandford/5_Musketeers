@@ -13,4 +13,12 @@ public final class ScavengersFalchion extends Sword {
                 45, ItemBuffs.CRIT_CHANCE, ItemBuffs.NONE,
                 ItemBuffs.NONE);
     }
+
+    @Override
+    public double getItemBuffModifiers(ItemBuffs buff) {
+        return switch (buff) {
+            case CRIT_CHANCE -> 0.06;
+            default -> 0.0;
+        };
+    }
 }

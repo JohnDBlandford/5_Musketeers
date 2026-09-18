@@ -13,4 +13,9 @@ public final class RustedShortSword extends Sword {
                 30, ItemBuffs.NONE, ItemBuffs.NONE,
                 ItemBuffs.NONE);
     }
+
+    @Override
+    public double getItemBuffModifiers(ItemBuffs buff) {
+        return 0.0;
+    }
 }

@@ -12,6 +12,10 @@ public final class BentKitchenCleaver extends Sword {
                 ItemRarity.COMMON, itemAbilities, itemBuffs,
                 35, ItemBuffs.NONE, ItemBuffs.NONE,
                 ItemBuffs.NONE);
+    }
 
+    @Override
+    public double getItemBuffModifiers(ItemBuffs buff) {
+        return 0.0;
     }
 }

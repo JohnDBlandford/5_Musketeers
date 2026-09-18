@@ -13,4 +13,14 @@ public final class WraithboneSaber extends Sword {
                 80, ItemBuffs.CRIT_CHANCE,
                 ItemBuffs.ATK_BOOST, ItemBuffs.CRIT_DMG);
     }
+
+    @Override
+    public double getItemBuffModifiers(ItemBuffs buff) {
+        return switch (buff) {
+            case CRIT_CHANCE -> 0.10;
+            case ATK_BOOST -> 0.14;
+            case CRIT_DMG -> 0.25;
+            default -> 0.0;
+        };
+    }
 }
