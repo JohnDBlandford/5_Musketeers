@@ -9,12 +9,12 @@ public sealed abstract class Shield extends Item permits
         FamineEdgeAegis, WraithboneBulwarkShield {
     private double blockChance;
     private double blockAmount;
-    private ItemBuffs bonusDef;
-    private ItemBuffs defBoost;
-    private ItemBuffs thorns;
+    private ItemBuffs buff1;
+    private ItemBuffs buff2;
+    private ItemBuffs buff3;
 
-    Shield(String itemName, Sprite itemLook,
-           ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
+    Shield(String itemName, Sprite itemLook, ItemRarity itemRarity,
+           Map<ItemAbilities, Item> itemAbilities,
            Map<ItemBuffs, Item> itemBuffs, double blockChance,
            double blockAmount, ItemBuffs bonusDef, ItemBuffs defBoost,
            ItemBuffs thorns) {
@@ -22,14 +22,14 @@ public sealed abstract class Shield extends Item permits
                 itemBuffs);
         this.blockChance = blockChance;
         this.blockAmount = blockAmount;
-        this.bonusDef = bonusDef;
-        this.defBoost = defBoost;
-        this.thorns = thorns;
+        this.buff1 = bonusDef;
+        this.buff2 = defBoost;
+        this.buff3 = thorns;
     }
 
     public double getBlockChance() { return this.blockChance; }
     public double getBlockAmount() { return this.blockAmount; }
-    public ItemBuffs getBonusDef() { return this.bonusDef; }
-    public ItemBuffs getDefBoost() { return this.defBoost; }
-    public ItemBuffs getThorns() { return this.thorns; }
+    public ItemBuffs getBonusDef() { return this.buff1; }
+    public ItemBuffs getDefBoost() { return this.buff2; }
+    public ItemBuffs getThornsDmg() { return this.buff3; }
 }

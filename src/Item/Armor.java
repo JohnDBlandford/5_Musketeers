@@ -12,8 +12,8 @@ public sealed abstract class Armor extends Item permits
     private ItemBuffs spdBoost;
     private ItemBuffs dmgReduction;
 
-    Armor(String itemName, Sprite itemLook,
-          ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
+    Armor(String itemName, Sprite itemLook, ItemRarity itemRarity,
+          Map<ItemAbilities, Item> itemAbilities,
           Map<ItemBuffs, Item> itemBuffs, ItemBuffs bonusDef,
           ItemBuffs bonusMaxHP, ItemBuffs spdBoost,
           ItemBuffs dmgReduction) {

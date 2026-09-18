@@ -15,17 +15,17 @@ WraithboneSaber {
     Sword(String itemName, Sprite itemLook,
           ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
           Map<ItemBuffs, Item> itemBuffs, int physicalAtkDmg,
-          ItemBuffs buff1, ItemBuffs buff2, ItemBuffs buff3) {
+          ItemBuffs critChance, ItemBuffs atkBoost, ItemBuffs critDmg) {
         super(itemName, itemLook, itemRarity, itemAbilities,
                 itemBuffs);
         this.physicalAtkDmg = physicalAtkDmg;
-        this.buff1 = buff1;
-        this.buff2 = buff2;
-        this.buff3 = buff3;
+        this.buff1 = critChance;
+        this.buff2 = atkBoost;
+        this.buff3 = critDmg;
     }
 
     public int getPhysicalAtkDmg() { return this.physicalAtkDmg; }
-    public ItemBuffs getBuff1() { return this.buff1; }
-    public ItemBuffs getBuff2() { return this.buff2; }
-    public ItemBuffs getBuff3() { return this.buff3; }
+    public ItemBuffs getCritChance() { return this.buff1; }
+    public ItemBuffs getAtkBoost() { return this.buff2; }
+    public ItemBuffs getCritDmg() { return this.buff3; }
 }
