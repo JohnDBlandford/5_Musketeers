@@ -7,11 +7,11 @@ import java.util.Map;
 public sealed abstract class Shield extends Item permits
         WarpedBucklerShield, PatchedWoodShield, ScavengersRoundShield,
         FamineEdgeAegis, WraithboneBulwarkShield {
-    private double blockChance;
-    private double blockAmount;
-    private ItemBuffs buff1;
-    private ItemBuffs buff2;
-    private ItemBuffs buff3;
+    protected double blockChance;
+    protected double blockAmount;
+    protected ItemBuffs buff1;
+    protected ItemBuffs buff2;
+    protected ItemBuffs buff3;
 
     Shield(String itemName, Sprite itemLook, ItemRarity itemRarity,
            Map<ItemAbilities, Item> itemAbilities,
@@ -26,6 +26,8 @@ public sealed abstract class Shield extends Item permits
         this.buff2 = defBoost;
         this.buff3 = thorns;
     }
+
+    public abstract double getItemBuffModifiers(ItemBuffs buff);
 
     public double getBlockChance() { return this.blockChance; }
     public double getBlockAmount() { return this.blockAmount; }

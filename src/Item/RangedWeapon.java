@@ -7,12 +7,12 @@ import java.util.Map;
 public sealed abstract class RangedWeapon extends Item permits
         CrackedHuntingBow, SplinteredSling, ScavengersCrossBow,
         FamineEdgeLongbow, WraithboneRepeater {
-    private int rangedDmg;
-    private ItemBuffs buff1;
-    private ItemBuffs buff2;
-    private ItemBuffs buff3;
-    private ItemBuffs atkBoost;
-    private ItemBuffs critDmg;
+    protected int rangedDmg;
+    protected ItemBuffs buff1;
+    protected ItemBuffs buff2;
+    protected ItemBuffs buff3;
+    protected ItemBuffs atkBoost;
+    protected ItemBuffs critDmg;
 
     RangedWeapon(String itemName, Sprite itemLook,
                  ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
@@ -28,6 +28,8 @@ public sealed abstract class RangedWeapon extends Item permits
         this.buff1 = accuracy;
         this.buff3 = piercing;
     }
+
+    public abstract double getItemBuffModifiers(ItemBuffs buff);
 
     public ItemBuffs getWeaponAccuracy() { return this.buff1; }
     public ItemBuffs getCritChance() { return this.buff2; }
