@@ -7,19 +7,19 @@ import java.util.Map;
 public sealed abstract class Armor extends Item permits
         BeggarsWrapsArmor, PatchedLeatherArmor, ScavengersHideArmor,
         FamineEdgeVestmentsArmor, WraithboneMailArmor {
-    protected ItemBuffs bonusDef;
+    protected int baseDef;
     protected ItemBuffs bonusMaxHP;
     protected ItemBuffs spdBoost;
     protected ItemBuffs dmgReduction;
 
     Armor(String itemName, Sprite itemLook, ItemRarity itemRarity,
           Map<ItemAbilities, Item> itemAbilities,
-          Map<ItemBuffs, Item> itemBuffs, ItemBuffs bonusDef,
+          Map<ItemBuffs, Item> itemBuffs, int baseDef,
           ItemBuffs bonusMaxHP, ItemBuffs spdBoost,
           ItemBuffs dmgReduction) {
         super(itemName, itemLook, itemRarity, itemAbilities,
                 itemBuffs);
-        this.bonusDef = bonusDef;
+        this.baseDef = baseDef;
         this.bonusMaxHP = bonusMaxHP;
         this.spdBoost = spdBoost;
         this.dmgReduction = dmgReduction;
@@ -27,7 +27,7 @@ public sealed abstract class Armor extends Item permits
 
     public abstract double getItemBuffModifiers(ItemBuffs buff);
 
-    public ItemBuffs getBonusDef() { return this.bonusDef; }
+    public int getBaseDef() { return this.baseDef; }
     public ItemBuffs getBonusMaxHP() { return this.bonusMaxHP; }
     public ItemBuffs getSpdBoost() { return this.spdBoost; }
     public ItemBuffs getDmgReduction() { return this.dmgReduction; }
