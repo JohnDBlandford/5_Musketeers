@@ -5,20 +5,13 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class ScavengersFalchion extends Sword {
+    private static final Map<ItemBuffs, Double> BUFFS = Map.of(
+            ItemBuffs.CRIT_CHANCE, 0.06
+    );
     ScavengersFalchion(Sprite itemLook,
-                       Map<ItemAbilities, Item> itemAbilities,
-                       Map<ItemBuffs, Item> itemBuffs) {
+                       Map<ItemAbilities, Item> itemAbilities) {
         super("ScavengersFalchion", itemLook,
-                ItemRarity.UNCOMMON, itemAbilities, itemBuffs,
-                45, ItemBuffs.CRIT_CHANCE, ItemBuffs.NONE,
-                ItemBuffs.NONE);
-    }
-
-    @Override
-    public double getItemBuffModifiers(ItemBuffs buff) {
-        return switch (buff) {
-            case CRIT_CHANCE -> 0.06;
-            default -> 0.0;
-        };
+                ItemRarity.UNCOMMON, itemAbilities, BUFFS,
+                45);
     }
 }
