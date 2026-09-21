@@ -17,8 +17,7 @@ public sealed abstract class Armor extends Item permits
           Map<ItemBuffs, Item> itemBuffs, int baseDef,
           ItemBuffs bonusMaxHP, ItemBuffs spdBoost,
           ItemBuffs dmgReduction) {
-        super(itemName, itemLook, itemRarity, itemAbilities,
-                itemBuffs);
+        super(itemName, itemLook, itemRarity, itemAbilities, itemBuffs);
         this.baseDef = baseDef;
         this.bonusMaxHP = bonusMaxHP;
         this.spdBoost = spdBoost;
