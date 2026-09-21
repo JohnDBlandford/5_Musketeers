@@ -5,21 +5,15 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class WraithboneRepeater extends RangedWeapon {
+    private static final Map<ItemBuffs, Double> BUFFS = Map.of(
+            ItemBuffs.ACCURACY, 0.10,
+            ItemBuffs.CRIT_CHANCE, 0.08,
+            ItemBuffs.PIERCING, 0.08
+    );
     WraithboneRepeater(Sprite itemLooks,
                        Map<ItemAbilities, Item> itemAbilities,
                        Map<ItemBuffs, Item> itemBuffs) {
         super("WraithboneRepeater", itemLooks,
-                ItemRarity.LEGENDARY, itemAbilities, itemBuffs,
-                75, ItemBuffs.CRIT_CHANCE, ItemBuffs.NONE,
-                ItemBuffs.NONE, ItemBuffs.ACCURACY, ItemBuffs.PIERCING);
-    }
-
-    @Override
-    public double getItemBuffModifiers(ItemBuffs buff) {
-        return switch (buff) {
-            case ACCURACY -> 0.10;
-            case CRIT_CHANCE, PIERCING -> 0.08;
-            default -> 0.0;
-        };
+                ItemRarity.LEGENDARY, itemAbilities, BUFFS, 75);
     }
 }
