@@ -43,7 +43,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
                    ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
                    Map<ItemBuffs, Double> buffModifiers) {
         // common and uncommon items never have buffs
-        if ((itemRarity == ItemRarity.COMMON || itemRarity == ItemRarity.UNCOMMON) && (!buffModifiers.isEmpty())) {
+        if ((itemRarity == ItemRarity.COMMON) && (!buffModifiers.isEmpty())) {
             throw new IllegalArgumentException(itemRarity + " items cannot have buffs, got: " + buffModifiers.keySet());
         }
         this.itemName = itemName;
