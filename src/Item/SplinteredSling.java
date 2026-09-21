@@ -5,12 +5,9 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class SplinteredSling extends RangedWeapon {
-    SplinteredSling(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities,
-                    Map<ItemBuffs, Item> itemBuffs) {
+    SplinteredSling(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("SplinteredSling", itemLook,
-                ItemRarity.COMMON, itemAbilities, itemBuffs,
-                30, ItemBuffs.NONE, ItemBuffs.NONE,
-                ItemBuffs.NONE, ItemBuffs.NONE, ItemBuffs.NONE);
+                ItemRarity.COMMON, itemAbilities, Map.of(), 30);
     }
 
     @Override

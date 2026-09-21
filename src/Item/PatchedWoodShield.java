@@ -6,12 +6,10 @@ import java.util.Map;
 
 public final class PatchedWoodShield extends Shield {
     PatchedWoodShield(Sprite itemLooks,
-                      Map<ItemAbilities, Item> itemAbilities,
-                      Map<ItemBuffs, Item> itemBuffs) {
+                      Map<ItemAbilities, Item> itemAbilities) {
         super("PatchedWoodShield", itemLooks,
-                ItemRarity.COMMON, itemAbilities, itemBuffs,
-                0.12, 0.30, ItemBuffs.NONE,
-                ItemBuffs.NONE, ItemBuffs.NONE);
+                ItemRarity.COMMON, itemAbilities, Map.of(),
+                0.12, 0.30);
     }
 
     @Override

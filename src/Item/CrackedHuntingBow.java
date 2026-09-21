@@ -5,12 +5,11 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class CrackedHuntingBow extends RangedWeapon {
-    CrackedHuntingBow(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities,
-                      Map<ItemBuffs, Item> itemBuffs) {
+    CrackedHuntingBow(Sprite itemLook,
+                      Map<ItemAbilities, Item> itemAbilities) {
         super("CrackedHuntingBow", itemLook,
-                ItemRarity.COMMON, itemAbilities, itemBuffs,
-                25, ItemBuffs.NONE, ItemBuffs.NONE,
-                ItemBuffs.NONE, ItemBuffs.NONE, ItemBuffs.NONE);
+                ItemRarity.COMMON, itemAbilities, Map.of(),
+                25);
     }
 
     @Override

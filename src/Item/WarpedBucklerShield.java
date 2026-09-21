@@ -6,13 +6,10 @@ import java.util.Map;
 
 public final class WarpedBucklerShield extends Shield {
     WarpedBucklerShield(Sprite itemLook,
-                        Map<ItemAbilities, Item> itemAbilities,
-                        Map<ItemBuffs, Item> itemBuffs) {
+                        Map<ItemAbilities, Item> itemAbilities) {
         super("WarpedBucklerShield", itemLook,
-                ItemRarity.COMMON, itemAbilities, itemBuffs,
-                0.10, 0.28,
-                ItemBuffs.NONE, ItemBuffs.NONE,
-                ItemBuffs.NONE);
+                ItemRarity.COMMON, itemAbilities, Map.of(),
+                0.10, 0.28);
     }
 
     @Override
