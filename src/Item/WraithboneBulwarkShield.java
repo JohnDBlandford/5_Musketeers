@@ -11,8 +11,7 @@ public final class WraithboneBulwarkShield extends Shield {
             ItemBuffs.THORNS, 0.12
     );
     WraithboneBulwarkShield(Sprite itemLook,
-                            Map<ItemAbilities, Item> itemAbilities,
-                            Map<ItemBuffs, Item> itemBuffs) {
+                            Map<ItemAbilities, Item> itemAbilities) {
         super("WraithboneBulwarkShield", itemLook,
                 ItemRarity.LEGENDARY, itemAbilities, BUFFS,
                 0.25, 0.55);

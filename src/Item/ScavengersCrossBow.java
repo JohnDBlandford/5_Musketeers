@@ -9,8 +9,7 @@ public final class ScavengersCrossBow extends RangedWeapon {
             ItemBuffs.ACCURACY, 0.06
     );
     ScavengersCrossBow(Sprite itemLook,
-                       Map<ItemAbilities, Item> itemAbilities,
-                       Map<ItemBuffs, Item> itemBuffs) {
+                       Map<ItemAbilities, Item> itemAbilities) {
         super("ScavengersCrossBow", itemLook,
                 ItemRarity.UNCOMMON, itemAbilities, BUFFS,
                 40);

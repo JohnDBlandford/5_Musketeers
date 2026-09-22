@@ -11,8 +11,7 @@ public final class WraithboneSaber extends Sword {
             ItemBuffs.CRIT_DMG, 0.25
     );
     WraithboneSaber(Sprite itemLook,
-                    Map<ItemAbilities, Item> itemAbilities,
-                    Map<ItemBuffs, Item> itemBuffs) {
+                    Map<ItemAbilities, Item> itemAbilities) {
         super("WraithboneSaber", itemLook,
                 ItemRarity.LEGENDARY, itemAbilities, BUFFS,
                 80);

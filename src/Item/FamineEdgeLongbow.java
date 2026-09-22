@@ -10,8 +10,7 @@ public final class FamineEdgeLongbow extends RangedWeapon {
             ItemBuffs.CRIT_CHANCE, 0.06
     );
     FamineEdgeLongbow(Sprite itemLook,
-                      Map<ItemAbilities, Item> itemAbilities,
-                      Map<ItemBuffs, Item> itemBuffs) {
+                      Map<ItemAbilities, Item> itemAbilities) {
         super("FamineEdgeLongbow", itemLook, ItemRarity.EPIC,
                 itemAbilities, BUFFS, 55);
     }
