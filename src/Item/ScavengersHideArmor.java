@@ -11,4 +11,7 @@ public final class ScavengersHideArmor extends Armor {
     ScavengersHideArmor(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("ScavengersHideArmor", itemLook, ItemRarity.UNCOMMON, itemAbilities, BUFFS, 14);
     }
+
+    @Override
+    public int getBaseDef() { return super.getBaseDef(); }
 }

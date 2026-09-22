@@ -13,4 +13,7 @@ public final class PatchedLeatherArmor extends Armor {
     public double getItemBuffModifiers(ItemBuffs buff) {
         return 0;
     }
+
+    @Override
+    public int getBaseDef() { return super.getBaseDef(); }
 }

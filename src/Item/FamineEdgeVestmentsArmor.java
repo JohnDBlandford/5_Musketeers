@@ -12,4 +12,7 @@ public final class FamineEdgeVestmentsArmor extends Armor {
     FamineEdgeVestmentsArmor(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("FamineEdgeVestmentsArmor", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 20);
     }
+
+    @Override
+    public int getBaseDef() { return super.getBaseDef(); }
 }

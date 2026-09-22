@@ -13,4 +13,7 @@ public final class WraithboneMailArmor extends Armor {
     WraithboneMailArmor(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 28);
     }
+
+    @Override
+    public int getBaseDef() { return super.getBaseDef(); }
 }
