@@ -13,4 +13,7 @@ public final class WraithboneSaber extends Sword {
     WraithboneSaber(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 80);
     }
+
+    @Override
+    public int getPhysicalAtkDmg() { return super.getPhysicalAtkDmg(); }
 }

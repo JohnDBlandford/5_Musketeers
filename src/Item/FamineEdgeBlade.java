@@ -12,4 +12,7 @@ public final class FamineEdgeBlade extends Sword {
     FamineEdgeBlade(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("FamineEdgeBlade", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 60);
     }
+
+    @Override
+    public int getPhysicalAtkDmg() { return super.getPhysicalAtkDmg(); }
 }

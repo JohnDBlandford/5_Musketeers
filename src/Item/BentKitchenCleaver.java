@@ -13,4 +13,7 @@ public final class BentKitchenCleaver extends Sword {
     public double getItemBuffModifiers(ItemBuffs buff) {
         return 0.0;
     }
+
+    @Override
+    public int getPhysicalAtkDmg() { return super.getPhysicalAtkDmg(); }
 }
