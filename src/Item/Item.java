@@ -41,7 +41,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         // common items never have buffs
         // this check is here so that this fails at compile time and not runtime
         if ((itemRarity == ItemRarity.COMMON) && (!buffModifiers.isEmpty())) {
-            throw new IllegalArgumentException(itemRarity + " items cannot have buffs, got: " + buffModifiers.keySet());
+            throw new IllegalArgumentException(itemRarity + " items cannot have buffs, but got: " + buffModifiers.keySet());
         }
         this.itemName = itemName;
         this.itemLook = itemLook;
