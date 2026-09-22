@@ -61,15 +61,13 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     public double getItemBuffModifiers(ItemBuffs buff) {
         return buffModifiers.getOrDefault(buff, 0.0);
     }
-    // use for when the player picks up a new item to add to the future
-    // inventory system
+    // use for when the player picks up a new item to add to the future inventory system
     public void setEquippedStatus(EquippedStatus newEquippedStatus) {
         this.equippedStatus = newEquippedStatus;
     }
 
     // note that these two methods return the entire map every time they are
-    // called. i think i may have two more methods to just get an index from
-    // the maps
+    // called. i think i may have two more methods to just get an index from the maps
     public Map<ItemAbilities, Item> getTotalItemAbilities() {
         return this.itemAbilities;
     }
