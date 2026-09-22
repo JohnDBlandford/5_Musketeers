@@ -13,4 +13,7 @@ public final class WraithboneRepeater extends RangedWeapon {
     WraithboneRepeater(Sprite itemLooks, Map<ItemAbilities, Item> itemAbilities) {
         super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 75);
     }
+
+    @Override
+    public int getRangedDmg() { return super.getRangedDmg(); }
 }

@@ -12,4 +12,7 @@ public final class FamineEdgeLongbow extends RangedWeapon {
     FamineEdgeLongbow(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
         super("FamineEdgeLongbow", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 55);
     }
+
+    @Override
+    public int getRangedDmg() { return super.getRangedDmg(); }
 }

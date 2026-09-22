@@ -13,4 +13,7 @@ public final class SplinteredSling extends RangedWeapon {
     public double getItemBuffModifiers(ItemBuffs buff) {
         return 0.0;
     }
+
+    @Override
+    public int getRangedDmg() { return super.getRangedDmg(); }
 }
