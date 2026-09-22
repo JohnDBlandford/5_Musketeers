@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-
+import java.awt.geom.Ellipse2D;
 
 public class GraphicsHandler {
     private Graphics2D g;
@@ -55,13 +55,13 @@ public class GraphicsHandler {
         g.drawRect(x, y, width, height);
     }
 
-    public void drawFilledRectangle(int x, int y, int width, int height, Color color) {
+    public void drawFilledRectangle(float x, float y, int width, int height, Color color) {
         g.setColor(color);
-        g.fillRect(x, y, width, height);
+        g.fillRect((int) x, (int) y, width, height);
     }
 
     public void drawFilledRectangleWithBorder(int x, int y, int width, int height, Color fillColor, Color borderColor, int borderThickness) {
-        drawFilledRectangle(x, y, width, height, fillColor);
+        drawFilledRectangle( x, y, width, height, fillColor);
         drawRectangle(x, y, width, height, borderColor, borderThickness);
     }
 
@@ -70,6 +70,16 @@ public class GraphicsHandler {
         g.setColor(color);
         g.drawString(text, x, y);
     }
+
+    // Method to draw a circle with a specified radius and color
+    public void drawCircle(float x, float y, int radius, Color color) {
+        g.setColor(color);
+        g.drawOval((int)(x - radius), (int)(y - radius), radius * 2, radius * 2);
+        g.fillOval((int)(x - radius), (int)(y - radius), radius * 2, radius * 2);
+    }
+
+
+
 
     // https://stackoverflow.com/a/35222059 and https://stackoverflow.com/a/31831120
     public void drawStringWithOutline(String text, int x, int y, Font font, Color textColor, Color outlineColor, float outlineThickness) {
