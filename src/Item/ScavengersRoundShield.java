@@ -5,20 +5,13 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class ScavengersRoundShield extends Shield {
+    private static final Map<ItemBuffs, Double> BUFFS = Map.of(
+            ItemBuffs.BONUS_DEF, 0.10
+    );
     ScavengersRoundShield(Sprite itemLook,
-                          Map<ItemAbilities, Item> itemAbilities,
-                          Map<ItemBuffs, Item> itemBuffs) {
+                          Map<ItemAbilities, Item> itemAbilities) {
         super("ScavengersRoundShield", itemLook,
-                ItemRarity.UNCOMMON, itemAbilities, itemBuffs,
-                0.16, 0.38,
-                ItemBuffs.BONUS_DEF, ItemBuffs.NONE, ItemBuffs.NONE);
-    }
-
-    @Override
-    public double getItemBuffModifiers(ItemBuffs buff) {
-        return switch (buff) {
-            case BONUS_DEF -> 0.10;
-            default -> 0.0;
-        };
+                ItemRarity.UNCOMMON, itemAbilities, BUFFS,
+                0.16, 0.38);
     }
 }
