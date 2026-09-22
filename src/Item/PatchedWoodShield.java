@@ -13,4 +13,10 @@ public final class PatchedWoodShield extends Shield {
     public double getItemBuffModifiers(ItemBuffs buff) {
         return 0.0;
     }
+
+    @Override
+    public double getBlockAmount() { return super.getBlockAmount(); }
+
+    @Override
+    public double getBlockChance() { return super.getBlockChance(); }
 }
