@@ -5,10 +5,8 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class PatchedLeatherArmor extends Armor {
-    PatchedLeatherArmor(Sprite itemLook,
-                        Map<ItemAbilities, Item> itemAbilities) {
-        super("PatchedLeatherArmor", itemLook,
-                ItemRarity.COMMON, itemAbilities, Map.of(), 10);
+    PatchedLeatherArmor(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
+        super("PatchedLeatherArmor", itemLook, ItemRarity.COMMON, itemAbilities, Map.of(), 10);
     }
 
     @Override

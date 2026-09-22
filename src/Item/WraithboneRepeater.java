@@ -10,9 +10,7 @@ public final class WraithboneRepeater extends RangedWeapon {
             ItemBuffs.CRIT_CHANCE, 0.08,
             ItemBuffs.PIERCING, 0.08
     );
-    WraithboneRepeater(Sprite itemLooks,
-                       Map<ItemAbilities, Item> itemAbilities) {
-        super("WraithboneRepeater", itemLooks,
-                ItemRarity.LEGENDARY, itemAbilities, BUFFS, 75);
+    WraithboneRepeater(Sprite itemLooks, Map<ItemAbilities, Item> itemAbilities) {
+        super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 75);
     }
 }

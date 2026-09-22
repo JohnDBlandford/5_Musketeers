@@ -6,17 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-// NOTE: This class is never meant to be instantiated. Only instantiate the
-// specific class needed
-public sealed abstract class Item permits Sword, RangedWeapon, Shield,
-        Armor {
+// NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
+public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
    protected final String itemName;
     protected Sprite itemLook;
     protected ItemRarity itemRarity;
     protected Map<ItemAbilities, Item> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
-    protected EquippedStatus equippedStatus =
-            EquippedStatus.NOT_EQUIPPED;
+    protected EquippedStatus equippedStatus = EquippedStatus.NOT_EQUIPPED;
 
     public enum EquippedStatus {
         EQUIPPED, NOT_EQUIPPED
@@ -39,14 +36,12 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
 
     // protected constructor to prevent instantiation outside of this package
     // but also allows subclasses to see it
-    protected Item(String itemName, Sprite itemLook,
-                   ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
+    protected Item(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
                    Map<ItemBuffs, Double> buffModifiers) {
         // common items never have buffs
         // this check is here so that this fails at compile time and not runtime
         if ((itemRarity == ItemRarity.COMMON) && (!buffModifiers.isEmpty())) {
-            throw new IllegalArgumentException(itemRarity + " items " +
-                    "cannot have buffs, got: " + buffModifiers.keySet());
+            throw new IllegalArgumentException(itemRarity + " items cannot have buffs, got: " + buffModifiers.keySet());
         }
         this.itemName = itemName;
         this.itemLook = itemLook;
@@ -100,11 +95,8 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield,
             }
         }
         // format into a human-readable string
-        String abilString = abilityNames.isEmpty() ? "None" :
-                String.join(", ", abilityNames);
+        String abilString = abilityNames.isEmpty() ? "None" : String.join(", ", abilityNames);
         // return formatted msg
-        return "Item: " + (itemName != null ? itemName : "Unknown Item")
-                + " [" + (itemRarity != null ? itemRarity : "COMMON") + "]\n" +
-                "Abilities: " + abilString;
+        return "Item: " + (itemName != null ? itemName : "Unknown Item") + " [" + (itemRarity != null ? itemRarity : "COMMON") + "]\n" + "Abilities: " + abilString;
     }
 }

@@ -6,8 +6,7 @@ import java.util.Map;
 
 public final class SplinteredSling extends RangedWeapon {
     SplinteredSling(Sprite itemLook, Map<ItemAbilities, Item> itemAbilities) {
-        super("SplinteredSling", itemLook,
-                ItemRarity.COMMON, itemAbilities, Map.of(), 30);
+        super("SplinteredSling", itemLook, ItemRarity.COMMON, itemAbilities, Map.of(), 30);
     }
 
     @Override
