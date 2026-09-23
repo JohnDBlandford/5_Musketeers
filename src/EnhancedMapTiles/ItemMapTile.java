@@ -17,6 +17,7 @@ public class ItemMapTile extends EnhancedMapTile {
         this.item = item;
     }
 
+    @Override
     protected GameObject loadBottomLayer(SpriteSheet spriteSheet) {
         Frame frame = new FrameBuilder(spriteSheet.getSubImage(0,0)).withScale(3).build();
         return new GameObject(x, y, frame);
