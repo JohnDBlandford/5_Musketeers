@@ -8,7 +8,15 @@ public final class ScavengersFalchion extends Sword {
     private static final Map<ItemBuffs, Double> BUFFS = Map.of(
             ItemBuffs.CRIT_CHANCE, 0.06
     );
-    ScavengersFalchion(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("ScavengersFalchion", itemLook, ItemRarity.UNCOMMON, itemAbilities, BUFFS, 45);
+
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.GALE_SLASH, AbilityType.BUFF,
+            ItemAbilities.HEAVY_CLEAVE, AbilityType.BURST,
+            ItemAbilities.BLOODFANG_STRIKE, AbilityType.SUSTAIN,
+            ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
+    );
+
+    ScavengersFalchion(Sprite itemLook) {
+        super("ScavengersFalchion", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 45);
     }
 }

@@ -32,7 +32,8 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     public enum ItemAbilities {
         NONE, GALE_SLASH, HEAVY_CLEAVE, BLOODFANG_STRIKE,
         RECKONING_BLOW, WINDBORNE_ARROW, PIERCING_SHOT, VOLLEY,
-        HUNTERS_MARK, BULWARK_STANCE, GUARD_ALLY, RETALIATE
+        HUNTERS_MARK, BULWARK_STANCE, SHIELD_BASH, SHIELD_THROW,
+        RETALIATE
     }
 
     public enum AbilityType {
@@ -80,17 +81,13 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         return this.buffModifiers;
     }
 
-    public void addItemAbility(ItemAbilities item) {
-        // finish this
-    }
-
     // fix this later
     @Override
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
         // loop through list to get ability names from map vals
         // fix with real method names
-        for (AbilityType ability : itemAbilities.values()) {
+        for (AbilityType ability : itemAbilities.keySet()) {
             if (ability != null  && ability.getItemName() != null) {
                 abilityNames.add(ability.getItemName());
             }

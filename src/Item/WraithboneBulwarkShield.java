@@ -10,7 +10,15 @@ public final class WraithboneBulwarkShield extends Shield {
             ItemBuffs.DEF_BOOST, 0.09,
             ItemBuffs.THORNS, 0.12
     );
-    WraithboneBulwarkShield(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("WraithboneBulwarkShield", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 0.25, 0.55);
+
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.BULWARK_STANCE, AbilityType.BUFF,
+            ItemAbilities.SHIELD_BASH, AbilityType.CONTROL,
+            ItemAbilities.SHIELD_THROW, AbilityType.CONTROL,
+            ItemAbilities.RETALIATE, AbilityType.COUNTER
+    );
+
+    WraithboneBulwarkShield(Sprite itemLook) {
+        super("WraithboneBulwarkShield", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 0.25, 0.55);
     }
 }

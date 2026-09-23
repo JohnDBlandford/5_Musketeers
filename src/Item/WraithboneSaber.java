@@ -10,7 +10,15 @@ public final class WraithboneSaber extends Sword {
             ItemBuffs.ATK_BOOST, 0.14,
             ItemBuffs.CRIT_DMG, 0.25
     );
-    WraithboneSaber(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 80);
+
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.GALE_SLASH, AbilityType.BUFF,
+            ItemAbilities.HEAVY_CLEAVE, AbilityType.BURST,
+            ItemAbilities.BLOODFANG_STRIKE, AbilityType.SUSTAIN,
+            ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
+    );
+
+    WraithboneSaber(Sprite itemLook) {
+        super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 80);
     }
 }

@@ -9,7 +9,15 @@ public final class FamineEdgeBlade extends Sword {
             ItemBuffs.CRIT_CHANCE, 0.08,
             ItemBuffs.ATK_BOOST, 0.10
     );
-    FamineEdgeBlade(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("FamineEdgeBlade", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 60);
+
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.GALE_SLASH, AbilityType.BUFF,
+            ItemAbilities.HEAVY_CLEAVE, AbilityType.BURST,
+            ItemAbilities.BLOODFANG_STRIKE, AbilityType.SUSTAIN,
+            ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
+    );
+
+    FamineEdgeBlade(Sprite itemLook) {
+        super("FamineEdgeBlade", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 60);
     }
 }

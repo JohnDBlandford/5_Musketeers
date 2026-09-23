@@ -9,7 +9,15 @@ public final class FamineEdgeAegis extends Shield {
             ItemBuffs.BONUS_DEF, 0.16,
             ItemBuffs.DEF_BOOST, 0.06
     );
-    FamineEdgeAegis(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("FamineEdgeAegis", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 0.20, 0.45);
+
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.BULWARK_STANCE, AbilityType.BUFF,
+            ItemAbilities.SHIELD_BASH, AbilityType.CONTROL,
+            ItemAbilities.SHIELD_THROW, AbilityType.CONTROL,
+            ItemAbilities.RETALIATE, AbilityType.COUNTER
+    );
+
+    FamineEdgeAegis(Sprite itemLook) {
+        super("FamineEdgeAegis", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 0.20, 0.45);
     }
 }

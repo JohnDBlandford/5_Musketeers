@@ -9,7 +9,15 @@ public final class FamineEdgeLongbow extends RangedWeapon {
             ItemBuffs.ACCURACY, 0.08,
             ItemBuffs.CRIT_CHANCE, 0.06
     );
-    FamineEdgeLongbow(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("FamineEdgeLongbow", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 55);
+
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.WINDBORNE_ARROW, AbilityType.BUFF,
+            ItemAbilities.PIERCING_SHOT, AbilityType.BURST,
+            ItemAbilities.VOLLEY, AbilityType.MULTI_HIT,
+            ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
+    );
+
+    FamineEdgeLongbow(Sprite itemLook) {
+        super("FamineEdgeLongbow", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 55);
     }
 }

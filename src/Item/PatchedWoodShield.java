@@ -5,7 +5,14 @@ import GameObject.Sprite;
 import java.util.Map;
 
 public final class PatchedWoodShield extends Shield {
-    PatchedWoodShield(Sprite itemLooks, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("PatchedWoodShield", itemLooks, ItemRarity.COMMON, itemAbilities, Map.of(), 0.12, 0.30);
+    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
+            ItemAbilities.BULWARK_STANCE, AbilityType.BUFF,
+            ItemAbilities.SHIELD_BASH, AbilityType.CONTROL,
+            ItemAbilities.SHIELD_THROW, AbilityType.CONTROL,
+            ItemAbilities.RETALIATE, AbilityType.COUNTER
+    );
+
+    PatchedWoodShield(Sprite itemLooks) {
+        super("PatchedWoodShield", itemLooks, ItemRarity.COMMON, ABILITIES, Map.of(), 0.12, 0.30);
     }
 }
