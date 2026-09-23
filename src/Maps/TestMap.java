@@ -42,7 +42,7 @@ public class TestMap extends Map {
         ItemMapTile testShield = new ItemMapTile(getMapTile(19,8).getLocation(), ItemTestFactory.createPatchedWoodShield(itemLookShield));
         enhancedMapTiles.add(testShield);
 
-        SpriteSheet itemLookRangedWeapon = PlaceHolderSpriteFactory.drawSolidColor(16, 18, Color.GREEN);
+        SpriteSheet itemLookRangedWeapon = PlaceHolderSpriteFactory.drawSolidColor(16, 18, Color.BLACK);
         ItemMapTile testRangedWeapon = new ItemMapTile(getMapTile(3, 17).getLocation(), ItemTestFactory.createCrackedHuntingBow(itemLookRangedWeapon));
         enhancedMapTiles.add(testRangedWeapon);
 
