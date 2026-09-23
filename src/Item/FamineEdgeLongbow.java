@@ -17,7 +17,7 @@ public final class FamineEdgeLongbow extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    FamineEdgeLongbow(SpriteSheet itemLook) {
+    public FamineEdgeLongbow(SpriteSheet itemLook) {
         super("FamineEdgeLongbow", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 55);
     }
 }

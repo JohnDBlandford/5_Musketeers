@@ -12,7 +12,7 @@ public final class RustedShortSword extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    RustedShortSword(SpriteSheet itemLook) {
+    public RustedShortSword(SpriteSheet itemLook) {
         super("RustedShortSword", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
     }
 }

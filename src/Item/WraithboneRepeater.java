@@ -18,7 +18,7 @@ public final class WraithboneRepeater extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    WraithboneRepeater(SpriteSheet itemLooks) {
+    public WraithboneRepeater(SpriteSheet itemLooks) {
         super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 75);
     }
 }

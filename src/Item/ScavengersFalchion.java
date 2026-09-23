@@ -16,7 +16,7 @@ public final class ScavengersFalchion extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    ScavengersFalchion(SpriteSheet itemLook) {
+    public ScavengersFalchion(SpriteSheet itemLook) {
         super("ScavengersFalchion", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 45);
     }
 }

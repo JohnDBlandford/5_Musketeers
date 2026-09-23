@@ -10,7 +10,7 @@ public final class WraithboneMailArmor extends Armor {
             ItemBuffs.SPD_BOOST, 0.09,
             ItemBuffs.DMG_REDUCTION, 0.05
     );
-    WraithboneMailArmor(SpriteSheet itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
+    public WraithboneMailArmor(SpriteSheet itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 28);
     }
 }

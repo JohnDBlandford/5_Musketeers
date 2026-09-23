@@ -17,7 +17,7 @@ public final class FamineEdgeBlade extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    FamineEdgeBlade(SpriteSheet itemLook) {
+    public FamineEdgeBlade(SpriteSheet itemLook) {
         super("FamineEdgeBlade", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 60);
     }
 }

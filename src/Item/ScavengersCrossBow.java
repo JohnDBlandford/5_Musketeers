@@ -16,7 +16,7 @@ public final class ScavengersCrossBow extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    ScavengersCrossBow(SpriteSheet itemLook) {
+    public ScavengersCrossBow(SpriteSheet itemLook) {
         super("ScavengersCrossBow", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 40);
     }
 }

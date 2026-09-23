@@ -16,7 +16,7 @@ public final class ScavengersRoundShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    ScavengersRoundShield(SpriteSheet itemLook) {
+    public ScavengersRoundShield(SpriteSheet itemLook) {
         super("ScavengersRoundShield", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 0.16, 0.38);
     }
 }

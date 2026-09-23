@@ -12,7 +12,7 @@ public final class SplinteredSling extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    SplinteredSling(SpriteSheet itemLook) {
+    public SplinteredSling(SpriteSheet itemLook) {
         super("SplinteredSling", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
     }
 }

@@ -18,7 +18,7 @@ public final class WraithboneSaber extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    WraithboneSaber(SpriteSheet itemLook) {
+    public WraithboneSaber(SpriteSheet itemLook) {
         super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 80);
     }
 }
