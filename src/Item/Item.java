@@ -11,7 +11,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
    protected final String itemName;
     protected Sprite itemLook;
     protected ItemRarity itemRarity;
-    protected Map<ItemAbilities, Item> itemAbilities;
+    protected Map<ItemAbilities, AbilityType> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
     protected EquippedStatus equippedStatus = EquippedStatus.NOT_EQUIPPED;
 
@@ -26,17 +26,23 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     public enum ItemBuffs {
         CRIT_CHANCE, ATK_BOOST, CRIT_DMG, ACCURACY, PIERCING,
         BONUS_DEF, DEF_BOOST, THORNS, BONUS_MAX_HP,
-        SPD_BOOST, DMG_REDUCTION, NONE
+        SPD_BOOST, DMG_REDUCTION, ATK_DMG, NONE
     }
 
-    // placeholder for when nick gets back to me with the abilities
     public enum ItemAbilities {
-        NONE
+        NONE, GALE_SLASH, HEAVY_CLEAVE, BLOODFANG_STRIKE,
+        RECKONING_BLOW, WINDBORNE_ARROW, PIERCING_SHOT, VOLLEY,
+        HUNTERS_MARK, BULWARK_STANCE, GUARD_ALLY, RETALIATE
+    }
+
+    public enum AbilityType {
+        BUFF, BURST, SUSTAIN, FINISHER, MULTI_HIT, DEBUFF, CONTROL,
+        PROTECTION, COUNTER
     }
 
     // protected constructor to prevent instantiation outside of this package
     // but also allows subclasses to see it
-    protected Item(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
+    protected Item(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, AbilityType> itemAbilities,
                    Map<ItemBuffs, Double> buffModifiers) {
         // common items never have buffs
         // this check is here so that this fails at compile time and not runtime
@@ -66,20 +72,16 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         this.equippedStatus = newEquippedStatus;
     }
 
-    // note that these two methods return the entire map every time they are
-    // called. i think i may have two more methods to just get an index from the maps
-    public Map<ItemAbilities, Item> getTotalItemAbilities() {
+    // note that these two methods return the entire map every time they are called.
+    public Map<ItemAbilities, AbilityType> getTotalItemAbilities() {
         return this.itemAbilities;
     }
     public Map<ItemBuffs, Double> getTotalItemBuffs() {
         return this.buffModifiers;
     }
 
-    public void addItemAbility(Item item) {
-        ItemAbilities key = ItemAbilities.valueOf(item.getItemName());
-        // put instead of putIfAbsent because we do want to be able to
-        // upgrade items which putIfAbsent wouldnt allow for
-        itemAbilities.put(key, item);
+    public void addItemAbility(ItemAbilities item) {
+        // finish this
     }
 
     // fix this later
@@ -87,7 +89,8 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
         // loop through list to get ability names from map vals
-        for (Item ability : itemAbilities.values()) {
+        // fix with real method names
+        for (AbilityType ability : itemAbilities.values()) {
             if (ability != null  && ability.getItemName() != null) {
                 abilityNames.add(ability.getItemName());
             }

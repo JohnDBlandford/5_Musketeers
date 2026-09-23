@@ -8,7 +8,7 @@ public sealed abstract class Sword extends Item permits RustedShortSword,
         BentKitchenCleaver, ScavengersFalchion, FamineEdgeBlade, WraithboneSaber {
     protected int physicalAtkDmg;
 
-    Sword(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
+    Sword(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, AbilityType> itemAbilities,
           Map<ItemBuffs, Double> itemBuffs, int physicalAtkDmg) {
         super(itemName, itemLook, itemRarity, itemAbilities, itemBuffs);
         this.physicalAtkDmg = physicalAtkDmg;

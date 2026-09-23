@@ -9,7 +9,7 @@ public sealed abstract class Shield extends Item permits
     protected double blockChance;
     protected double blockAmount;
 
-    Shield(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, Item> itemAbilities,
+    Shield(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, AbilityType> itemAbilities,
            Map<ItemBuffs, Double> itemBuffs, double blockChance, double blockAmount) {
         super(itemName, itemLook, itemRarity, itemAbilities, itemBuffs);
         this.blockChance = blockChance;
