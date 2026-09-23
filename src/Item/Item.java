@@ -38,8 +38,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     }
 
     public enum AbilityType {
-        BUFF, BURST, SUSTAIN, FINISHER, MULTI_HIT, DEBUFF, CONTROL,
-        PROTECTION, COUNTER
+        BUFF, BURST, SUSTAIN, FINISHER, MULTI_HIT, DEBUFF, CONTROL, COUNTER
     }
 
     // protected constructor to prevent instantiation outside of this package
