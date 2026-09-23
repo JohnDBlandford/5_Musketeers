@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class BentKitchenCleaver extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    BentKitchenCleaver(Sprite itemLook) {
+    BentKitchenCleaver(SpriteSheet itemLook) {
         super("BentKitchenCleaver", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 35);
     }
 }

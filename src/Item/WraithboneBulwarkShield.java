@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public final class WraithboneBulwarkShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    WraithboneBulwarkShield(Sprite itemLook) {
+    WraithboneBulwarkShield(SpriteSheet itemLook) {
         super("WraithboneBulwarkShield", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 0.25, 0.55);
     }
 }

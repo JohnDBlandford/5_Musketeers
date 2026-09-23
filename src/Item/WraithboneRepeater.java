@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public final class WraithboneRepeater extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    WraithboneRepeater(Sprite itemLooks) {
+    WraithboneRepeater(SpriteSheet itemLooks) {
         super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 75);
     }
 }

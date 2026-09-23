@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class PatchedWoodShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    PatchedWoodShield(Sprite itemLooks) {
+    PatchedWoodShield(SpriteSheet itemLooks) {
         super("PatchedWoodShield", itemLooks, ItemRarity.COMMON, ABILITIES, Map.of(), 0.12, 0.30);
     }
 }

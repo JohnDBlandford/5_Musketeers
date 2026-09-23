@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public final class WraithboneSaber extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    WraithboneSaber(Sprite itemLook) {
+    WraithboneSaber(SpriteSheet itemLook) {
         super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 80);
     }
 }

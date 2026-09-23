@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public final class ScavengersCrossBow extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    ScavengersCrossBow(Sprite itemLook) {
+    ScavengersCrossBow(SpriteSheet itemLook) {
         super("ScavengersCrossBow", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 40);
     }
 }

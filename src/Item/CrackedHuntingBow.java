@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class CrackedHuntingBow extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    CrackedHuntingBow(Sprite itemLook) {
+    CrackedHuntingBow(SpriteSheet itemLook) {
         super("CrackedHuntingBow", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 25);
     }
 }

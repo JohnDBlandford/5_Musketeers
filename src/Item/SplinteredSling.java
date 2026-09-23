@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class SplinteredSling extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    SplinteredSling(Sprite itemLook) {
+    SplinteredSling(SpriteSheet itemLook) {
         super("SplinteredSling", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
     }
 }

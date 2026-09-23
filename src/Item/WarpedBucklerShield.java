@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class WarpedBucklerShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    WarpedBucklerShield(Sprite itemLook) {
+    WarpedBucklerShield(SpriteSheet itemLook) {
         super("WarpedBucklerShield", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 0.10, 0.28);
     }
 }

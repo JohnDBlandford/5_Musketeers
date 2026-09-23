@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public final class ScavengersRoundShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    ScavengersRoundShield(Sprite itemLook) {
+    ScavengersRoundShield(SpriteSheet itemLook) {
         super("ScavengersRoundShield", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 0.16, 0.38);
     }
 }

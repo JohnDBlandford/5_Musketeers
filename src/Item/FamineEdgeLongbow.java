@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public final class FamineEdgeLongbow extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    FamineEdgeLongbow(Sprite itemLook) {
+    FamineEdgeLongbow(SpriteSheet itemLook) {
         super("FamineEdgeLongbow", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 55);
     }
 }

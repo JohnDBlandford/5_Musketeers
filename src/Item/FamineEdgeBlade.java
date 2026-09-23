@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public final class FamineEdgeBlade extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    FamineEdgeBlade(Sprite itemLook) {
+    FamineEdgeBlade(SpriteSheet itemLook) {
         super("FamineEdgeBlade", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 60);
     }
 }

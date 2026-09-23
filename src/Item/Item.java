@@ -1,6 +1,7 @@
 package Item;
 
 import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
 
     // protected constructor to prevent instantiation outside of this package
     // but also allows subclasses to see it
-    protected Item(String itemName, Sprite itemLook, ItemRarity itemRarity, Map<ItemAbilities, AbilityType> itemAbilities,
+    protected Item(String itemName, SpriteSheet itemLook, ItemRarity itemRarity, Map<ItemAbilities, AbilityType> itemAbilities,
                    Map<ItemBuffs, Double> buffModifiers) {
         // common items never have buffs
         // this check is here so that this fails at compile time and not runtime

@@ -1,6 +1,6 @@
 package Item;
 
-import GameObject.Sprite;
+import GameObject.SpriteSheet;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public final class ScavengersFalchion extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    ScavengersFalchion(Sprite itemLook) {
+    ScavengersFalchion(SpriteSheet itemLook) {
         super("ScavengersFalchion", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 45);
     }
 }
