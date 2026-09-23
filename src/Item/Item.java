@@ -62,7 +62,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         return this.itemName;
     }
 
-    public Sprite getItemLook() {
+    public SpriteSheet getItemLook() {
         return this.itemLook;
     }
 
