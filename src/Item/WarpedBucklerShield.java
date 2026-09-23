@@ -12,7 +12,7 @@ public final class WarpedBucklerShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    public WarpedBucklerShield(SpriteSheet itemLook) {
+    WarpedBucklerShield(SpriteSheet itemLook) {
         super("WarpedBucklerShield", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 0.10, 0.28);
     }
 }

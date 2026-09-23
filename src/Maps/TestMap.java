@@ -1,6 +1,9 @@
 package Maps;
 
+import EnhancedMapTiles.ItemMapTile;
 import EnhancedMapTiles.PushableRock;
+import GameObject.SpriteSheet;
+import Item.*;
 import Level.*;
 import NPCs.Bug;
 import NPCs.Dinosaur;
@@ -10,6 +13,7 @@ import Scripts.TestMap.*;
 import Tilesets.CommonTileset;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 // Represents a test map to be used in a level
 public class TestMap extends Map {
@@ -25,6 +29,25 @@ public class TestMap extends Map {
 
         PushableRock pushableRock = new PushableRock(getMapTile(2, 7).getLocation());
         enhancedMapTiles.add(pushableRock);
+
+        // add one test sword, shield, ranged weapon, and armor piece
+        // need to figure out how to get a BufferedImage in here without a real sprite
+        SpriteSheet itemSwordLook = new SpriteSheet();
+        ItemMapTile testSword = new ItemMapTile(getMapTile(5, 10).getLocation(), new RustedShortSword(itemSwordLook));
+        enhancedMapTiles.add(testSword);
+
+        SpriteSheet itemLookShield = new SpriteSheet();
+        ItemMapTile testShield = new ItemMapTile(getMapTile(10,20).getLocation(), new PatchedWoodShield(itemLookShield));
+        enhancedMapTiles.add(testShield);
+
+        SpriteSheet itemLookRangedWeapon = new SpriteSheet();
+        ItemMapTile testRangedWeapon = new ItemMapTile(getMapTile(30, 40).getLocation(), new CrackedHuntingBow(itemLookRangedWeapon));
+        enhancedMapTiles.add(testRangedWeapon);
+
+        SpriteSheet itemLookArmor = new SpriteSheet();
+        java.util.Map<Item.ItemAbilities, Item.Item.AbilityType> itemAbilities = new HashMap<>();
+        ItemMapTile testArmor = new ItemMapTile(getMapTile(60, 60).getLocation(), new BeggarsWrapsArmor(itemLookArmor, itemAbilities));
+        enhancedMapTiles.add(testArmor);
 
         return enhancedMapTiles;
     }

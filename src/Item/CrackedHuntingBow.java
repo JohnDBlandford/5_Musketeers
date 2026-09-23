@@ -12,7 +12,7 @@ public final class CrackedHuntingBow extends RangedWeapon {
             ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
     );
 
-    public CrackedHuntingBow(SpriteSheet itemLook) {
+    CrackedHuntingBow(SpriteSheet itemLook) {
         super("CrackedHuntingBow", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 25);
     }
 }

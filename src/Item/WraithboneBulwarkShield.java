@@ -18,7 +18,7 @@ public final class WraithboneBulwarkShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    public WraithboneBulwarkShield(SpriteSheet itemLook) {
+    WraithboneBulwarkShield(SpriteSheet itemLook) {
         super("WraithboneBulwarkShield", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 0.25, 0.55);
     }
 }

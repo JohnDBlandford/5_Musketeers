@@ -17,7 +17,7 @@ public final class FamineEdgeAegis extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    public FamineEdgeAegis(SpriteSheet itemLook) {
+    FamineEdgeAegis(SpriteSheet itemLook) {
         super("FamineEdgeAegis", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 0.20, 0.45);
     }
 }

@@ -12,7 +12,7 @@ public final class PatchedWoodShield extends Shield {
             ItemAbilities.RETALIATE, AbilityType.COUNTER
     );
 
-    public PatchedWoodShield(SpriteSheet itemLooks) {
+    PatchedWoodShield(SpriteSheet itemLooks) {
         super("PatchedWoodShield", itemLooks, ItemRarity.COMMON, ABILITIES, Map.of(), 0.12, 0.30);
     }
 }

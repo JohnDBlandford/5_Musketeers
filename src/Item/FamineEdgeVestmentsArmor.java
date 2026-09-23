@@ -9,7 +9,7 @@ public final class FamineEdgeVestmentsArmor extends Armor {
             ItemBuffs.BONUS_MAX_HP, 0.60,
             ItemBuffs.SPD_BOOST, 0.06
     );
-    public FamineEdgeVestmentsArmor(SpriteSheet itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
+    FamineEdgeVestmentsArmor(SpriteSheet itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("FamineEdgeVestmentsArmor", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 20);
     }
 }

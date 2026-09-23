@@ -12,7 +12,7 @@ public final class BentKitchenCleaver extends Sword {
             ItemAbilities.RECKONING_BLOW, AbilityType.FINISHER
     );
 
-    public BentKitchenCleaver(SpriteSheet itemLook) {
+    BentKitchenCleaver(SpriteSheet itemLook) {
         super("BentKitchenCleaver", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 35);
     }
 }
