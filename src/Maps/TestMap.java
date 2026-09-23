@@ -35,20 +35,20 @@ public class TestMap extends Map {
         // add one test sword, shield, ranged weapon, and armor piece
         // need to figure out how to get a BufferedImage in here without a real sprite
         SpriteSheet itemSwordLook = PlaceHolderSpriteFactory.drawSolidColor(16, 17, Color.GRAY);
-        ItemMapTile testSword = new ItemMapTile(getMapTile(5, 10).getLocation(), ItemTestFactory.createRustedShortSword(itemSwordLook));
+        ItemMapTile testSword = new ItemMapTile(getMapTile(5, 6).getLocation(), ItemTestFactory.createRustedShortSword(itemSwordLook));
         enhancedMapTiles.add(testSword);
 
         SpriteSheet itemLookShield = PlaceHolderSpriteFactory.drawSolidColor(15, 15, Color.BLUE);
-        ItemMapTile testShield = new ItemMapTile(getMapTile(10,20).getLocation(), ItemTestFactory.createPatchedWoodShield(itemLookShield));
+        ItemMapTile testShield = new ItemMapTile(getMapTile(19,8).getLocation(), ItemTestFactory.createPatchedWoodShield(itemLookShield));
         enhancedMapTiles.add(testShield);
 
         SpriteSheet itemLookRangedWeapon = PlaceHolderSpriteFactory.drawSolidColor(16, 18, Color.GREEN);
-        ItemMapTile testRangedWeapon = new ItemMapTile(getMapTile(5, 10).getLocation(), ItemTestFactory.createCrackedHuntingBow(itemLookRangedWeapon));
+        ItemMapTile testRangedWeapon = new ItemMapTile(getMapTile(3, 17).getLocation(), ItemTestFactory.createCrackedHuntingBow(itemLookRangedWeapon));
         enhancedMapTiles.add(testRangedWeapon);
 
         SpriteSheet itemLookArmor = PlaceHolderSpriteFactory.drawSolidColor(15, 16, Color.ORANGE);
         java.util.Map<Item.ItemAbilities, Item.AbilityType> itemAbilities = new HashMap<>();
-        ItemMapTile testArmor = new ItemMapTile(getMapTile(10, 20).getLocation(), ItemTestFactory.createBeggarsWrapsArmor(itemLookArmor, itemAbilities));
+        ItemMapTile testArmor = new ItemMapTile(getMapTile(0, 20).getLocation(), ItemTestFactory.createBeggarsWrapsArmor(itemLookArmor, itemAbilities));
         enhancedMapTiles.add(testArmor);
 
         return enhancedMapTiles;
