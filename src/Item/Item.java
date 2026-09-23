@@ -11,7 +11,7 @@ import java.util.Map;
 // NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
 public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     protected final String itemName;
-    protected Sprite itemLook;
+    protected SpriteSheet itemLook;
     protected ItemRarity itemRarity;
     protected Map<ItemAbilities, AbilityType> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
