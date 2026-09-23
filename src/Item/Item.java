@@ -3,12 +3,13 @@ package Item;
 import GameObject.Sprite;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 // NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
 public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
-   protected final String itemName;
+    protected final String itemName;
     protected Sprite itemLook;
     protected ItemRarity itemRarity;
     protected Map<ItemAbilities, AbilityType> itemAbilities;
@@ -57,9 +58,18 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         this.buffModifiers = buffModifiers;
     }
 
-    public String getItemName() { return this.itemName; }
-    public Sprite getItemLook() { return this.itemLook; }
-    public ItemRarity getItemRarity() { return this.itemRarity; }
+    public String getItemName() {
+        return this.itemName;
+    }
+
+    public Sprite getItemLook() {
+        return this.itemLook;
+    }
+
+    public ItemRarity getItemRarity() {
+        return this.itemRarity;
+    }
+
     // init as not equipped. can be overridden via the setter
     public EquippedStatus getItemEquippedStatus() {
         return this.equippedStatus;
@@ -68,33 +78,31 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     public double getItemBuffModifiers(ItemBuffs buff) {
         return buffModifiers.getOrDefault(buff, 0.0);
     }
+
     // use for when the player picks up a new item to add to the future inventory system
     public void setEquippedStatus(EquippedStatus newEquippedStatus) {
         this.equippedStatus = newEquippedStatus;
     }
 
-    // note that these two methods return the entire map every time they are called.
+    // note that these two methods return the entire map every time they are called
+    // they are unmodifiable
     public Map<ItemAbilities, AbilityType> getTotalItemAbilities() {
-        return this.itemAbilities;
-    }
-    public Map<ItemBuffs, Double> getTotalItemBuffs() {
-        return this.buffModifiers;
+        return Collections.unmodifiableMap(this.itemAbilities);
     }
 
-    // fix this later
+    public Map<ItemBuffs, Double> getTotalItemBuffs() {
+        return Collections.unmodifiableMap(this.buffModifiers);
+    }
+
     @Override
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
-        // loop through list to get ability names from map vals
-        // fix with real method names
-        for (AbilityType ability : itemAbilities.keySet()) {
-            if (ability != null  && ability.getItemName() != null) {
-                abilityNames.add(ability.getItemName());
+        for (ItemAbilities ability : itemAbilities.keySet()) {
+            if (ability != ItemAbilities.NONE) {
+                abilityNames.add(ability.name());
             }
         }
-        // format into a human-readable string
         String abilString = abilityNames.isEmpty() ? "None" : String.join(", ", abilityNames);
-        // return formatted msg
-        return "Item: " + (itemName != null ? itemName : "Unknown Item") + " [" + (itemRarity != null ? itemRarity : "COMMON") + "]\n" + "Abilities: " + abilString;
+        return "Item: " + itemName + " [" + itemRarity + "]\nAbilities: " + abilString;
     }
 }
