@@ -11,7 +11,4 @@ public final class ScavengersCrossBow extends RangedWeapon {
     ScavengersCrossBow(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("ScavengersCrossBow", itemLook, ItemRarity.UNCOMMON, itemAbilities, BUFFS, 40);
     }
-
-    @Override
-    public int getRangedDmg() { return super.getRangedDmg(); }
 }

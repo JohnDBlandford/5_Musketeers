@@ -8,15 +8,4 @@ public final class WarpedBucklerShield extends Shield {
     WarpedBucklerShield(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("WarpedBucklerShield", itemLook, ItemRarity.COMMON, itemAbilities, Map.of(), 0.10, 0.28);
     }
-
-    @Override
-    public double getItemBuffModifiers(ItemBuffs buff) {
-        return 0.0;
-    }
-
-    @Override
-    public double getBlockAmount() { return super.getBlockAmount(); }
-
-    @Override
-    public double getBlockChance() { return super.getBlockChance(); }
 }

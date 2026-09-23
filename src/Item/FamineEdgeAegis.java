@@ -12,10 +12,4 @@ public final class FamineEdgeAegis extends Shield {
     FamineEdgeAegis(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("FamineEdgeAegis", itemLook, ItemRarity.EPIC, itemAbilities, BUFFS, 0.20, 0.45);
     }
-
-    @Override
-    public double getBlockAmount() { return super.getBlockAmount(); }
-
-    @Override
-    public double getBlockChance() { return super.getBlockChance(); }
 }

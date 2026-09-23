@@ -11,7 +11,4 @@ public final class ScavengersFalchion extends Sword {
     ScavengersFalchion(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("ScavengersFalchion", itemLook, ItemRarity.UNCOMMON, itemAbilities, BUFFS, 45);
     }
-
-    @Override
-    public int getPhysicalAtkDmg() { return super.getPhysicalAtkDmg(); }
 }

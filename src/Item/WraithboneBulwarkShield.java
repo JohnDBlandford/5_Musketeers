@@ -13,10 +13,4 @@ public final class WraithboneBulwarkShield extends Shield {
     WraithboneBulwarkShield(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("WraithboneBulwarkShield", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 0.25, 0.55);
     }
-
-    @Override
-    public double getBlockAmount() { return super.getBlockAmount(); }
-
-    @Override
-    public double getBlockChance() { return super.getBlockChance(); }
 }

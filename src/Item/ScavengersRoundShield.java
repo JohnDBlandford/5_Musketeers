@@ -11,10 +11,4 @@ public final class ScavengersRoundShield extends Shield {
     ScavengersRoundShield(Sprite itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
         super("ScavengersRoundShield", itemLook, ItemRarity.UNCOMMON, itemAbilities, BUFFS, 0.16, 0.38);
     }
-
-    @Override
-    public double getBlockAmount() { return super.getBlockAmount(); }
-
-    @Override
-    public double getBlockChance() { return super.getBlockChance(); }
 }
