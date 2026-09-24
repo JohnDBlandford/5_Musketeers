@@ -9,7 +9,10 @@ import Engine.Keyboard;
 import GameObject.GameObject;
 import GameObject.Rectangle;
 import GameObject.SpriteSheet;
+import NPCs.TestDummy;
 import Utils.Direction;
+
+import java.util.ArrayList;
 
 // keyboard support should include: WASD and the arrow keys
 
@@ -41,6 +44,10 @@ public abstract class Player extends GameObject {
     protected Key MOVE_DOWN_KEY = Key.DOWN;
     protected Key INTERACT_KEY = Key.SPACE;
 
+    // Attack keys for combat testing
+    protected Key ATTACK_MELEE_KEY = Key.G;
+    protected Key ATTACK_RANGED_KEY = Key.H;
+
     protected boolean isLocked = false;
 
     public Player(SpriteSheet spriteSheet, float x, float y, String startingAnimationName) {
@@ -62,6 +69,9 @@ public abstract class Player extends GameObject {
                 previousPlayerState = playerState;
                 handlePlayerState();
             } while (previousPlayerState != playerState);
+
+            // check combat inputs (G for Melee, H for Ranged)
+            handleCombatInputs();
 
             // move player with respect to map collisions based on how much player needs to move this frame
             lastAmountMovedY = super.moveYHandleCollision(moveAmountY);
@@ -154,9 +164,61 @@ public abstract class Player extends GameObject {
         }
     }
 
+    // handles attack input detection and locks keys to prevent single-press spam
+    protected void handleCombatInputs() {
+        if (map == null) return;
+
+        // Melee Attack (G Key)
+        if (!keyLocker.isKeyLocked(ATTACK_MELEE_KEY) && Keyboard.isKeyDown(ATTACK_MELEE_KEY)) {
+            keyLocker.lockKey(ATTACK_MELEE_KEY);
+            TestDummy target = findNearestDummy(120.0f);
+            if (target != null) {
+                System.out.println(">>> Player initiated Melee Attack on target <<<");
+            } else {
+                System.out.println(">>> Melee Attack executed (No target in range) <<<");
+            }
+        }
+
+        // Ranged Attack (H Key)
+        if (!keyLocker.isKeyLocked(ATTACK_RANGED_KEY) && Keyboard.isKeyDown(ATTACK_RANGED_KEY)) {
+            keyLocker.lockKey(ATTACK_RANGED_KEY);
+            TestDummy target = findNearestDummy(300.0f);
+            if (target != null) {
+                System.out.println(">>> Player initiated Ranged Attack on target <<<");
+            } else {
+                System.out.println(">>> Ranged Attack executed (No target in range) <<<");
+            }
+        }
+    }
+
+    // Helper method to find the closest combat dummy within range
+    private TestDummy findNearestDummy(float maxDistance) {
+        ArrayList<NPC> npcs = map.getNPCs();
+        TestDummy closestEnemy = null;
+        float minDistance = maxDistance;
+
+        for (NPC npc : npcs) {
+            if (npc instanceof TestDummy) {
+                TestDummy dummy = (TestDummy) npc;
+                float distance = (float) Math.hypot(this.x - dummy.getX(), this.y - dummy.getY());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestEnemy = dummy;
+                }
+            }
+        }
+        return closestEnemy;
+    }
+
     protected void updateLockedKeys() {
         if (Keyboard.isKeyUp(INTERACT_KEY) && !isLocked) {
             keyLocker.unlockKey(INTERACT_KEY);
+        }
+        if (Keyboard.isKeyUp(ATTACK_MELEE_KEY) && !isLocked) {
+            keyLocker.unlockKey(ATTACK_MELEE_KEY);
+        }
+        if (Keyboard.isKeyUp(ATTACK_RANGED_KEY) && !isLocked) {
+            keyLocker.unlockKey(ATTACK_RANGED_KEY);
         }
     }
 
@@ -208,7 +270,7 @@ public abstract class Player extends GameObject {
     public Direction getLastWalkingXDirection() { return lastWalkingXDirection; }
     public Direction getLastWalkingYDirection() { return lastWalkingYDirection; }
 
-    
+
     public void lock() {
         isLocked = true;
         playerState = PlayerState.STANDING;

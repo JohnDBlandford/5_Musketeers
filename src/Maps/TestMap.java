@@ -8,10 +8,7 @@ import GameObject.SpriteSheet;
 import Item.Item;
 import Item.ItemTestFactory;
 import Level.*;
-import NPCs.Bug;
-import NPCs.Dinosaur;
-import NPCs.Dummy;
-import NPCs.Walrus;
+import NPCs.*;
 import Scripts.SimpleTextScript;
 import Scripts.PortalScript;
 import Scripts.TestMap.*;
@@ -36,14 +33,13 @@ public class TestMap extends Map {
         PushableRock pushableRock = new PushableRock(getMapTile(2, 7).getLocation());
         enhancedMapTiles.add(pushableRock);
 
-        // Add a portal to the blank map at (18, 20) that teleports the player to (48,
-        // 48) in the blank map
+        // Add a portal to the blank map at (18, 20) that teleports the player to (48, 48) in the blank map
         Portal portal = new Portal(getMapTile(18, 20).getX(), getMapTile(18, 20).getY(),
                 "blank", 48, 48, 48, 48);
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
 
-        // add one test sword, shield, ranged weapon, and armor piece
+        // Add one test sword, shield, ranged weapon, and armor piece
         SpriteSheet itemSwordLook = PlaceHolderSpriteFactory.drawSolidColor(16, 17, Color.GRAY);
         ItemMapTile testSword = new ItemMapTile(getMapTile(5, 6).getLocation(), ItemTestFactory.createRustedShortSword(itemSwordLook));
         enhancedMapTiles.add(testSword);
@@ -68,6 +64,7 @@ public class TestMap extends Map {
     public ArrayList<NPC> loadNPCs() {
         ArrayList<NPC> npcs = new ArrayList<>();
 
+        // Original NPCs
         Walrus walrus = new Walrus(1, getMapTile(4, 28).getLocation().subtractY(40));
         walrus.setInteractScript(new WalrusScript());
         npcs.add(walrus);
@@ -83,6 +80,30 @@ public class TestMap extends Map {
 
         Dummy dummy = new Dummy(4, getMapTile(13, 15).getLocation());
         npcs.add(dummy);
+
+        // =========================================================================
+        // World 1 Test Combat Dummies (Line up near spawn area for easy testing)
+        // =========================================================================
+
+        // 1. Starving Wretch (ID: 10, HP: 70, DEF: 10, SPD: 22)
+        StarvingWretchDummy wretch = new StarvingWretchDummy(10, getMapTile(14, 22).getLocation());
+        npcs.add(wretch);
+
+        // 2. Reckoner Brute (ID: 11, HP: 150, DEF: 26, SPD: 12)
+        ReckonerBruteDummy brute = new ReckonerBruteDummy(11, getMapTile(16, 22).getLocation());
+        npcs.add(brute);
+
+        // 3. Ash Wolf (ID: 12, HP: 110, DEF: 9, SPD: 30)
+        AshWolfDummy wolf = new AshWolfDummy(12, getMapTile(18, 22).getLocation());
+        npcs.add(wolf);
+
+        // 4. Hollow Chorus Zealot (ID: 13, HP: 220, DEF: 24, SPD: 26)
+        HollowChorusZealotDummy zealot = new HollowChorusZealotDummy(13, getMapTile(20, 22).getLocation());
+        npcs.add(zealot);
+
+        // 5. World 1 Mini-Boss: The Famine Warden (ID: 14, HP: 380, DEF: 32, SPD: 28)
+        FamineWardenDummy warden = new FamineWardenDummy(14, getMapTile(22, 22).getLocation());
+        npcs.add(warden);
 
         return npcs;
     }
