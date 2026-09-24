@@ -5,6 +5,7 @@ import GameObject.Portal;
 import Level.*;
 import NPCs.Bug;
 import NPCs.Dinosaur;
+import NPCs.Dummy;
 import NPCs.Walrus;
 import Scripts.SimpleTextScript;
 import Scripts.PortalScript;
@@ -54,6 +55,9 @@ public class TestMap extends Map {
         Bug bug = new Bug(3, getMapTile(7, 12).getLocation().subtractX(20));
         bug.setInteractScript(new BugScript());
         npcs.add(bug);
+
+        Dummy dummy = new Dummy(4, getMapTile(13, 15).getLocation());
+        npcs.add(dummy);
 
         return npcs;
     }
