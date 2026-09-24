@@ -6,6 +6,7 @@ import Game.GameState;
 import Game.ScreenCoordinator;
 import Level.*;
 import Maps.TestMap;
+import Maps.BlankMap;
 import Players.Cat;
 import Utils.Direction;
 
@@ -45,8 +46,11 @@ public class PlayLevelScreen extends Screen implements GameListener {
         // let pieces of map know which button to listen for as the "interact" button
         map.getTextbox().setInteractKey(player.getInteractKey());
 
-        // add this screen as a "game listener" so other areas of the game that don't normally have direct access to it (such as scripts) can "signal" to have it do something
-        // this is used in the "onWin" method -- a script signals to this class that the game has been won by calling its "onWin" method
+        // add this screen as a "game listener" so other areas of the game that don't
+        // normally have direct access to it (such as scripts) can "signal" to have it
+        // do something
+        // this is used in the "onWin" method -- a script signals to this class that the
+        // game has been won by calling its "onWin" method
         map.addListener(this);
 
         // preloads all scripts ahead of time rather than loading them dynamically
@@ -59,7 +63,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
     public void update() {
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
-            // if level is "running" update player and map to keep game logic for the platformer level going
+            // if level is "running" update player and map to keep game logic for the
+            // platformer level going
             case RUNNING:
                 player.update();
                 map.update(player);
@@ -73,8 +78,36 @@ public class PlayLevelScreen extends Screen implements GameListener {
 
     @Override
     public void onWin() {
-        // when this method is called within the game, it signals the game has been "won"
+        // when this method is called within the game, it signals the game has been
+        // "won"
         playLevelScreenState = PlayLevelScreenState.LEVEL_COMPLETED;
+    }
+
+    @Override
+    // Called when the player changes maps. The mapName is the name of the new map
+    // and playerX and playerY are the player's new coordinates in that map.
+    public void onMapChange(String mapName, float playerX, float playerY) {
+        map = createMap(mapName);
+        map.setFlagManager(flagManager);
+        player = new Cat(playerX, playerY);
+        player.setMap(map);
+        player.setFacingDirection(Direction.LEFT);
+        map.setPlayer(player);
+        map.getTextbox().setInteractKey(player.getInteractKey());
+        map.addListener(this);
+        map.preloadScripts();
+    }
+
+    // This method creates a new map based on the provided map name. It returns a
+    // new instance of the appropriate map class.
+    private Map createMap(String mapName) {
+        switch (mapName) {
+            case "blank":
+                return new BlankMap();
+            case "test":
+            default:
+                return new TestMap();
+        }
     }
 
     public void draw(GraphicsHandler graphicsHandler) {

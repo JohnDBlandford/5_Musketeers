@@ -1,11 +1,14 @@
 package Maps;
 
 import EnhancedMapTiles.PushableRock;
+import GameObject.Portal;
 import Level.*;
 import NPCs.Bug;
 import NPCs.Dinosaur;
+import NPCs.Dummy;
 import NPCs.Walrus;
 import Scripts.SimpleTextScript;
+import Scripts.PortalScript;
 import Scripts.TestMap.*;
 import Tilesets.CommonTileset;
 
@@ -26,6 +29,13 @@ public class TestMap extends Map {
         PushableRock pushableRock = new PushableRock(getMapTile(2, 7).getLocation());
         enhancedMapTiles.add(pushableRock);
 
+        // Add a portal to the blank map at (18, 20) that teleports the player to (48,
+        // 48) in the blank map
+        Portal portal = new Portal(getMapTile(18, 20).getX(), getMapTile(18, 20).getY(),
+                "blank", 48, 48, 48, 48);
+        portal.setInteractScript(new PortalScript());
+        enhancedMapTiles.add(portal);
+
         return enhancedMapTiles;
     }
 
@@ -41,10 +51,13 @@ public class TestMap extends Map {
         dinosaur.setExistenceFlag("hasTalkedToDinosaur");
         dinosaur.setInteractScript(new DinoScript());
         npcs.add(dinosaur);
-        
+
         Bug bug = new Bug(3, getMapTile(7, 12).getLocation().subtractX(20));
         bug.setInteractScript(new BugScript());
         npcs.add(bug);
+
+        Dummy dummy = new Dummy(4, getMapTile(13, 15).getLocation());
+        npcs.add(dummy);
 
         return npcs;
     }
@@ -69,4 +82,3 @@ public class TestMap extends Map {
         getMapTile(2, 6).setInteractScript(new TreeScript());
     }
 }
-
