@@ -1,7 +1,12 @@
 package Maps;
 
+import EnhancedMapTiles.ItemMapTile;
 import EnhancedMapTiles.PushableRock;
+import GameObject.PlaceHolderSpriteFactory;
 import GameObject.Portal;
+import GameObject.SpriteSheet;
+import Item.Item;
+import Item.ItemTestFactory;
 import Level.*;
 import NPCs.Bug;
 import NPCs.Dinosaur;
@@ -12,7 +17,9 @@ import Scripts.PortalScript;
 import Scripts.TestMap.*;
 import Tilesets.CommonTileset;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 // Represents a test map to be used in a level
 public class TestMap extends Map {
@@ -35,6 +42,24 @@ public class TestMap extends Map {
                 "blank", 48, 48, 48, 48);
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
+
+        // add one test sword, shield, ranged weapon, and armor piece
+        SpriteSheet itemSwordLook = PlaceHolderSpriteFactory.drawSolidColor(16, 17, Color.GRAY);
+        ItemMapTile testSword = new ItemMapTile(getMapTile(5, 10).getLocation(), ItemTestFactory.createRustedShortSword(itemSwordLook));
+        enhancedMapTiles.add(testSword);
+
+        SpriteSheet itemLookShield = PlaceHolderSpriteFactory.drawSolidColor(15, 15, Color.BLUE);
+        ItemMapTile testShield = new ItemMapTile(getMapTile(10,20).getLocation(), ItemTestFactory.createPatchedWoodShield(itemLookShield));
+        enhancedMapTiles.add(testShield);
+
+        SpriteSheet itemLookRangedWeapon = PlaceHolderSpriteFactory.drawSolidColor(16, 18, Color.GREEN);
+        ItemMapTile testRangedWeapon = new ItemMapTile(getMapTile(30, 40).getLocation(), ItemTestFactory.createCrackedHuntingBow(itemLookRangedWeapon));
+        enhancedMapTiles.add(testRangedWeapon);
+
+        SpriteSheet itemLookArmor = PlaceHolderSpriteFactory.drawSolidColor(15, 16, Color.ORANGE);
+        java.util.Map<Item.ItemAbilities, Item.Item.AbilityType> itemAbilities = new HashMap<>();
+        ItemMapTile testArmor = new ItemMapTile(getMapTile(60, 60).getLocation(), ItemTestFactory.createBeggarsWrapsArmor(itemLookArmor, itemAbilities));
+        enhancedMapTiles.add(testArmor);
 
         return enhancedMapTiles;
     }
