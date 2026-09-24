@@ -10,6 +10,8 @@ import Level.Player;
 
 import java.util.HashMap;
 
+import Lighting.BackgroundOpacity;
+
 // This is the class for the Cat player character
 // basically just sets some values for physics and then defines animations
 public class Cat extends Player {
@@ -25,6 +27,8 @@ public class Cat extends Player {
 
     public void draw(GraphicsHandler graphicsHandler) {
         super.draw(graphicsHandler);
+        // Printed on the screen
+        new BackgroundOpacity().draw(graphicsHandler,getCalibratedXLocation(),getCalibratedYLocation());
     }
 
     @Override
