@@ -4,14 +4,14 @@ import Builders.FrameBuilder;
 import Builders.MapTileBuilder;
 import Engine.ImageLoader;
 import GameObject.Frame;
-import Level.TileType;
+
 import Level.Tileset;
 import java.util.ArrayList;
 
 public class World1Tileset extends Tileset {
 
     public World1Tileset() {
-        super(ImageLoader.load("World1_ground_tileset_gutter.png"), 16, 16, 3);
+        super(ImageLoader.load("World1_ground_tileset.png"), 16, 16, 3);
     }
 
     // helper: walkable ground tile from a sheet cell
