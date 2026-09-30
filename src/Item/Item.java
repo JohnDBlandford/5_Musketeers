@@ -1,6 +1,5 @@
 package Item;
 
-import GameObject.Sprite;
 import GameObject.SpriteSheet;
 
 import java.util.ArrayList;
