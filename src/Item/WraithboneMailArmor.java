@@ -10,7 +10,16 @@ public final class WraithboneMailArmor extends Armor {
             ItemBuffs.SPD_BOOST, 0.09,
             ItemBuffs.DMG_REDUCTION, 0.05
     );
-    WraithboneMailArmor(SpriteSheet itemLook, Map<ItemAbilities, AbilityType> itemAbilities) {
-        super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, itemAbilities, BUFFS, 28);
+
+    private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
+            AbilityType.HEAL, Map.of(ItemAbilities.SECOND_WIND, 0.18),
+            AbilityType.SPD_BOOST, Map.of(ItemAbilities.LIGHT_FOOTING, 0.12),
+            AbilityType.DMG_REDUCTION, Map.of(ItemAbilities.HARDEN, 0.16),
+            AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.22),
+            AbilityType.HEALTH_RESTORE, Map.of(ItemAbilities.GRIT, 0.15)
+    );
+
+    WraithboneMailArmor(SpriteSheet itemLook) {
+        super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 28);
     }
 }

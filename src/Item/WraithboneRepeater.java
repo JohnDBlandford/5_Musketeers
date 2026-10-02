@@ -11,11 +11,11 @@ public final class WraithboneRepeater extends RangedWeapon {
             ItemBuffs.PIERCING, 0.08
     );
 
-    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
-            ItemAbilities.WINDBORNE_ARROW, AbilityType.BUFF,
-            ItemAbilities.PIERCING_SHOT, AbilityType.BURST,
-            ItemAbilities.VOLLEY, AbilityType.MULTI_HIT,
-            ItemAbilities.HUNTERS_MARK, AbilityType.DEBUFF
+    private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
+            AbilityType.BUFF, Map.of(ItemAbilities.WINDBORNE_ARROW, 0.00),
+            AbilityType.BURST, Map.of(ItemAbilities.PIERCING_SHOT, 0.00),
+            AbilityType.MULTI_HIT, Map.of(ItemAbilities.VOLLEY, 0.0),
+            AbilityType.DEBUFF, Map.of(ItemAbilities.HUNTERS_MARK, 0.00)
     );
 
     WraithboneRepeater(SpriteSheet itemLooks) {
