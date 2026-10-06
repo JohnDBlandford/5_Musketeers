@@ -12,7 +12,8 @@ import Utils.Point;
 public class World1Map extends Map {
     public World1Map() {
         super("world1_map.txt", new World1Tileset());
-        this.playerStartPosition = getMapTile(36, 45).getLocation();
+        this.playerStartPosition = getMapTile(81, 90).getLocation(); // Brackenford plaza
+
     }
 
     @Override
@@ -20,8 +21,8 @@ public class World1Map extends Map {
         ArrayList<EnhancedMapTile> enhancedMapTiles = new ArrayList<>();
         // Add a portal to the blank map at (18, 20) that teleports the player to (48,
         // 48) in the blank map
-        Portal portal = new Portal(getMapTile(35, 40).getX(), getMapTile(35, 40).getY(),
-                "blank", 48, 48, 48, 48);
+        Portal portal = new Portal(getMapTile(79, 16).getX(), getMapTile(79, 16).getY(),
+                "blank", 48, 48, 48, 48); // Last Gate
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
 
