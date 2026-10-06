@@ -55,6 +55,23 @@ public class World1Tileset extends Tileset {
         t.add(ground(9, 2)); // ID 23
         t.add(ground(9, 3)); // ID 24
 
+        // ---- building tiles (atlas rows 10+), each block is added row-major so ID = base + y * w + x ----
+        addBlock(t, 10, 6, 6);   // IDs 25-60   timber house (6x6)
+        addBlock(t, 16, 4, 6);   // IDs 61-84   small timber house (4x6)
+        addBlock(t, 22, 14, 6);  // IDs 85-168  Brackenford hall (14x6)
+        addBlock(t, 28, 10, 6);  // IDs 169-228 Granary Cloister hall (10x6)
+        addBlock(t, 34, 6, 4);   // IDs 229-252 Dabbah's Hollow gate (6x4)
+        addBlock(t, 38, 2, 2);   // IDs 253-256 Barrons hut (2x2)
+
         return t;
+    }
+
+    // adds every tile of a w x h block that starts at the given sheet row (column 0), row-major
+    private void addBlock(ArrayList<MapTileBuilder> t, int startRow, int w, int h) {
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                t.add(ground(startRow + y, x));
+            }
+        }
     }
 }
