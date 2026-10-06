@@ -1,6 +1,7 @@
 package Item;
 
 import GameObject.SpriteSheet;
+import inventory.EquipSlot;
 
 import java.util.Map;
 
@@ -16,4 +17,7 @@ public sealed abstract class Sword extends Item permits RustedShortSword,
     }
 
     public int getPhysicalAtkDmg() { return this.physicalAtkDmg; }
+
+    @Override
+    public EquipSlot getEquipSlot() { return EquipSlot.MELEE; }
 }

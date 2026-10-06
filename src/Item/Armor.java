@@ -1,6 +1,7 @@
 package Item;
 
 import GameObject.SpriteSheet;
+import inventory.EquipSlot;
 
 import java.util.Map;
 
@@ -14,4 +15,7 @@ public sealed abstract class Armor extends Item permits
     }
 
     public int getBaseDef() { return this.baseDef; }
+
+    @Override
+    public EquipSlot getEquipSlot() { return EquipSlot.ARMOR; }
 }

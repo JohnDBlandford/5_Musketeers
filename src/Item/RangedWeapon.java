@@ -1,6 +1,7 @@
 package Item;
 
 import GameObject.SpriteSheet;
+import inventory.EquipSlot;
 
 import java.util.Map;
 
@@ -16,4 +17,7 @@ public sealed abstract class RangedWeapon extends Item permits
     }
 
     public int getRangedDmg() { return rangedDmg; }
+
+    @Override
+    public EquipSlot getEquipSlot() { return EquipSlot.RANGED_WEAPON; }
 }

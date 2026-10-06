@@ -1,6 +1,7 @@
 package Item;
 
 import GameObject.SpriteSheet;
+import inventory.EquipSlot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,11 +15,6 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     protected ItemRarity itemRarity;
     protected Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
-    protected EquippedStatus equippedStatus = EquippedStatus.NOT_EQUIPPED;
-
-    public enum EquippedStatus {
-        EQUIPPED, NOT_EQUIPPED
-    }
 
     public enum ItemRarity {
         COMMON, UNCOMMON, EPIC, LEGENDARY
@@ -72,19 +68,12 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         return this.itemRarity;
     }
 
-    // init as not equipped. can be overridden via the setter
-    public EquippedStatus getItemEquippedStatus() {
-        return this.equippedStatus;
-    }
-
     public double getItemBuffModifiers(ItemBuffs buff) {
         return buffModifiers.getOrDefault(buff, 0.0);
     }
 
-    // use for when the player picks up a new item to add to the future inventory system
-    public void setEquippedStatus(EquippedStatus newEquippedStatus) {
-        this.equippedStatus = newEquippedStatus;
-    }
+    // new subtypes must declare a type for this method because Item is abstract
+    public abstract EquipSlot getEquipSlot();
 
     // note that these two methods return the entire map every time they are called
     // they are unmodifiable
