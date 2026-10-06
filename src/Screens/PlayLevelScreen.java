@@ -1,7 +1,6 @@
 package Screens;
 
-import Engine.GraphicsHandler;
-import Engine.Screen;
+import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
 import Level.*;
@@ -18,6 +17,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected PlayLevelScreenState playLevelScreenState;
     protected WinScreen winScreen;
     protected FlagManager flagManager;
+    private KeyLocker keyLocker = new KeyLocker();
+    private InventoryScreen inventoryScreen;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -58,20 +59,36 @@ public class PlayLevelScreen extends Screen implements GameListener {
         map.preloadScripts();
 
         winScreen = new WinScreen(this);
+        inventoryScreen = new InventoryScreen(this);
     }
 
     public void update() {
+        if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the
             // platformer level going
             case RUNNING:
+                // if I key is down and unlocked and the player isnt locked, lock it and initialize the inventory screen
+                if (Keyboard.isKeyDown(Key.I) && (!keyLocker.isKeyLocked(Key.I) && !player.isLocked())) {
+                    player.lock();
+                    keyLocker.lockKey(Key.I);
+                    inventoryScreen.initialize();
+                    playLevelScreenState = PlayLevelScreenState.INVENTORY;
+                    break;
+                }
                 player.update();
                 map.update(player);
                 break;
             // if level has been completed, bring up level cleared screen
             case LEVEL_COMPLETED:
                 winScreen.update();
+                break;
+            case INVENTORY:
+                // this ensures that animations still happen while inside the inventory
+                player.update();
+                map.update(player);
+                inventoryScreen.update();
                 break;
         }
     }
@@ -119,6 +136,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
                 break;
+            case INVENTORY:
+                inventoryScreen.draw(graphicsHandler);
         }
     }
 
@@ -134,8 +153,13 @@ public class PlayLevelScreen extends Screen implements GameListener {
         screenCoordinator.setGameState(GameState.MENU);
     }
 
+    public void closeInventory() {
+        player.unlock();
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
     // This enum represents the different states this screen can be in
     private enum PlayLevelScreenState {
-        RUNNING, LEVEL_COMPLETED
+        RUNNING, LEVEL_COMPLETED, INVENTORY
     }
 }
