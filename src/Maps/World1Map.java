@@ -7,7 +7,6 @@ import Level.EnhancedMapTile;
 import Level.Map;
 import Scripts.PortalScript;
 import Tilesets.World1Tileset;
-import Utils.Point;
 
 public class World1Map extends Map {
     public World1Map() {
@@ -21,8 +20,8 @@ public class World1Map extends Map {
         ArrayList<EnhancedMapTile> enhancedMapTiles = new ArrayList<>();
         // Add a portal to the blank map at (18, 20) that teleports the player to (48,
         // 48) in the blank map
-        Portal portal = new Portal(getMapTile(79, 16).getX(), getMapTile(79, 16).getY(),
-                "blank", 48, 48, 48, 48); // Last Gate
+        Portal portal = new Portal(getMapTile(60, 90).getX(), getMapTile(60, 90).getY(),
+                "blank", 48, 48, 48, 48);
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
 
