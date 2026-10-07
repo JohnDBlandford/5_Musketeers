@@ -20,8 +20,10 @@ public class BlankMap extends Map {
     @Override
     public ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {
         ArrayList<EnhancedMapTile> enhancedMapTiles = new ArrayList<>();
-
-        Portal portal = new Portal(20, 20, "test", 18 * 48, 20 * 48, 48, 48);
+        // Add a portal to World 1 near the center of the blank map.
+        // The portal is placed at the location of the tile at (48, 48) in the blank map
+        // and teleports to (60, 90) in the world1 map
+        Portal portal = new Portal(48, 48, "world1", 60 * 48, 90 * 48, 48, 48);
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
 

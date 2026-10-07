@@ -5,8 +5,8 @@ import Engine.Screen;
 import Game.GameState;
 import Game.ScreenCoordinator;
 import Level.*;
-import Maps.TestMap;
-import Maps.BlankMap;
+import Maps.*;
+
 import Players.Cat;
 import Utils.Direction;
 
@@ -32,7 +32,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
         flagManager.addFlag("hasFoundBall", false);
 
         // define/setup map
-        map = new TestMap();
+        map = new World1Map();
         map.setFlagManager(flagManager);
 
         // setup player
@@ -105,6 +105,11 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case "blank":
                 return new BlankMap();
             case "test":
+                return new TestMap();
+            case "world1":
+                return new World1Map();
+            case "world2_map":
+                return new World2Map();
             default:
                 return new TestMap();
         }

@@ -16,7 +16,7 @@ public class PortalScript extends Script {
         actions.add(new LockPlayerScriptAction());
         actions.add(new TextboxScriptAction() {
             {
-                addText("Travel to the next area?", new String[] { "Yes", "No" });
+                addText("Travel to " + portal.getTargetMap() + "?", new String[] { "Yes", "No" });
             }
         });
         actions.add(new ConditionalScriptAction() {
