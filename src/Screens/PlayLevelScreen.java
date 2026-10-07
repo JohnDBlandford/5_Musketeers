@@ -5,9 +5,8 @@ import Engine.Screen;
 import Game.GameState;
 import Game.ScreenCoordinator;
 import Level.*;
-import Maps.TestMap;
-import Maps.World1Map;
-import Maps.BlankMap;
+import Maps.*;
+
 import Players.Cat;
 import Utils.Direction;
 
@@ -109,6 +108,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
                 return new TestMap();
             case "world1":
                 return new World1Map();
+            case "world2_map":
+                return new World2Map();
             default:
                 return new TestMap();
         }

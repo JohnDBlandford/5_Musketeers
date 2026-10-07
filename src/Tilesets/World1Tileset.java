@@ -4,7 +4,7 @@ import Builders.FrameBuilder;
 import Builders.MapTileBuilder;
 import Engine.ImageLoader;
 import GameObject.Frame;
-
+import Level.TileType;
 import Level.Tileset;
 import java.util.ArrayList;
 
@@ -72,7 +72,7 @@ public class World1Tileset extends Tileset {
     private void addBlock(ArrayList<MapTileBuilder> t, int startRow, int w, int h) {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                t.add(ground(startRow + y, x));
+                t.add(ground(startRow + y, x).withTileType(TileType.NOT_PASSABLE));
             }
         }
     }
