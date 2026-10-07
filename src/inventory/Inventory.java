@@ -9,12 +9,14 @@ public class Inventory {
     private final List<Item> backpack = new ArrayList<>();
     private final Map<EquipSlot, Item> equippedItems = new EnumMap<>(EquipSlot.class);
 
-    public boolean equipItem(Item item) {
-        if (!backpack.remove(item)) return false; // if the backpack cannot remove the item, return false
-        // we need to track the previous item added to the map
-        Item prev = equippedItems.put(item.getEquipSlot(), item); // returns the old occupant or null
-        if (prev != null) backpack.add(prev);
-        return true; // item can be added
+    public boolean equipItem(int index) {
+        if (index < 0 || index >= backpack.size()) return false;
+        Item item = backpack.get(index);
+        Item prev = equippedItems.put(item.getEquipSlot(), item);
+        // swap in place to prevent item shifts when items are removed
+        if (prev != null) backpack.set(index, prev);
+        else backpack.remove(index); // empty slot, list scales dynamically
+        return true;
     }
 
     public boolean unequip(EquipSlot equipSlot) {
