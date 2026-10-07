@@ -8,6 +8,7 @@ import Maps.TestMap;
 import Maps.BlankMap;
 import Players.Cat;
 import Utils.Direction;
+import inventory.Inventory;
 
 // This class is for when the RPG game is actually being played
 public class PlayLevelScreen extends Screen implements GameListener {
@@ -19,6 +20,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected FlagManager flagManager;
     private KeyLocker keyLocker = new KeyLocker();
     private InventoryScreen inventoryScreen;
+    private Inventory inventory;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -31,6 +33,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
         flagManager.addFlag("hasTalkedToWalrus", false);
         flagManager.addFlag("hasTalkedToDinosaur", false);
         flagManager.addFlag("hasFoundBall", false);
+        inventory = new Inventory();
 
         // define/setup map
         map = new TestMap();
@@ -157,6 +160,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
     }
+
+    public Inventory getInventory() { return inventory; }
 
     // This enum represents the different states this screen can be in
     private enum PlayLevelScreenState {
