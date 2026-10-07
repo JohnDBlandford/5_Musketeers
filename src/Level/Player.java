@@ -2,6 +2,7 @@ package Level;
 
 import java.awt.Color;
 
+import Engine.CombatResolver;
 import Engine.GraphicsHandler;
 import Engine.Key;
 import Engine.KeyLocker;
@@ -9,16 +10,14 @@ import Engine.Keyboard;
 import GameObject.GameObject;
 import GameObject.Rectangle;
 import GameObject.SpriteSheet;
-import NPCs.TestDummy;
+import NPCs.Enemy;
 import Utils.Direction;
+import Game.PlayerData;
 
 import java.util.ArrayList;
 
-// keyboard support should include: WASD and the arrow keys
-
 public abstract class Player extends GameObject {
     // values that affect player movement
-    // these should be set in a subclass
     protected float walkSpeed = 0;
     protected int interactionRange = 1;
     protected Direction currentWalkingXDirection;
@@ -50,6 +49,23 @@ public abstract class Player extends GameObject {
 
     protected boolean isLocked = false;
 
+    // Player Level & Stats (Currency is now handled globally via PlayerData)
+    protected int level = 1;
+    protected int currentXP = 0;
+    protected int xpToNextLevel = 100;
+
+    // Player Combat Stats
+    protected float maxHP = 100.0f;
+    protected float currentHP = 100.0f;
+    protected float baseATK = 15.0f;
+    protected float baseDEF = 10.0f;
+    protected float baseSPD = 25.0f;
+
+    // Stat Modifiers
+    protected float atkModifier = 1.0f;
+    protected float defModifier = 1.0f;
+    protected float spdModifier = 1.0f;
+
     public Player(SpriteSheet spriteSheet, float x, float y, String startingAnimationName) {
         super(spriteSheet, x, y, startingAnimationName);
         facingDirection = Direction.RIGHT;
@@ -63,30 +79,22 @@ public abstract class Player extends GameObject {
             moveAmountX = 0;
             moveAmountY = 0;
 
-            // if player is currently playing through level (has not won or lost)
-            // update player's state and current actions, which includes things like determining how much it should move each frame and if its walking or jumping
             do {
                 previousPlayerState = playerState;
                 handlePlayerState();
             } while (previousPlayerState != playerState);
 
-            // check combat inputs (G for Melee, H for Ranged)
             handleCombatInputs();
 
-            // move player with respect to map collisions based on how much player needs to move this frame
             lastAmountMovedY = super.moveYHandleCollision(moveAmountY);
             lastAmountMovedX = super.moveXHandleCollision(moveAmountX);
         }
 
         handlePlayerAnimation();
-
         updateLockedKeys();
-
-        // update player's animation
         super.update();
     }
 
-    // based on player's current state, call appropriate player state handling method
     protected void handlePlayerState() {
         switch (playerState) {
             case STANDING:
@@ -98,35 +106,29 @@ public abstract class Player extends GameObject {
         }
     }
 
-    // player STANDING state logic
     protected void playerStanding() {
         if (!keyLocker.isKeyLocked(INTERACT_KEY) && Keyboard.isKeyDown(INTERACT_KEY)) {
             keyLocker.lockKey(INTERACT_KEY);
             map.entityInteract(this);
         }
 
-        // if a walk key is pressed, player enters WALKING state
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY) || Keyboard.isKeyDown(MOVE_UP_KEY) || Keyboard.isKeyDown(MOVE_DOWN_KEY)) {
             playerState = PlayerState.WALKING;
         }
     }
 
-    // player WALKING state logic
     protected void playerWalking() {
         if (!keyLocker.isKeyLocked(INTERACT_KEY) && Keyboard.isKeyDown(INTERACT_KEY)) {
             keyLocker.lockKey(INTERACT_KEY);
             map.entityInteract(this);
         }
 
-        // if walk left key is pressed, move player to the left
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
             moveAmountX -= walkSpeed;
             facingDirection = Direction.LEFT;
             currentWalkingXDirection = Direction.LEFT;
             lastWalkingXDirection = Direction.LEFT;
         }
-
-        // if walk right key is pressed, move player to the right
         else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
             moveAmountX += walkSpeed;
             facingDirection = Direction.RIGHT;
@@ -164,46 +166,40 @@ public abstract class Player extends GameObject {
         }
     }
 
-    // handles attack input detection and locks keys to prevent single-press spam
     protected void handleCombatInputs() {
         if (map == null) return;
 
         // Melee Attack (G Key)
         if (!keyLocker.isKeyLocked(ATTACK_MELEE_KEY) && Keyboard.isKeyDown(ATTACK_MELEE_KEY)) {
             keyLocker.lockKey(ATTACK_MELEE_KEY);
-            TestDummy target = findNearestDummy(120.0f);
+            Enemy target = findNearestEnemy(120.0f);
             if (target != null) {
-                System.out.println(">>> Player initiated Melee Attack on target <<<");
-            } else {
-                System.out.println(">>> Melee Attack executed (No target in range) <<<");
+                CombatResolver.resolvePlayerAttack(this, target, 1.0f);
             }
         }
 
         // Ranged Attack (H Key)
         if (!keyLocker.isKeyLocked(ATTACK_RANGED_KEY) && Keyboard.isKeyDown(ATTACK_RANGED_KEY)) {
             keyLocker.lockKey(ATTACK_RANGED_KEY);
-            TestDummy target = findNearestDummy(300.0f);
+            Enemy target = findNearestEnemy(300.0f);
             if (target != null) {
-                System.out.println(">>> Player initiated Ranged Attack on target <<<");
-            } else {
-                System.out.println(">>> Ranged Attack executed (No target in range) <<<");
+                CombatResolver.resolvePlayerAttack(this, target, 0.8f);
             }
         }
     }
 
-    // Helper method to find the closest combat dummy within range
-    private TestDummy findNearestDummy(float maxDistance) {
+    private Enemy findNearestEnemy(float maxDistance) {
         ArrayList<NPC> npcs = map.getNPCs();
-        TestDummy closestEnemy = null;
+        Enemy closestEnemy = null;
         float minDistance = maxDistance;
 
         for (NPC npc : npcs) {
-            if (npc instanceof TestDummy) {
-                TestDummy dummy = (TestDummy) npc;
-                float distance = (float) Math.hypot(this.x - dummy.getX(), this.y - dummy.getY());
+            if (npc instanceof Enemy) {
+                Enemy enemy = (Enemy) npc;
+                float distance = (float) Math.hypot(this.x - enemy.getX(), this.y - enemy.getY());
                 if (distance < minDistance) {
                     minDistance = distance;
-                    closestEnemy = dummy;
+                    closestEnemy = enemy;
                 }
             }
         }
@@ -222,14 +218,83 @@ public abstract class Player extends GameObject {
         }
     }
 
-    // anything extra the player should do based on interactions can be handled here
+    // Progression & Stats Logic
+
+    // Updates global currency
+    public void addGold(int amount) {
+        PlayerData.addCurrency(amount);
+    }
+
+    public void addXP(int amount) {
+        if (level >= 100) {
+            this.currentXP = 0;
+            return;
+        }
+
+        this.currentXP += amount;
+        while (currentXP >= xpToNextLevel && level < 100) {
+            levelUp();
+        }
+
+        if (level >= 100) {
+            this.currentXP = 0;
+        }
+    }
+    private void levelUp() {
+        if(level >= 100) return;
+
+        currentXP -= xpToNextLevel;
+        level++;
+
+        if(level >= 100){
+            xpToNextLevel = 0;
+            currentXP = 0;
+        }
+        else{
+            xpToNextLevel = level * 100;
+        }
+
+        maxHP += 15.0f;
+        currentHP = maxHP;
+        baseATK += 3.5f;
+        baseDEF += 2.0f;
+        baseSPD += 1.5f;
+    }
+
+
+    public void takeDamage(float damageAmount) {
+        float finalDamage = CombatResolver.calculateDamage(damageAmount, getBaseDEF());
+        applyDamage(finalDamage);
+    }
+
+    public void applyDamage(float damageAmount) {
+        this.currentHP = Math.max(0.0f, this.currentHP - damageAmount);
+    }
+
+    // Stat Altering Methods
+    public void alterATKModifier(float amount) {
+        this.atkModifier = Math.max(0.2f, this.atkModifier + amount);
+    }
+
+    public void alterDEFModifier(float amount) {
+        this.defModifier = Math.max(0.2f, this.defModifier + amount);
+    }
+
+    public void alterSPDModifier(float amount) {
+        this.spdModifier = Math.max(0.2f, this.spdModifier + amount);
+    }
+
+    public void resetStatModifiers() {
+        this.atkModifier = 1.0f;
+        this.defModifier = 1.0f;
+        this.spdModifier = 1.0f;
+    }
+
     protected void handlePlayerAnimation() {
         if (playerState == PlayerState.STANDING) {
-            // sets animation to a STAND animation based on which way player is facing
             this.currentAnimationName = facingDirection == Direction.RIGHT ? "STAND_RIGHT" : "STAND_LEFT";
         }
         else if (playerState == PlayerState.WALKING) {
-            // sets animation to a WALK animation based on which way player is facing
             this.currentAnimationName = facingDirection == Direction.RIGHT ? "WALK_RIGHT" : "WALK_LEFT";
         }
     }
@@ -240,21 +305,10 @@ public abstract class Player extends GameObject {
     @Override
     public void onEndCollisionCheckY(boolean hasCollided, Direction direction, GameObject entityCollidedWith) { }
 
-    public PlayerState getPlayerState() {
-        return playerState;
-    }
-
-    public void setPlayerState(PlayerState playerState) {
-        this.playerState = playerState;
-    }
-
-    public Direction getFacingDirection() {
-        return facingDirection;
-    }
-
-    public void setFacingDirection(Direction facingDirection) {
-        this.facingDirection = facingDirection;
-    }
+    public PlayerState getPlayerState() { return playerState; }
+    public void setPlayerState(PlayerState playerState) { this.playerState = playerState; }
+    public Direction getFacingDirection() { return facingDirection; }
+    public void setFacingDirection(Direction facingDirection) { this.facingDirection = facingDirection; }
 
     public Rectangle getInteractionRange() {
         return new Rectangle(
@@ -270,6 +324,27 @@ public abstract class Player extends GameObject {
     public Direction getLastWalkingXDirection() { return lastWalkingXDirection; }
     public Direction getLastWalkingYDirection() { return lastWalkingYDirection; }
 
+    // Getters & Setters
+    public int getLevel() { return level; }
+    public int getCurrentXP() { return currentXP; }
+    public int getXpToNextLevel() { return xpToNextLevel; }
+
+    // Reads from global currency
+    public int getGold() { return PlayerData.getCurrency(); }
+
+    public float getMaxHP() { return maxHP; }
+    public float getCurrentHP() { return currentHP; }
+    public float getBaseATK() { return baseATK * atkModifier; }
+    public float getBaseDEF() { return baseDEF * defModifier; }
+    public float getBaseSPD() { return baseSPD * spdModifier; }
+
+    public float getAtkModifier() { return atkModifier; }
+    public float getDefModifier() { return defModifier; }
+    public float getSpdModifier() { return spdModifier; }
+
+    public void setCurrentHP(float health) {
+        this.currentHP = Math.max(0.0f, Math.min(health, maxHP));
+    }
 
     public void lock() {
         isLocked = true;
@@ -283,7 +358,6 @@ public abstract class Player extends GameObject {
         this.currentAnimationName = facingDirection == Direction.RIGHT ? "STAND_RIGHT" : "STAND_LEFT";
     }
 
-    // used by other files or scripts to force player to stand
     public void stand(Direction direction) {
         playerState = PlayerState.STANDING;
         facingDirection = direction;
@@ -295,7 +369,6 @@ public abstract class Player extends GameObject {
         }
     }
 
-    // used by other files or scripts to force player to walk
     public void walk(Direction direction, float speed) {
         playerState = PlayerState.WALKING;
         facingDirection = direction;
@@ -318,12 +391,4 @@ public abstract class Player extends GameObject {
             moveX(speed);
         }
     }
-
-    // Uncomment this to have game draw player's bounds to make it easier to visualize
-    /*
-    public void draw(GraphicsHandler graphicsHandler) {
-        super.draw(graphicsHandler);
-        drawBounds(graphicsHandler, new Color(255, 0, 0, 100));
-    }
-    */
 }

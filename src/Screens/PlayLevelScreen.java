@@ -4,11 +4,14 @@ import Engine.GraphicsHandler;
 import Engine.Screen;
 import Game.GameState;
 import Game.ScreenCoordinator;
+import Game.PlayerData;
 import Level.*;
 import Maps.TestMap;
 import Maps.BlankMap;
 import Players.Cat;
+import SpriteFont.SpriteFont;
 import Utils.Direction;
+import java.awt.Color;
 
 // This class is for when the RPG game is actually being played
 public class PlayLevelScreen extends Screen implements GameListener {
@@ -18,6 +21,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected PlayLevelScreenState playLevelScreenState;
     protected WinScreen winScreen;
     protected FlagManager flagManager;
+    protected SpriteFont coinCountDisplay;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -58,6 +62,11 @@ public class PlayLevelScreen extends Screen implements GameListener {
         map.preloadScripts();
 
         winScreen = new WinScreen(this);
+
+        // initialize currency counter display
+        coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 30, "Arial", 24, Color.YELLOW);
+        coinCountDisplay.setOutlineColor(Color.BLACK);
+        coinCountDisplay.setOutlineThickness(2);
     }
 
     public void update() {
@@ -68,6 +77,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case RUNNING:
                 player.update();
                 map.update(player);
+                coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
                 break;
             // if level has been completed, bring up level cleared screen
             case LEVEL_COMPLETED:
@@ -115,6 +125,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
         switch (playLevelScreenState) {
             case RUNNING:
                 map.draw(player, graphicsHandler);
+                coinCountDisplay.draw(graphicsHandler);
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
