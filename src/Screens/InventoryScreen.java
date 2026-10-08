@@ -130,6 +130,13 @@ public class InventoryScreen extends Screen {
             g.drawFilledRectangleWithBorder(x + SLOT - 14, y + 2, 12, 12, new Color(230, 190, 40), Color.black, 1);
     }
 
+    private void drawEquipSlot(GraphicsHandler graphicsHandler, Inventory inv, int x, int y, EquipSlot slot) {
+        Item item = inv.getEquippedItem(slot);
+        drawSlot(graphicsHandler, inv, x, y, item);
+        if (item == null)
+            graphicsHandler.drawString(slot.name().substring(0, 1), x + SLOT / 2 - 5, y + SLOT / 2 + 6, NAME_FONT, Color.gray);
+    }
+
     // rarity color assigner
     private static Color rarityColor(Item item) {
         return switch (item.getItemRarity()) {
