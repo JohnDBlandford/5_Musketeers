@@ -10,7 +10,13 @@ public class Inventory {
     private final Map<EquipSlot, Item> equippedItems = new EnumMap<>(EquipSlot.class);
 
     // if the array size is less then the max num of items allowed, add it
-    public boolean addItem(Item item) { return  items.size() < MAX_INVENTORY_SLOTS && items.add(item); }
+    public boolean addItem(Item item) {
+        if (items.size() < MAX_INVENTORY_SLOTS) {
+            items.add(item);
+            return true;
+        }
+        return false;
+    }
 
     public void removeItem(Item item) {
         items.remove(item);
