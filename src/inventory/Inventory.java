@@ -28,8 +28,10 @@ public class Inventory {
 
     public boolean isItemEquipped(Item item) { return equippedItems.get(item.getEquipSlot()) == item; }
     public Item getEquippedItem(EquipSlot slot) { return equippedItems.get(slot); }
+
     // returns an unmodifiable map of the entire item map each time called. this doesnt get an individual index
     public List<Item> getAllEquippedItems() { return Collections.unmodifiableList(items); }
+
     // this gets all items, not just equipped items, again as an unmodifiable map
     public List<Item> getAllItems() { return Collections.unmodifiableList(items); }
 }
