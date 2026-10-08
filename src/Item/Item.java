@@ -3,10 +3,13 @@ package Item;
 import GameObject.Sprite;
 import GameObject.SpriteSheet;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import Engine.ImageLoader;
 
 // NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
 public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
@@ -56,6 +59,32 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         this.itemRarity = itemRarity;
         this.itemAbilities = itemAbilities;
         this.buffModifiers = buffModifiers;
+    }
+        private SpriteSheet assignAutomaticSprite() {
+        // Load the 64x96 master item sheet
+        BufferedImage masterSheet = ImageLoader.load("Items.png"); 
+        
+        int col = 0;
+        int row = 0;
+
+        // Classic Java type checking tree
+        if (this instanceof Sword) {
+            col = 0;
+            row = 0; // Top Left
+        } else if (this instanceof RangedWeapon) {
+            col = 1;
+            row = 0; // Top Right
+        } else if (this instanceof Shield) {
+            col = 0;
+            row = 1; // Middle Left
+        } else if (this instanceof Armor) {
+            col = 1;
+            row = 1; // Middle Right
+        }
+
+        // Crops a 32x32 area out of the 64x96 image canvas based on row/column positioning
+        BufferedImage croppedIcon = masterSheet.getSubimage(col * 32, row * 32, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
     }
 
     public String getItemName() {
