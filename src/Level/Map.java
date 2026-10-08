@@ -28,26 +28,30 @@ public abstract class Map {
     // the tile map (map tiles that make up the entire map image)
     protected MapTile[] mapTiles;
 
-    // width and height of the map in terms of the number of tiles width-wise and height-wise
+    // width and height of the map in terms of the number of tiles width-wise and
+    // height-wise
     protected int width;
     protected int height;
 
     // the tileset this map uses for its map tiles
     protected Tileset tileset;
 
-    // camera class that handles the viewable part of the map that is seen by the player of a game during a level
+    // camera class that handles the viewable part of the map that is seen by the
+    // player of a game during a level
     protected Camera camera;
 
     // location player should start on when this map is first loaded
     protected Point playerStartPosition;
 
     // the location of the "mid point" of the screen
-    // this is what tells the game that the player has reached the center of the screen, therefore the camera should move instead of the player
+    // this is what tells the game that the player has reached the center of the
+    // screen, therefore the camera should move instead of the player
     // this goes into creating that "map scrolling" effect
     protected int xMidPoint, yMidPoint;
 
     // in pixels, this basically creates a rectangle defining how big the map is
-    // startX and Y will always be 0, endX and Y is the number of tiles multiplied by the number of pixels each tile takes up
+    // startX and Y will always be 0, endX and Y is the number of tiles multiplied
+    // by the number of pixels each tile takes up
     protected int startBoundX, startBoundY, endBoundX, endBoundY;
 
     // the name of the map text file that has the tile map information
@@ -101,17 +105,17 @@ public abstract class Map {
         loadMapFile();
 
         this.enhancedMapTiles = loadEnhancedMapTiles();
-        for (EnhancedMapTile enhancedMapTile: this.enhancedMapTiles) {
+        for (EnhancedMapTile enhancedMapTile : this.enhancedMapTiles) {
             enhancedMapTile.setMap(this);
         }
 
         this.npcs = loadNPCs();
-        for (NPC npc: this.npcs) {
+        for (NPC npc : this.npcs) {
             npc.setMap(this);
         }
 
         this.triggers = loadTriggers();
-        for (Trigger trigger: this.triggers) {
+        for (Trigger trigger : this.triggers) {
             trigger.setMap(this);
         }
 
@@ -127,14 +131,16 @@ public abstract class Map {
         try {
             // open map file that is located in the MAP_FILES_PATH directory
             fileInput = new Scanner(new File(Config.MAP_FILES_PATH + this.mapFileName));
-        } catch(FileNotFoundException ex) {
-            // if map file does not exist, create a new one for this map (the map editor uses this)
-            System.out.println("Map file " + Config.MAP_FILES_PATH + this.mapFileName + " not found! Creating empty map file...");
+        } catch (FileNotFoundException ex) {
+            // if map file does not exist, create a new one for this map (the map editor
+            // uses this)
+            System.out.println(
+                    "Map file " + Config.MAP_FILES_PATH + this.mapFileName + " not found! Creating empty map file...");
 
             try {
                 createEmptyMapFile();
                 fileInput = new Scanner(new File(Config.MAP_FILES_PATH + this.mapFileName));
-            } catch(IOException ex2) {
+            } catch (IOException ex2) {
                 ex2.printStackTrace();
                 System.out.println("Failed to create an empty map file!");
                 throw new RuntimeException();
@@ -145,11 +151,13 @@ public abstract class Map {
         this.width = fileInput.nextInt();
         this.height = fileInput.nextInt();
 
-        // define array size for map tiles, which is width * height (this is a standard array, NOT a 2D array)
+        // define array size for map tiles, which is width * height (this is a standard
+        // array, NOT a 2D array)
         this.mapTiles = new MapTile[this.height * this.width];
         fileInput.nextLine();
 
-        // read in each tile index from the map file, use the defined tileset to get the associated MapTile to that tileset, and place it in the array
+        // read in each tile index from the map file, use the defined tileset to get the
+        // associated MapTile to that tileset, and place it in the array
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int tileIndex = fileInput.nextInt();
@@ -177,7 +185,8 @@ public abstract class Map {
         fileWriter.close();
     }
 
-    // gets player start position based on player start tile (basically the start tile's position on the map)
+    // gets player start position based on player start tile (basically the start
+    // tile's position on the map)
     public Point getPlayerStartPosition() {
         return playerStartPosition;
     }
@@ -260,7 +269,8 @@ public abstract class Map {
         }
     }
 
-    // returns the index of a tile (x index and y index) based on a position in the map
+    // returns the index of a tile (x index and y index) based on a position in the
+    // map
     public Point getTileIndexByPosition(float xPosition, float yPosition) {
         int xIndex = Math.round(xPosition) / tileset.getScaledSpriteWidth();
         int yIndex = Math.round(yPosition) / tileset.getScaledSpriteHeight();
@@ -273,20 +283,25 @@ public abstract class Map {
     }
 
     // since tile map array is a standard (1D) array and not a 2D,
-    // instead of doing [y][x] to get a value, instead the same can be achieved with x + width * y
+    // instead of doing [y][x] to get a value, instead the same can be achieved with
+    // x + width * y
     private int getConvertedIndex(int x, int y) {
         return x + width * y;
     }
 
-    // list of scripts defined to be a part of the map, should be overridden in a subclass
-    protected void loadScripts() { }
+    // list of scripts defined to be a part of the map, should be overridden in a
+    // subclass
+    protected void loadScripts() {
+    }
 
-    // list of enhanced map tiles defined to be a part of the map, should be overridden in a subclass
+    // list of enhanced map tiles defined to be a part of the map, should be
+    // overridden in a subclass
     protected ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {
         return new ArrayList<>();
     }
 
-    // list of npcs defined to be a part of the map, should be overridden in a subclass
+    // list of npcs defined to be a part of the map, should be overridden in a
+    // subclass
     protected ArrayList<NPC> loadNPCs() {
         return new ArrayList<>();
     }
@@ -306,7 +321,10 @@ public abstract class Map {
     public ArrayList<NPC> getNPCs() {
         return npcs;
     }
-    public ArrayList<Trigger> getTriggers() { return triggers; }
+
+    public ArrayList<Trigger> getTriggers() {
+        return triggers;
+    }
 
     public ArrayList<MapTile> getAnimatedMapTiles() {
         return animatedMapTiles;
@@ -319,12 +337,14 @@ public abstract class Map {
     public void setActiveScript(Script script) {
         activeScript = script;
 
-        // script is set to null if there is no active script running, or if a script has completed running
+        // script is set to null if there is no active script running, or if a script
+        // has completed running
         // if script is null, do not set it to be active
         // otherwise, set script to active, which will begin its execution
         if (script != null) {
 
-            // if the script was not previously preloaded (preloadScripts method) beforehand, this will load the script dynamically
+            // if the script was not previously preloaded (preloadScripts method)
+            // beforehand, this will load the script dynamically
             // preloading is recommended, but both are supported
             if (script.getScriptActions() == null) {
                 activeScript.setMap(this);
@@ -381,12 +401,14 @@ public abstract class Map {
         return null;
     }
 
-    // returns all active enhanced map tiles (enhanced map tiles that are a part of the current update cycle) -- this changes every frame by the Camera class
+    // returns all active enhanced map tiles (enhanced map tiles that are a part of
+    // the current update cycle) -- this changes every frame by the Camera class
     public ArrayList<EnhancedMapTile> getActiveEnhancedMapTiles() {
         return camera.getActiveEnhancedMapTiles();
     }
 
-    // returns all active npcs (npcs that are a part of the current update cycle) -- this changes every frame by the Camera class
+    // returns all active npcs (npcs that are a part of the current update cycle) --
+    // this changes every frame by the Camera class
     public ArrayList<NPC> getActiveNPCs() {
         return camera.getActiveNPCs();
     }
@@ -417,14 +439,14 @@ public abstract class Map {
         this.adjustCamera = adjustCamera;
     }
 
-
     public ArrayList<MapEntity> getSurroundingMapEntities(Player player) {
         ArrayList<MapEntity> surroundingMapEntities = new ArrayList<>();
 
         // gets surrounding tiles
-        Point playerCurrentTile = getTileIndexByPosition((int)player.getBounds().getX1(), (int)player.getBounds().getY1());
-        for (int i = (int)playerCurrentTile.y - 1; i <= playerCurrentTile.y + 1; i++) {
-            for (int j = (int)playerCurrentTile.x - 1; j <= playerCurrentTile.x + 1; j++) {
+        Point playerCurrentTile = getTileIndexByPosition((int) player.getBounds().getX1(),
+                (int) player.getBounds().getY1());
+        for (int i = (int) playerCurrentTile.y - 1; i <= playerCurrentTile.y + 1; i++) {
+            for (int j = (int) playerCurrentTile.x - 1; j <= playerCurrentTile.x + 1; j++) {
                 MapTile mapTile = getMapTile(j, i);
                 if (mapTile != null && mapTile.getInteractScript() != null) {
                     surroundingMapEntities.add(mapTile);
@@ -447,11 +469,11 @@ public abstract class Map {
         }
         MapEntity interactedEntity = null;
         if (playerTouchingMapEntities.size() == 1) {
-            if (playerTouchingMapEntities.get(0).isUncollidable || isInteractedEntityValid(playerTouchingMapEntities.get(0), player)) {
+            if (playerTouchingMapEntities.get(0).isUncollidable
+                    || isInteractedEntityValid(playerTouchingMapEntities.get(0), player)) {
                 interactedEntity = playerTouchingMapEntities.get(0);
             }
-        }
-        else if (playerTouchingMapEntities.size() > 1) {
+        } else if (playerTouchingMapEntities.size() > 1) {
             MapEntity currentLargestAreaOverlappedEntity = null;
             float currentLargestAreaOverlapped = 0;
             for (MapEntity mapEntity : playerTouchingMapEntities) {
@@ -474,38 +496,51 @@ public abstract class Map {
         Rectangle playerBounds = player.getBounds();
         Rectangle entityBounds = interactedEntity.getBounds();
 
-        // this does several checks to ensure the player's location releative to the entity's is valid for interaction
-        // takes into account things like player's current location, entity's current location, player's facing direction, player's center point, etc.
-        // this prevents things like being able to interact with an entity without facing it and other oddities like that
-                
-        // if player is facing left and entity is completely to the left of the player, location is valid
+        // this does several checks to ensure the player's location releative to the
+        // entity's is valid for interaction
+        // takes into account things like player's current location, entity's current
+        // location, player's facing direction, player's center point, etc.
+        // this prevents things like being able to interact with an entity without
+        // facing it and other oddities like that
+
+        // if player is facing left and entity is completely to the left of the player,
+        // location is valid
         if (player.getFacingDirection() == Direction.LEFT && entityBounds.getX2() < playerBounds.getX1()) {
             return true;
         }
-        // if player is facing right and entity is completely to the right of the player, location is valid
+        // if player is facing right and entity is completely to the right of the
+        // player, location is valid
         else if (player.getFacingDirection() == Direction.RIGHT && entityBounds.getX1() > playerBounds.getX2()) {
             return true;
         }
 
-        boolean isEntityOverOrUnderPlayer = entityBounds.getY2() < playerBounds.getY1() || entityBounds.getY1() > playerBounds.getY2();
+        boolean isEntityOverOrUnderPlayer = entityBounds.getY2() < playerBounds.getY1()
+                || entityBounds.getY1() > playerBounds.getY2();
         if (interactedEntity instanceof NPC) {
-            // if player is facing left and entity is either on top of or underneath player and player's center point is greater than entity's center point, location is valid
-            if (player.getFacingDirection() == Direction.LEFT && isEntityOverOrUnderPlayer && playerBounds.getX1() < entityBounds.getX2()) {
+            // if player is facing left and entity is either on top of or underneath player
+            // and player's center point is greater than entity's center point, location is
+            // valid
+            if (player.getFacingDirection() == Direction.LEFT && isEntityOverOrUnderPlayer
+                    && playerBounds.getX1() < entityBounds.getX2()) {
                 return true;
             }
-            // if player is facing right and entity is either on top of or underneath player and player's center point is less than entity's center point, location is valid
-            else if (player.getFacingDirection() == Direction.RIGHT && isEntityOverOrUnderPlayer && playerBounds.getX2() > entityBounds.getX1()) {
+            // if player is facing right and entity is either on top of or underneath player
+            // and player's center point is less than entity's center point, location is
+            // valid
+            else if (player.getFacingDirection() == Direction.RIGHT && isEntityOverOrUnderPlayer
+                    && playerBounds.getX2() > entityBounds.getX1()) {
                 return true;
             }
-        }
-        else {
-            // if interacted with anything other than NPC, it doesn't matter which direction you're facing, so it's valid if above/below player
+        } else {
+            // if interacted with anything other than NPC, it doesn't matter which direction
+            // you're facing, so it's valid if above/below player
             if (isEntityOverOrUnderPlayer) {
                 return true;
             }
         }
 
-        // if none of the location validity checks matched, location is not valid and the interaction will fail
+        // if none of the location validity checks matched, location is not valid and
+        // the interaction will fail
         return false;
     }
 
@@ -520,26 +555,34 @@ public abstract class Map {
         }
     }
 
-    // based on the player's current X position (which in a level can potentially be updated each frame),
-    // adjust the player's and camera's positions accordingly in order to properly create the map "scrolling" effect
+    // based on the player's current X position (which in a level can potentially be
+    // updated each frame),
+    // adjust the player's and camera's positions accordingly in order to properly
+    // create the map "scrolling" effect
     private void adjustMovementX(Player player) {
-        // if player goes past center screen (on the right side) and there is more map to show on the right side, push player back to center and move camera forward
-        if ((player.getCalibratedXLocation() + (player.getWidth() / 2)) > xMidPoint && camera.getEndBoundX() < endBoundX) {
+        // if player goes past center screen (on the right side) and there is more map
+        // to show on the right side, push player back to center and move camera forward
+        if ((player.getCalibratedXLocation() + (player.getWidth() / 2)) > xMidPoint
+                && camera.getEndBoundX() < endBoundX) {
             float xMidPointDifference = xMidPoint - (player.getCalibratedXLocation() + (player.getWidth() / 2));
             camera.moveX(-xMidPointDifference);
 
-            // if camera moved past the right edge of the map as a result from the move above, move camera back and push player forward
+            // if camera moved past the right edge of the map as a result from the move
+            // above, move camera back and push player forward
             if (camera.getEndBoundX() > endBoundX) {
                 float cameraDifference = camera.getEndBoundX() - endBoundX;
                 camera.moveX(-cameraDifference);
             }
         }
-        // if player goes past center screen (on the left side) and there is more map to show on the left side, push player back to center and move camera backwards
-        else if ((player.getCalibratedXLocation() + (player.getWidth() / 2)) < xMidPoint && camera.getX() > startBoundX) {
+        // if player goes past center screen (on the left side) and there is more map to
+        // show on the left side, push player back to center and move camera backwards
+        else if ((player.getCalibratedXLocation() + (player.getWidth() / 2)) < xMidPoint
+                && camera.getX() > startBoundX) {
             float xMidPointDifference = xMidPoint - (player.getCalibratedXLocation() + (player.getWidth() / 2));
             camera.moveX(-xMidPointDifference);
 
-            // if camera moved past the left edge of the map as a result from the move above, move camera back and push player backward
+            // if camera moved past the left edge of the map as a result from the move
+            // above, move camera back and push player backward
             if (camera.getX() < startBoundX) {
                 float cameraDifference = startBoundX - camera.getX();
                 camera.moveX(cameraDifference);
@@ -547,26 +590,34 @@ public abstract class Map {
         }
     }
 
-    // based on the player's current Y position (which in a level can potentially be updated each frame),
-    // adjust the player's and camera's positions accordingly in order to properly create the map "scrolling" effect
+    // based on the player's current Y position (which in a level can potentially be
+    // updated each frame),
+    // adjust the player's and camera's positions accordingly in order to properly
+    // create the map "scrolling" effect
     private void adjustMovementY(Player player) {
-        // if player goes past center screen (below) and there is more map to show below, push player back to center and move camera upward
-        if ((player.getCalibratedYLocation() + (player.getHeight() / 2)) > yMidPoint && camera.getEndBoundY() < endBoundY) {
+        // if player goes past center screen (below) and there is more map to show
+        // below, push player back to center and move camera upward
+        if ((player.getCalibratedYLocation() + (player.getHeight() / 2)) > yMidPoint
+                && camera.getEndBoundY() < endBoundY) {
             float yMidPointDifference = yMidPoint - (player.getCalibratedYLocation() + (player.getHeight() / 2));
             camera.moveY(-yMidPointDifference);
 
-            // if camera moved past the bottom of the map as a result from the move above, move camera upwards and push player downwards
+            // if camera moved past the bottom of the map as a result from the move above,
+            // move camera upwards and push player downwards
             if (camera.getEndBoundY() > endBoundY) {
                 float cameraDifference = camera.getEndBoundY() - endBoundY;
                 camera.moveY(-cameraDifference);
             }
         }
-        // if player goes past center screen (above) and there is more map to show above, push player back to center and move camera upwards
-        else if ((player.getCalibratedYLocation() + (player.getHeight() / 2)) < yMidPoint && camera.getY() > startBoundY) {
+        // if player goes past center screen (above) and there is more map to show
+        // above, push player back to center and move camera upwards
+        else if ((player.getCalibratedYLocation() + (player.getHeight() / 2)) < yMidPoint
+                && camera.getY() > startBoundY) {
             float yMidPointDifference = yMidPoint - (player.getCalibratedYLocation() + (player.getHeight() / 2));
             camera.moveY(-yMidPointDifference);
 
-            // if camera moved past the top of the map as a result from the move above, move camera downwards and push player upwards
+            // if camera moved past the top of the map as a result from the move above, move
+            // camera downwards and push player upwards
             if (camera.getY() < startBoundY) {
                 float cameraDifference = startBoundY - camera.getY();
                 camera.moveY(cameraDifference);
@@ -589,16 +640,25 @@ public abstract class Map {
         }
     }
 
-    public FlagManager getFlagManager() { return flagManager; }
+    public FlagManager getFlagManager() {
+        return flagManager;
+    }
 
     public void setFlagManager(FlagManager flagManager) {
         this.flagManager = flagManager;
     }
 
-    public Textbox getTextbox() { return textbox; }
+    public Textbox getTextbox() {
+        return textbox;
+    }
 
-    public int getEndBoundX() { return endBoundX; }
-    public int getEndBoundY() { return endBoundY; }
+    public int getEndBoundX() {
+        return endBoundX;
+    }
+
+    public int getEndBoundY() {
+        return endBoundY;
+    }
 
     public Player getPlayer() {
         return this.player;
@@ -614,5 +674,11 @@ public abstract class Map {
 
     public ArrayList<GameListener> getListeners() {
         return listeners;
+    }
+
+    public void requestMapChange(String mapName, float playerX, float playerY) {
+        for (GameListener listener : listeners) {
+            listener.onMapChange(mapName, playerX, playerY);
+        }
     }
 }
