@@ -87,7 +87,7 @@ public class InventoryScreen extends Screen {
     @Override
     public void draw(GraphicsHandler graphicsHandler) {
         Inventory inv = playLevelScreen.getInventory();
-        graphicsHandler.drawFilledRectangle(0, 0, ScreenManager.getScreenWidth(), ScreenManager.getScreenHeight(), DIM);
+        graphicsHandler.drawFilledRectangle(0, 0, screenWidth, screenHeight, DIM);
         graphicsHandler.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, PANEL_FILL, Color.black, 3);
         instructions.draw(graphicsHandler);
 
