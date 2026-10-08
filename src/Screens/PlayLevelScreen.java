@@ -1,7 +1,6 @@
 package Screens;
 
-import Engine.GraphicsHandler;
-import Engine.Screen;
+import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
 import Game.PlayerData;
@@ -21,6 +20,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected PlayLevelScreenState playLevelScreenState;
     protected WinScreen winScreen;
     protected FlagManager flagManager;
+    protected AttackWindow attackWindow;
+    protected KeyLocker keyLocker = new KeyLocker();
     protected SpriteFont coinCountDisplay;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
@@ -62,6 +63,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
         map.preloadScripts();
 
         winScreen = new WinScreen(this);
+        attackWindow = new AttackWindow(this);
 
         // initialize currency counter display
         coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 30, "Arial", 24, Color.YELLOW);
@@ -77,12 +79,31 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case RUNNING:
                 player.update();
                 map.update(player);
+                // Opens attack window at random
+                if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
+                    keyLocker.lockKey(Key.W);
+                    int randomNum = (int) Math.round(Math.random() * 100%5);
+                    System.out.println(randomNum);
+                    if(randomNum == 0){
+                        playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
+                    }
+                }
+                if(Keyboard.isKeyUp(Key.W)){
+                    keyLocker.unlockKey(Key.W);
+                }
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
                 break;
             // if level has been completed, bring up level cleared screen
             case LEVEL_COMPLETED:
                 winScreen.update();
                 break;
+
+            //If the game state was changed to attach window then the attack window should open
+            case ATTACK_WINDOW:
+                attackWindow.update();
+
+                break;
+
         }
     }
 
@@ -135,6 +156,10 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
                 break;
+            case ATTACK_WINDOW:
+                map.draw(player, graphicsHandler);
+                attackWindow.draw(graphicsHandler);
+                break;
         }
     }
 
@@ -150,8 +175,13 @@ public class PlayLevelScreen extends Screen implements GameListener {
         screenCoordinator.setGameState(GameState.MENU);
     }
 
+    //Closes Attack Window
+    public void closeAttackWindow(){
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
     // This enum represents the different states this screen can be in
     private enum PlayLevelScreenState {
-        RUNNING, LEVEL_COMPLETED
+        RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW
     }
 }
