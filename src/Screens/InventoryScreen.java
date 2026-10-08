@@ -37,7 +37,7 @@ public class InventoryScreen extends Screen {
 
     @Override
     public void initialize() {
-        instructions = new SpriteFont("Press I to enter and ESC exit the inventory", 120, 100, "Arial", 25, Color.white);
+        instructions = new SpriteFont("Press I to enter and ESC exit the inventory", 120, 70, "Arial", 25, Color.white);
         instructions.setOutlineColor(Color.black);
         instructions.setOutlineThickness(2);
         keyLocker.lockKey(Key.ESC);
