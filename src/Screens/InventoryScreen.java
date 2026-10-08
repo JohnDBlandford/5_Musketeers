@@ -92,7 +92,7 @@ public class InventoryScreen extends Screen {
         instructions.draw(graphicsHandler);
 
         for (int i = 0; i < EquipSlot.values().length; i++)
-            drawSlot(graphicsHandler, inv, equipX, slotsY + i * PITCH, inv.getEquippedItem(EquipSlot.values()[i]));
+            drawEquipSlot(graphicsHandler, inv, equipX, slotsY + i * PITCH, EquipSlot.values()[i]);
         List<Item> pack = inv.getAllItems();
         for (int r = 0; r < ROWS; r++)
             for (int c = 0; c < COLS; c++) {
