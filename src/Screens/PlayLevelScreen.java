@@ -6,8 +6,12 @@ import Game.GameState;
 import Game.ScreenCoordinator;
 import Game.PlayerData;
 import Level.*;
+import Maps.BlankMap;
 import Maps.TestMap;
+import Maps.World1Map;
+import Maps.World2Map;
 import Players.Knight;
+import SpriteFont.SpriteFont;
 import Utils.Direction;
 import java.awt.Color;
 
@@ -97,7 +101,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
     public void onMapChange(String mapName, float playerX, float playerY) {
         map = createMap(mapName);
         map.setFlagManager(flagManager);
-        player = new Cat(playerX, playerY);
+        player = new Knight(playerX, playerY);
         player.setMap(map);
         player.setFacingDirection(Direction.LEFT);
         map.setPlayer(player);

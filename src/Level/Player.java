@@ -16,6 +16,8 @@ import Game.PlayerData;
 
 import java.util.ArrayList;
 
+import Lighting.BackgroundOpacity;
+
 public abstract class Player extends GameObject {
     // values that affect player movement
     protected float walkSpeed = 0;
@@ -93,6 +95,11 @@ public abstract class Player extends GameObject {
         handlePlayerAnimation();
         updateLockedKeys();
         super.update();
+       
+    }
+    public void draw(GraphicsHandler graphicsHandler) {
+        super.draw(graphicsHandler);
+         new BackgroundOpacity().draw(graphicsHandler, getCalibratedXLocation(), getCalibratedYLocation());
     }
 
     protected void handlePlayerState() {
