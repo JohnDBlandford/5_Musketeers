@@ -7,6 +7,7 @@ import inventory.EquipSlot;
 import inventory.Inventory;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryScreen extends Screen {
@@ -110,8 +111,11 @@ public class InventoryScreen extends Screen {
         if (item == null) return;
         int x = detailX + 12;
         int y = slotsY + 28;
-        graphicsHandler.drawString(item.getItemName().replaceAll("(?<=[a-z])(?=[A-Z])", " "), x, y, NAME_FONT, rarityColor(item));
-        y += 22;
+        String name = item.getItemName().replaceAll("(?<=[a-z])(?=[A-Z])", " ");
+        for (String line : wrapWord(graphicsHandler.getGraphics(), name, NAME_FONT, detailW - 24)) {
+            graphicsHandler.drawString(line, x, y, NAME_FONT, rarityColor(item));
+            y += 22;
+        }
         graphicsHandler.drawString(item.getItemRarity().name(), x, y, BODY_FONT, Color.lightGray);
         for (var e : item.getTotalItemBuffs().entrySet()) {
             y += 20;
@@ -145,5 +149,25 @@ public class InventoryScreen extends Screen {
             case LEGENDARY -> new Color(230, 150, 40);
             default -> new Color(130, 130, 130);
         };
+    }
+
+    // helper for wrapping long item names so that they dont go past the edge of the rect
+    private List<String> wrapWord(Graphics2D g2d, String txt, Font font, int maxWidth) {
+        FontMetrics metrics = g2d.getFontMetrics(font);
+        List<String> lines = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        // for each word, split it at the empty spot
+        for (String word : txt.split(" ")) {
+            String candidate = line.isEmpty() ? word : line + " " + word;
+            // if the array is empty and the font metrics width is less then the max width, add it to the builder and create a new builder
+            if (!line.isEmpty() && metrics.stringWidth(candidate) > maxWidth) {
+                lines.add(line.toString());
+                line = new StringBuilder(word);
+            } else {
+                line = new StringBuilder(candidate);
+            }
+        }
+        if (!line.isEmpty()) lines.add(line.toString());
+        return lines;
     }
 }
