@@ -60,7 +60,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         this.itemAbilities = itemAbilities;
         this.buffModifiers = buffModifiers;
     }
-        protected abstract SpriteSheet assignAutomaticSprite();     
+        //protected abstract SpriteSheet assignAutomaticSprite();     
 
     public String getItemName() {
         return this.itemName;
