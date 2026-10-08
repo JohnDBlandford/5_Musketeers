@@ -3,6 +3,7 @@ package Screens;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
+import Item.ItemTestFactory;
 import Level.*;
 import Maps.TestMap;
 import Maps.BlankMap;
@@ -63,6 +64,12 @@ public class PlayLevelScreen extends Screen implements GameListener {
 
         winScreen = new WinScreen(this);
         inventoryScreen = new InventoryScreen(this);
+        inventory.addItem(ItemTestFactory.createRustedShortSword(null));
+        inventory.addItem(ItemTestFactory.createRustedShortSword(null));   // duplicate, to test the identity swap
+        inventory.addItem(ItemTestFactory.createWraithboneSaber(null));    // legendary, to test the color
+        inventory.addItem(ItemTestFactory.createCrackedHuntingBow(null));
+        inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
+        inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
     }
 
     public void update() {
