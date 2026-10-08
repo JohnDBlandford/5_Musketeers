@@ -6,29 +6,28 @@ import java.util.*;
 
 public class Inventory {
     private static final int MAX_INVENTORY_SLOTS = 20;
-    private final List<Item> backpack = new ArrayList<>();
+    private final List<Item> items = new ArrayList<>();
     private final Map<EquipSlot, Item> equippedItems = new EnumMap<>(EquipSlot.class);
 
-    public boolean equipItem(int index) {
-        if (index < 0 || index >= backpack.size()) return false;
-        Item item = backpack.get(index);
-        Item prev = equippedItems.put(item.getEquipSlot(), item);
-        // swap in place to prevent item shifts when items are removed
-        if (prev != null) backpack.set(index, prev);
-        else backpack.remove(index); // empty slot, list scales dynamically
-        return true;
+    // if the array size is less then the max num of items allowed, add it
+    public boolean addItem(Item item) { return  items.size() < MAX_INVENTORY_SLOTS && items.add(item); }
+
+    public void removeItem(Item item) {
+        items.remove(item);
+        equippedItems.values().remove(item); // for reference cleanup with the enum map
     }
 
-    public boolean unequip(EquipSlot equipSlot) {
-        // if the enum map does not contain the same key and the backpack is full, return false
-        if (!equippedItems.containsKey(equipSlot) || backpack.size() >= MAX_INVENTORY_SLOTS) return false;
-        backpack.add(equippedItems.remove(equipSlot));
-        return true;
+    public void toggleItemEquip(int index) {
+        if ((index < 0) || (index >= items.size())) return;
+        Item item = items.get(index);
+        if (isItemEquipped(item)) equippedItems.remove(item.getEquipSlot());
+        else equippedItems.put(item.getEquipSlot(), item); // replace the old occupant for that slot
     }
 
-    // nulls are allowed here because they represent empty/unused slots
-    public Item getEquipped(EquipSlot equipSlot) { return equippedItems.get(equipSlot); }
-
-    // returns an unmodifiable map of the backpack at the current time its called, if the map gets updated, this must be called again
-    public List<Item> getBackpack() { return Collections.unmodifiableList(backpack); }
+    public boolean isItemEquipped(Item item) { return equippedItems.get(item.getEquipSlot()) == item; }
+    public Item getEquippedItem(EquipSlot slot) { return equippedItems.get(slot); }
+    // returns an unmodifiable map of the entire item map each time called. this doesnt get an individual index
+    public List<Item> getAllEquippedItems() { return Collections.unmodifiableList(items); }
+    // this gets all items, not just equipped items, again as an unmodifiable map
+    public List<Item> getAllItems() { return Collections.unmodifiableList(items); }
 }
