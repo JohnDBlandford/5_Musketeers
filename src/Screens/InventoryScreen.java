@@ -37,7 +37,7 @@ public class InventoryScreen extends Screen {
 
     @Override
     public void initialize() {
-        instructions = new SpriteFont("\"Arrows: move   ENTER: equip / unequip   ESC: close\"", 80, 70, "Arial", 25, Color.white);
+        instructions = new SpriteFont("Arrows: move   ENTER: equip / unequip   ESC: close", 80, 70, "Arial", 25, Color.white);
         instructions.setOutlineColor(Color.black);
         instructions.setOutlineThickness(2);
         keyLocker.lockKey(Key.ESC);
