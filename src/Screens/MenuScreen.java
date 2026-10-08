@@ -24,7 +24,7 @@ public class MenuScreen extends Screen {
     private static final String TITLE = "DABBAH";
     private static final String TITLE_BOTTOM = "RISES";
     private static final String FOOTER = "V0.910  (C)2026 THE 5 MUSKETEERS";
-    private static final String[] ITEMS = { "BEGIN", "CREDITS", "ABITUS" }; // 0 = start game, 1 = credits, 2 = exit
+    private static final String[] ITEMS = { "BEGIN", "CREDITS", "EXIT" }; // 0 = start game, 1 = credits, 2 = exit
     private static final float BG_MAX_ALPHA = 0.22f;               // how visible Dabbah is (keep low)
     private static final float[] FORM_ALPHA = { 1.0f, 1.0f, 1.4f }; // dark beams need a little extra to be seen
     private static final float BEAM_ALPHA = 0.7f;                 // beams get their own, much stronger layer so they can be seen

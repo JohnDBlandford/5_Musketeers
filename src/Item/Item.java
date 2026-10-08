@@ -58,32 +58,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         this.itemAbilities = itemAbilities;
         this.buffModifiers = buffModifiers;
     }
-        private SpriteSheet assignAutomaticSprite() {
-        // Load the 64x96 master item sheet
-        BufferedImage masterSheet = ImageLoader.load("Items.png"); 
-        
-        int col = 0;
-        int row = 0;
-
-        // Classic Java type checking tree
-        if (this instanceof Sword) {
-            col = 0;
-            row = 0; // Top Left
-        } else if (this instanceof RangedWeapon) {
-            col = 1;
-            row = 0; // Top Right
-        } else if (this instanceof Shield) {
-            col = 0;
-            row = 1; // Middle Left
-        } else if (this instanceof Armor) {
-            col = 1;
-            row = 1; // Middle Right
-        }
-
-        // Crops a 32x32 area out of the 64x96 image canvas based on row/column positioning
-        BufferedImage croppedIcon = masterSheet.getSubimage(col * 32, row * 32, 32, 32);
-        return new SpriteSheet(croppedIcon, 32, 32);
-    }
+        //protected abstract SpriteSheet assignAutomaticSprite();     
 
     public String getItemName() {
         return this.itemName;
