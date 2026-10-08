@@ -1,7 +1,7 @@
 package Item;
 
-import GameObject.Sprite;
 import GameObject.SpriteSheet;
+import inventory.EquipSlot;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,13 +16,8 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     protected final String itemName;
     protected SpriteSheet itemLook;
     protected ItemRarity itemRarity;
-    protected Map<ItemAbilities, AbilityType> itemAbilities;
+    protected Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
-    protected EquippedStatus equippedStatus = EquippedStatus.NOT_EQUIPPED;
-
-    public enum EquippedStatus {
-        EQUIPPED, NOT_EQUIPPED
-    }
 
     public enum ItemRarity {
         COMMON, UNCOMMON, EPIC, LEGENDARY
@@ -38,16 +33,19 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         NONE, GALE_SLASH, HEAVY_CLEAVE, BLOODFANG_STRIKE,
         RECKONING_BLOW, WINDBORNE_ARROW, PIERCING_SHOT, VOLLEY,
         HUNTERS_MARK, BULWARK_STANCE, SHIELD_BASH, SHIELD_THROW,
-        RETALIATE
+        RETALIATE, SECOND_WIND, LIGHT_FOOTING, HARDEN, GRIT, IRON_STANCE
     }
 
     public enum AbilityType {
-        BUFF, BURST, SUSTAIN, FINISHER, MULTI_HIT, DEBUFF, CONTROL, COUNTER
+        BUFF, BURST, SUSTAIN, FINISHER, MULTI_HIT, DEBUFF, CONTROL,
+        COUNTER, HEAL, DMG_REDUCTION, SPD_BOOST, BONUS_DEF, NONE,
+        HEALTH_RESTORE
     }
 
     // protected constructor to prevent instantiation outside of this package
     // but also allows subclasses to see it
-    protected Item(String itemName, SpriteSheet itemLook, ItemRarity itemRarity, Map<ItemAbilities, AbilityType> itemAbilities,
+    protected Item(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
+                   Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities,
                    Map<ItemBuffs, Double> buffModifiers) {
         // common items never have buffs
         // this check is here so that this fails at compile time and not runtime
@@ -74,23 +72,16 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         return this.itemRarity;
     }
 
-    // init as not equipped. can be overridden via the setter
-    public EquippedStatus getItemEquippedStatus() {
-        return this.equippedStatus;
-    }
-
     public double getItemBuffModifiers(ItemBuffs buff) {
         return buffModifiers.getOrDefault(buff, 0.0);
     }
 
-    // use for when the player picks up a new item to add to the future inventory system
-    public void setEquippedStatus(EquippedStatus newEquippedStatus) {
-        this.equippedStatus = newEquippedStatus;
-    }
+    // new subtypes must declare a type for this method because Item is abstract
+    public abstract EquipSlot getEquipSlot();
 
     // note that these two methods return the entire map every time they are called
     // they are unmodifiable
-    public Map<ItemAbilities, AbilityType> getTotalItemAbilities() {
+    public Map<AbilityType, Map<ItemAbilities, Double>> getTotalItemAbilities() {
         return Collections.unmodifiableMap(this.itemAbilities);
     }
 
@@ -98,11 +89,12 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
         return Collections.unmodifiableMap(this.buffModifiers);
     }
 
+    // fix later
     @Override
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
-        for (ItemAbilities ability : itemAbilities.keySet()) {
-            if (ability != ItemAbilities.NONE) {
+        for (AbilityType ability : itemAbilities.keySet()) {
+            if (ability != AbilityType.NONE) {
                 abilityNames.add(ability.name());
             }
         }

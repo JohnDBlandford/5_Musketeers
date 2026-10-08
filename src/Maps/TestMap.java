@@ -53,8 +53,7 @@ public class TestMap extends Map {
         enhancedMapTiles.add(testRangedWeapon);
 
         SpriteSheet itemLookArmor = PlaceHolderSpriteFactory.drawSolidColor(15, 16, Color.ORANGE);
-        java.util.Map<Item.ItemAbilities, Item.AbilityType> itemAbilities = new HashMap<>();
-        ItemMapTile testArmor = new ItemMapTile(getMapTile(0, 20).getLocation(), ItemTestFactory.createBeggarsWrapsArmor(itemLookArmor, itemAbilities));
+        ItemMapTile testArmor = new ItemMapTile(getMapTile(0, 20).getLocation(), ItemTestFactory.createBeggarsWrapsArmor(itemLookArmor));
         enhancedMapTiles.add(testArmor);
 
         return enhancedMapTiles;

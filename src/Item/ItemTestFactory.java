@@ -29,9 +29,9 @@ public final class ItemTestFactory {
     public static Item createWraithboneBulwarkShield(SpriteSheet itemLook) { return new WraithboneBulwarkShield(itemLook); }
 
     // Armor
-    public static Item createBeggarsWrapsArmor(SpriteSheet itemLook, Map<Item.ItemAbilities, Item.AbilityType> itemAbilities) { return new BeggarsWrapsArmor(itemLook, itemAbilities); }
-    public static Item createPatchedLeatherArmor(SpriteSheet itemLook, Map<Item.ItemAbilities, Item.AbilityType> itemAbilities) { return new PatchedLeatherArmor(itemLook, itemAbilities); }
-    public static Item createScavengersHideArmor(SpriteSheet itemLook, Map<Item.ItemAbilities, Item.AbilityType> itemAbilities) { return new ScavengersHideArmor(itemLook, itemAbilities); }
-    public static Item createFamineEdgeVestmentsArmor(SpriteSheet itemLook, Map<Item.ItemAbilities, Item.AbilityType> itemAbilities) { return new FamineEdgeVestmentsArmor(itemLook, itemAbilities); }
-    public static Item createWraithboneMailArmor(SpriteSheet itemLook, Map<Item.ItemAbilities, Item.AbilityType> itemAbilities) { return new WraithboneMailArmor(itemLook, itemAbilities); }
+    public static Item createBeggarsWrapsArmor(SpriteSheet itemLook) { return new BeggarsWrapsArmor(itemLook); }
+    public static Item createPatchedLeatherArmor(SpriteSheet itemLook) { return new PatchedLeatherArmor(itemLook); }
+    public static Item createScavengersHideArmor(SpriteSheet itemLook) { return new ScavengersHideArmor(itemLook); }
+    public static Item createFamineEdgeVestmentsArmor(SpriteSheet itemLook) { return new FamineEdgeVestmentsArmor(itemLook); }
+    public static Item createWraithboneMailArmor(SpriteSheet itemLook) { return new WraithboneMailArmor(itemLook); }
 }
