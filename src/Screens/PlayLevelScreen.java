@@ -24,8 +24,9 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected PlayLevelScreenState playLevelScreenState;
     protected WinScreen winScreen;
     protected FlagManager flagManager;
+    protected AttackWindow attackWindow;
+    protected KeyLocker keyLocker = new KeyLocker();
     protected SpriteFont coinCountDisplay;
-    private KeyLocker keyLocker = new KeyLocker();
     private InventoryScreen inventoryScreen;
     private Inventory inventory;
 
@@ -69,6 +70,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
         map.preloadScripts();
 
         winScreen = new WinScreen(this);
+        attackWindow = new AttackWindow(this);
 
         // initialize currency counter display
         coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 30, "Arial", 24, Color.YELLOW);
@@ -100,6 +102,18 @@ public class PlayLevelScreen extends Screen implements GameListener {
                 }
                 player.update();
                 map.update(player);
+                // Opens attack window at random
+                if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
+                    keyLocker.lockKey(Key.W);
+                    int randomNum = (int) Math.round(Math.random() * 100%5);
+                    System.out.println(randomNum);
+                    if(randomNum == 0){
+                        playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
+                    }
+                }
+                if(Keyboard.isKeyUp(Key.W)){
+                    keyLocker.unlockKey(Key.W);
+                }
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
                 break;
             // if level has been completed, bring up level cleared screen
@@ -112,6 +126,13 @@ public class PlayLevelScreen extends Screen implements GameListener {
                 map.update(player);
                 inventoryScreen.update();
                 break;
+
+            //If the game state was changed to attach window then the attack window should open
+            case ATTACK_WINDOW:
+                attackWindow.update();
+
+                break;
+
         }
     }
 
@@ -164,6 +185,10 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
                 break;
+            case ATTACK_WINDOW:
+                map.draw(player, graphicsHandler);
+                attackWindow.draw(graphicsHandler);
+                break;
             case INVENTORY:
                 inventoryScreen.draw(graphicsHandler);
         }
@@ -181,6 +206,11 @@ public class PlayLevelScreen extends Screen implements GameListener {
         screenCoordinator.setGameState(GameState.MENU);
     }
 
+    //Closes Attack Window
+    public void closeAttackWindow(){
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
     public void closeInventory() {
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
@@ -190,6 +220,6 @@ public class PlayLevelScreen extends Screen implements GameListener {
 
     // This enum represents the different states this screen can be in
     private enum PlayLevelScreenState {
-        RUNNING, LEVEL_COMPLETED, INVENTORY
+        RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW,INVENTORY
     }
 }
