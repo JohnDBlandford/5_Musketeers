@@ -3,14 +3,18 @@ package Screens;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
+import Item.ItemTestFactory;
 import Game.PlayerData;
 import Level.*;
-import Maps.*;
-
-import Players.Cat;
+import Maps.BlankMap;
+import Maps.TestMap;
+import Maps.World1Map;
+import Maps.World2Map;
+import Players.Knight;
 import SpriteFont.SpriteFont;
 import Utils.Direction;
 import java.awt.Color;
+import inventory.Inventory;
 
 // This class is for when the RPG game is actually being played
 public class PlayLevelScreen extends Screen implements GameListener {
@@ -23,6 +27,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected AttackWindow attackWindow;
     protected KeyLocker keyLocker = new KeyLocker();
     protected SpriteFont coinCountDisplay;
+    private InventoryScreen inventoryScreen;
+    private Inventory inventory;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -35,13 +41,14 @@ public class PlayLevelScreen extends Screen implements GameListener {
         flagManager.addFlag("hasTalkedToWalrus", false);
         flagManager.addFlag("hasTalkedToDinosaur", false);
         flagManager.addFlag("hasFoundBall", false);
+        inventory = new Inventory();
 
         // define/setup map
         map = new World1Map();
         map.setFlagManager(flagManager);
 
         // setup player
-        player = new Cat(map.getPlayerStartPosition().x, map.getPlayerStartPosition().y);
+        player = new Knight(map.getPlayerStartPosition().x, map.getPlayerStartPosition().y);
         player.setMap(map);
         playLevelScreenState = PlayLevelScreenState.RUNNING;
         player.setFacingDirection(Direction.LEFT);
@@ -69,14 +76,30 @@ public class PlayLevelScreen extends Screen implements GameListener {
         coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 30, "Arial", 24, Color.YELLOW);
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
+        inventoryScreen = new InventoryScreen(this);
+        inventory.addItem(ItemTestFactory.createRustedShortSword(null));
+        inventory.addItem(ItemTestFactory.createRustedShortSword(null));   // duplicate, to test the identity swap
+        inventory.addItem(ItemTestFactory.createWraithboneSaber(null));    // legendary, to test the color
+        inventory.addItem(ItemTestFactory.createCrackedHuntingBow(null));
+        inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
+        inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
     }
 
     public void update() {
+        if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the
             // platformer level going
             case RUNNING:
+                // if I key is down and unlocked and the player isnt locked, lock it and initialize the inventory screen
+                if (Keyboard.isKeyDown(Key.I) && (!keyLocker.isKeyLocked(Key.I) && !player.isLocked())) {
+                    player.lock();
+                    keyLocker.lockKey(Key.I);
+                    inventoryScreen.initialize();
+                    playLevelScreenState = PlayLevelScreenState.INVENTORY;
+                    break;
+                }
                 player.update();
                 map.update(player);
                 // Opens attack window at random
@@ -96,6 +119,12 @@ public class PlayLevelScreen extends Screen implements GameListener {
             // if level has been completed, bring up level cleared screen
             case LEVEL_COMPLETED:
                 winScreen.update();
+                break;
+            case INVENTORY:
+                // this ensures that animations still happen while inside the inventory
+                player.update();
+                map.update(player);
+                inventoryScreen.update();
                 break;
 
             //If the game state was changed to attach window then the attack window should open
@@ -120,7 +149,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
     public void onMapChange(String mapName, float playerX, float playerY) {
         map = createMap(mapName);
         map.setFlagManager(flagManager);
-        player = new Cat(playerX, playerY);
+        player = new Knight(playerX, playerY);
         player.setMap(map);
         player.setFacingDirection(Direction.LEFT);
         map.setPlayer(player);
@@ -160,6 +189,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
                 map.draw(player, graphicsHandler);
                 attackWindow.draw(graphicsHandler);
                 break;
+            case INVENTORY:
+                inventoryScreen.draw(graphicsHandler);
         }
     }
 
@@ -180,8 +211,15 @@ public class PlayLevelScreen extends Screen implements GameListener {
         playLevelScreenState = PlayLevelScreenState.RUNNING;
     }
 
+    public void closeInventory() {
+        player.unlock();
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
+    public Inventory getInventory() { return inventory; }
+
     // This enum represents the different states this screen can be in
     private enum PlayLevelScreenState {
-        RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW
+        RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW,INVENTORY
     }
 }
