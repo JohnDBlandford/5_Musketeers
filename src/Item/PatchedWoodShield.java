@@ -5,11 +5,11 @@ import GameObject.SpriteSheet;
 import java.util.Map;
 
 public final class PatchedWoodShield extends Shield {
-    private static final Map<ItemAbilities, AbilityType> ABILITIES = Map.of(
-            ItemAbilities.BULWARK_STANCE, AbilityType.BUFF,
-            ItemAbilities.SHIELD_BASH, AbilityType.CONTROL,
-            ItemAbilities.SHIELD_THROW, AbilityType.CONTROL,
-            ItemAbilities.RETALIATE, AbilityType.COUNTER
+    private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
+            AbilityType.BUFF, Map.of(ItemAbilities.BULWARK_STANCE, 0.00),
+            AbilityType.CONTROL, Map.of(ItemAbilities.SHIELD_BASH, 0.00),
+            AbilityType.FINISHER, Map.of(ItemAbilities.SHIELD_THROW, 0.0),
+            AbilityType.COUNTER, Map.of(ItemAbilities.RETALIATE, 0.00)
     );
 
     PatchedWoodShield(SpriteSheet itemLooks) {

@@ -76,6 +76,8 @@ public abstract class Player extends GameObject {
         this.affectedByTriggers = true;
     }
 
+    public boolean isLocked() {return isLocked; }
+
     public void update() {
         if (!isLocked) {
             moveAmountX = 0;
