@@ -2,6 +2,9 @@ package Item;
 
 import GameObject.SpriteSheet;
 import Item.Armor.*;
+import Item.RangedWeapon.*;
+import Item.Shield.*;
+import Item.Sword.*;
 
 public final class ItemTestFactory {
     private ItemTestFactory() {}

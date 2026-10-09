@@ -1,12 +1,14 @@
-package Item;
+package Item.RangedWeapon;
 
 import GameObject.SpriteSheet;
 
 import java.util.Map;
 
-public final class ScavengersCrossBow extends RangedWeapon {
+public final class WraithboneRepeater extends RangedWeapon {
     private static final Map<ItemBuffs, Double> BUFFS = Map.of(
-            ItemBuffs.ACCURACY, 0.06
+            ItemBuffs.ACCURACY, 0.10,
+            ItemBuffs.CRIT_CHANCE, 0.08,
+            ItemBuffs.PIERCING, 0.08
     );
 
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
@@ -16,7 +18,7 @@ public final class ScavengersCrossBow extends RangedWeapon {
             AbilityType.DEBUFF, Map.of(ItemAbilities.HUNTERS_MARK, 0.00)
     );
 
-    ScavengersCrossBow(SpriteSheet itemLook) {
-        super("ScavengersCrossBow", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 40);
+    public WraithboneRepeater(SpriteSheet itemLooks) {
+        super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 75);
     }
 }

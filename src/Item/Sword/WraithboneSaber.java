@@ -1,13 +1,14 @@
-package Item;
+package Item.Sword;
 
 import GameObject.SpriteSheet;
 
 import java.util.Map;
 
-public final class FamineEdgeBlade extends Sword {
+public final class WraithboneSaber extends Sword {
     private static final Map<ItemBuffs, Double> BUFFS = Map.of(
-            ItemBuffs.CRIT_CHANCE, 0.08,
-            ItemBuffs.ATK_BOOST, 0.10
+            ItemBuffs.CRIT_CHANCE, 0.10,
+            ItemBuffs.ATK_BOOST, 0.14,
+            ItemBuffs.CRIT_DMG, 0.25
     );
 
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
@@ -17,7 +18,7 @@ public final class FamineEdgeBlade extends Sword {
             AbilityType.FINISHER, Map.of(ItemAbilities.RECKONING_BLOW, 0.00)
     );
 
-    FamineEdgeBlade(SpriteSheet itemLook) {
-        super("FamineEdgeBlade", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 60);
+    public WraithboneSaber(SpriteSheet itemLook) {
+        super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 80);
     }
 }
