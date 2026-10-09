@@ -106,7 +106,6 @@ public class PlayLevelScreen extends Screen implements GameListener {
                 if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
                     keyLocker.lockKey(Key.W);
                     int randomNum = (int) Math.round(Math.random() * 100%5);
-                    System.out.println(randomNum);
                     if(randomNum == 0){
                         playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
                     }
