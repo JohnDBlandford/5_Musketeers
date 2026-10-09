@@ -3,13 +3,10 @@ package Item;
 import GameObject.SpriteSheet;
 import inventory.EquipSlot;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import Engine.ImageLoader;
 
 // NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
 public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
