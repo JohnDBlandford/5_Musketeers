@@ -1,4 +1,4 @@
-package Item;
+package Item.Armor;
 
 import GameObject.SpriteSheet;
 
@@ -17,7 +17,7 @@ public final class FamineEdgeVestmentsArmor extends Armor {
             AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.15)
     );
 
-    FamineEdgeVestmentsArmor(SpriteSheet itemLook) {
+    public FamineEdgeVestmentsArmor(SpriteSheet itemLook) {
         super("FamineEdgeVestmentsArmor", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 20);
     }
 }

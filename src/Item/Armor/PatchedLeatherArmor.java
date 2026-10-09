@@ -1,4 +1,4 @@
-package Item;
+package Item.Armor;
 
 import GameObject.SpriteSheet;
 
@@ -12,7 +12,7 @@ public final class PatchedLeatherArmor extends Armor {
             AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.05)
     );
 
-    PatchedLeatherArmor(SpriteSheet itemLook) {
+    public PatchedLeatherArmor(SpriteSheet itemLook) {
         super("PatchedLeatherArmor", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 10);
     }
 }

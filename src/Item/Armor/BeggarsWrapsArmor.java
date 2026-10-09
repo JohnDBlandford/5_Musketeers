@@ -1,4 +1,4 @@
-package Item;
+package Item.Armor;
 
 import GameObject.SpriteSheet;
 
@@ -12,7 +12,7 @@ public final class BeggarsWrapsArmor extends Armor {
             AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.05)
     );
 
-    BeggarsWrapsArmor(SpriteSheet itemLook) {
+    public BeggarsWrapsArmor(SpriteSheet itemLook) {
         super("BeggarsWrapsArmor", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 8);
     }
 }

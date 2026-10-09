@@ -1,4 +1,4 @@
-package Item;
+package Item.Armor;
 
 import GameObject.SpriteSheet;
 
@@ -15,7 +15,7 @@ public final class ScavengersHideArmor extends Armor {
             AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.09)
     );
 
-    ScavengersHideArmor(SpriteSheet itemLook) {
+    public ScavengersHideArmor(SpriteSheet itemLook) {
         super("ScavengersHideArmor", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 14);
     }
 }
