@@ -91,9 +91,7 @@ public abstract class Item {
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
         for (AbilityType ability : itemAbilities.keySet()) {
-            if (ability != AbilityType.NONE) {
-                abilityNames.add(ability.name());
-            }
+            if (ability != AbilityType.NONE) abilityNames.add(ability.name());
         }
         String abilString = abilityNames.isEmpty() ? "None" : String.join(", ", abilityNames);
         return "Item: " + itemName + " [" + itemRarity + "]\nAbilities: " + abilString;
