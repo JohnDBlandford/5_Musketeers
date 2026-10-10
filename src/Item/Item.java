@@ -62,6 +62,7 @@ public abstract class Item {
     }
 
     public SpriteSheet getItemLook() {
+        if (this.itemLook == null) this.itemLook = assignSprite();
         return this.itemLook;
     }
 
