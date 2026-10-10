@@ -1,10 +1,10 @@
-package Item;
+package Item.RangedWeapon;
 
 import GameObject.SpriteSheet;
 
 import java.util.Map;
 
-public final class SplinteredSling extends RangedWeapon {
+public final class CrackedHuntingBow extends RangedWeapon {
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
             AbilityType.BUFF, Map.of(ItemAbilities.WINDBORNE_ARROW, 0.00),
             AbilityType.BURST, Map.of(ItemAbilities.PIERCING_SHOT, 0.00),
@@ -12,7 +12,7 @@ public final class SplinteredSling extends RangedWeapon {
             AbilityType.DEBUFF, Map.of(ItemAbilities.HUNTERS_MARK, 0.00)
     );
 
-    SplinteredSling(SpriteSheet itemLook) {
-        super("SplinteredSling", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
+    public CrackedHuntingBow(SpriteSheet itemLook) {
+        super("CrackedHuntingBow", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 25);
     }
 }

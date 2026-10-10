@@ -1,4 +1,4 @@
-package Item;
+package Item.Armor;
 
 import GameObject.SpriteSheet;
 
@@ -19,7 +19,7 @@ public final class WraithboneMailArmor extends Armor {
             AbilityType.HEALTH_RESTORE, Map.of(ItemAbilities.GRIT, 0.15)
     );
 
-    WraithboneMailArmor(SpriteSheet itemLook) {
+    public WraithboneMailArmor(SpriteSheet itemLook) {
         super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 28);
     }
 }

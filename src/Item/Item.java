@@ -3,16 +3,13 @@ package Item;
 import GameObject.SpriteSheet;
 import inventory.EquipSlot;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import Engine.ImageLoader;
-
 // NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
-public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
+public abstract class Item {
     protected final String itemName;
     protected SpriteSheet itemLook;
     protected ItemRarity itemRarity;
@@ -94,9 +91,7 @@ public sealed abstract class Item permits Sword, RangedWeapon, Shield, Armor {
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
         for (AbilityType ability : itemAbilities.keySet()) {
-            if (ability != AbilityType.NONE) {
-                abilityNames.add(ability.name());
-            }
+            if (ability != AbilityType.NONE) abilityNames.add(ability.name());
         }
         String abilString = abilityNames.isEmpty() ? "None" : String.join(", ", abilityNames);
         return "Item: " + itemName + " [" + itemRarity + "]\nAbilities: " + abilString;

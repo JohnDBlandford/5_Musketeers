@@ -1,4 +1,4 @@
-package Item;
+package Item.Sword;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ public final class RustedShortSword extends Sword {
             AbilityType.FINISHER, Map.of(ItemAbilities.RECKONING_BLOW, 0.00)
     );
 
-    RustedShortSword(SpriteSheet itemLook) {
+    public RustedShortSword(SpriteSheet itemLook) {
         super("RustedShortSword", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
     }
 }

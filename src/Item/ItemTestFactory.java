@@ -1,8 +1,10 @@
 package Item;
 
 import GameObject.SpriteSheet;
-
-import java.util.Map;
+import Item.Armor.*;
+import Item.RangedWeapon.*;
+import Item.Shield.*;
+import Item.Sword.*;
 
 public final class ItemTestFactory {
     private ItemTestFactory() {}

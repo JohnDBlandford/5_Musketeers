@@ -1,10 +1,14 @@
-package Item;
+package Item.Shield;
 
 import GameObject.SpriteSheet;
 
 import java.util.Map;
 
-public final class PatchedWoodShield extends Shield {
+public final class ScavengersRoundShield extends Shield {
+    private static final Map<ItemBuffs, Double> BUFFS = Map.of(
+            ItemBuffs.BONUS_DEF, 0.10
+    );
+
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
             AbilityType.BUFF, Map.of(ItemAbilities.BULWARK_STANCE, 0.00),
             AbilityType.CONTROL, Map.of(ItemAbilities.SHIELD_BASH, 0.00),
@@ -12,7 +16,7 @@ public final class PatchedWoodShield extends Shield {
             AbilityType.COUNTER, Map.of(ItemAbilities.RETALIATE, 0.00)
     );
 
-    PatchedWoodShield(SpriteSheet itemLooks) {
-        super("PatchedWoodShield", itemLooks, ItemRarity.COMMON, ABILITIES, Map.of(), 0.12, 0.30);
+    public ScavengersRoundShield(SpriteSheet itemLook) {
+        super("ScavengersRoundShield", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 0.16, 0.38);
     }
 }
