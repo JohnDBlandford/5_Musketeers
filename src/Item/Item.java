@@ -55,7 +55,7 @@ public abstract class Item {
         this.itemAbilities = itemAbilities;
         this.buffModifiers = buffModifiers;
     }
-        //protected abstract SpriteSheet assignAutomaticSprite();     
+        protected abstract SpriteSheet assignSprite();
 
     public String getItemName() {
         return this.itemName;

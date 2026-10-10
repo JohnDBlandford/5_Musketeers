@@ -1,7 +1,9 @@
 package Item.Sword;
 
+import Engine.ImageLoader;
 import GameObject.SpriteSheet;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
 public final class BentKitchenCleaver extends Sword {
@@ -14,5 +16,15 @@ public final class BentKitchenCleaver extends Sword {
 
     public BentKitchenCleaver(SpriteSheet itemLook) {
         super("BentKitchenCleaver", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 35);
+    }
+
+    @Override
+    public SpriteSheet assignSprite() {
+        // load the full item sprite sheet
+        BufferedImage mstrSheet = ImageLoader.load("Items.png");
+
+        // get the subimage (the actual sprite for each item type)
+        BufferedImage croppedIcon = mstrSheet.getSubimage(0, 0, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
     }
 }
