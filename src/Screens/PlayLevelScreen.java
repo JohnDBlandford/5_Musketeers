@@ -86,6 +86,7 @@ public class PlayLevelScreen extends Screen implements GameListener {
     }
 
     public void update() {
+        if (inventory != null) inventory.removeBrokenItem();
         if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
@@ -129,7 +130,6 @@ public class PlayLevelScreen extends Screen implements GameListener {
             //If the game state was changed to attach window then the attack window should open
             case ATTACK_WINDOW:
                 attackWindow.update();
-
                 break;
 
         }

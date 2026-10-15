@@ -5,10 +5,13 @@ import Item.Item;
 import SpriteFont.SpriteFont;
 import inventory.EquipSlot;
 import inventory.Inventory;
+import Item.ItemStats;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class InventoryScreen extends Screen {
     private KeyLocker keyLocker = new KeyLocker();
@@ -23,13 +26,22 @@ public class InventoryScreen extends Screen {
     private static final Color SLOT_BORDER = new Color(90, 90, 90);
     private static final Color PANEL_FILL = new Color(60, 60, 60);
     private static final Color DIM = new Color(0, 0, 0, 140);
+    private static final Color GOLD = new Color(230, 190, 40); // a value that has stopped growing with level
+    private static final Color BAR_BACK = new Color(20, 20, 20);
+    private static final Color XP_COLOR = new Color(80, 140, 220);
+    private static final Color DURABILITY_HIGH = new Color(80, 170, 80);
+    private static final Color DURABILITY_MID = new Color(220, 190, 50);
+    private static final Color DURABILITY_LOW = new Color(200, 60, 60);
     private static final Font NAME_FONT = new Font("Arial", Font.BOLD, 18);
     private static final Font BODY_FONT = new Font("Arial", Font.PLAIN, 14);;
     private int row, col;
     private int panelX, panelY, panelW, panelH, slotsY, equipX, gridX, detailX, detailW, detailH;
     private final int screenWidth = ScreenManager.getScreenWidth();
     private final int screenHeight = ScreenManager.getScreenHeight();
-    private static final Key[] INPUT_KEYS = { Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER };
+    private static final boolean DEBUG_KEYS = true;
+    // for debug: W subtracts 10 durability, I gives 500 xp to selected item
+    private static final Key[] INPUT_KEYS = DEBUG_KEYS ? new Key[]{ Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER, Key.I, Key.W }
+                                                                                       : new Key[]{Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER};
 
     public InventoryScreen(PlayLevelScreen playLevelScreen) {
         this.playLevelScreen = playLevelScreen;
@@ -42,6 +54,8 @@ public class InventoryScreen extends Screen {
         instructions.setOutlineColor(Color.black);
         instructions.setOutlineThickness(2);
         keyLocker.lockKey(Key.ESC);
+        keyLocker.lockKey(Key.I);
+        keyLocker.lockKey(Key.W);
         panelX = 40;
         panelY = 40;
         panelW = screenWidth - 80;
@@ -74,6 +88,8 @@ public class InventoryScreen extends Screen {
                 case LEFT -> col = Math.max(0, col - 1);
                 case RIGHT -> col = Math.min(COLS - 1, col + 1);
                 case ENTER -> playLevelScreen.getInventory().toggleItemEquip(row * COLS + col);
+                case W -> debugDmgSelected();
+                case I -> debugAddXpToSelected();
                 default -> {}
             }
         }
@@ -83,6 +99,17 @@ public class InventoryScreen extends Screen {
         List<Item> items = playLevelScreen.getInventory().getAllItems();
         int idx = row * COLS + col;
         return idx < items.size() ? items.get(idx) : null;
+    }
+
+    // debug only methods
+    private void debugDmgSelected() {
+        Item item = selectedItem();
+        if (item != null) item.getItemStats().damageItem(10);
+    }
+
+    private void debugAddXpToSelected() {
+        Item item = selectedItem();
+        if (item != null) item.getItemStats().addXp(500);
     }
 
     @Override
@@ -117,10 +144,76 @@ public class InventoryScreen extends Screen {
             y += 22;
         }
         graphicsHandler.drawString(item.getItemRarity().name(), x, y, BODY_FONT, Color.lightGray);
-        for (var e : item.getTotalItemBuffs().entrySet()) {
+        for (Map.Entry<Item.ItemBuffs, Double> entry : item.getScaledBuffs().entrySet()) {
+            if (entry.getKey() == Item.ItemBuffs.SPD_BOOST || entry.getKey() == Item.ItemBuffs.BONUS_MAX_HP) continue;
             y += 20;
-            graphicsHandler.drawString(e.getKey() + "  " + e.getValue(), x, y, BODY_FONT, Color.white);
+            graphicsHandler.drawString(entry.getKey() + "  " + formatBuff(entry.getKey(), entry.getValue()), x, y, BODY_FONT,
+                    item.isBuffCapped(entry.getKey()) ? GOLD : Color.white);
         }
+        drawStats(graphicsHandler, item, x, y, detailW - 24);
+    }
+
+    // this method draws everything below the dividing line: lvl, xp, durability, then atk, def, spd and bhp
+    // y is the baseline of the last line drawn above, so this follows however tall the name and buffs were
+    private void drawStats(GraphicsHandler g, Item item, int x, int y, int width) {
+        ItemStats stats = item.getItemStats();
+
+        y += 14;
+        g.drawFilledRectangle(x, y, width, 2, SLOT_BORDER);   // the divider between the old and the new
+
+        y += 24;
+        g.drawString("Level  " + stats.getLvl() + " / " + ItemStats.MAX_LVL, x, y, BODY_FONT, Color.white);
+
+        y += 20;
+        g.drawString(stats.isMaxLvl() ? "XP  MAX" : "XP  " + stats.getXp() + " / " + stats.getXpToNextLvl(),
+                x, y, BODY_FONT, Color.white);
+        drawBar(g, x, y + 6, width, 8, stats.getXpBarFullness(), XP_COLOR);
+        y += 14;
+
+        y += 20;
+        g.drawString("Durability  " + stats.getDurability() + " / " + stats.getItemMaxDurability(),
+                x, y, BODY_FONT, Color.white);
+        drawBar(g, x, y + 6, width, 8, stats.getDurabilityFraction(), drawDurabilityColor(stats.getDurabilityFraction()));
+        y += 14;
+
+        // every stat is always shown, a 0 is a real value and never "N/A"
+        y += 24;
+        g.drawString("Attack  " + item.getAttack(), x, y, BODY_FONT, Color.white);
+        y += 20;
+        g.drawString("Defense  " + item.getDefense(), x, y, BODY_FONT, Color.white);
+        y += 20;
+        g.drawString("Speed  " + formatPercent(item.getItemSpeed()), x, y, BODY_FONT,
+                item.isBuffCapped(Item.ItemBuffs.SPD_BOOST) ? GOLD : Color.white);
+        y += 20;
+        g.drawString("Bonus HP  " + formatBuff(Item.ItemBuffs.BONUS_MAX_HP, item.getItemBonusMaxHp()), x, y, BODY_FONT,
+                item.isBuffCapped(Item.ItemBuffs.BONUS_MAX_HP) ? GOLD : Color.white);
+    }
+
+    // draws the bar  for the lvl and xp for each item
+    private static void drawBar(GraphicsHandler g, int x, int y, int width, int height, double fraction, Color fill) {
+        g.drawFilledRectangleWithBorder(x, y, width, height, BAR_BACK, SLOT_BORDER, 1);
+        int filled = (int) Math.round((width - 2) * Math.clamp(fraction, 0.0, 1.0));
+        if (filled > 0) g.drawFilledRectangle(x + 1, y + 1, filled, height - 2, fill);
+    }
+
+    // draws the durability lvls for each item so you can quickly look at it
+    private static Color drawDurabilityColor(double fraction) {
+        if (fraction > 0.5) return DURABILITY_HIGH;
+        if (fraction > 0.25) return DURABILITY_MID;
+        return DURABILITY_LOW;
+    }
+
+    // formats the buffs to make it easier to see, flat buffs are stored as the buff val / 100, everything else is a percentage
+    private static String formatBuff(Item.ItemBuffs buff, double value) {
+        return Item.isFlatBuff(buff) ? "+" + Math.round(value * 100.0) : formatPercent(value);
+    }
+
+    // formats the percentages to one decimal place and removes the 0.0
+    // ask about Locale usage
+    private static String formatPercent(double value) {
+        String text = String.format(Locale.ROOT, "%.1f", value * 100.0);
+        if (text.endsWith(".0")) text = text.substring(0, text.length() - 2);
+        return text + "%";
     }
 
     // draws an individual inventory slot

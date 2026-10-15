@@ -19,6 +19,19 @@ public class Inventory {
         equippedItems.values().remove(item); // for reference cleanup with the enum map
     }
 
+    // removes broken items from the inventory and unequips it  if needed
+    public int removeBrokenItem() {
+        int removedCount = 0;
+        // loop through all of the items in the inventory and if the item is broken, remove it and increment the counter
+        for (Item item : new ArrayList<>(items)) {
+            if (item.getItemStats().isBroken()) {
+                removeItem(item);
+                removedCount++;
+            }
+        }
+        return removedCount;
+    }
+
     public void toggleItemEquip(int index) {
         if ((index < 0) || (index >= items.size())) return;
         Item item = items.get(index);
@@ -30,7 +43,7 @@ public class Inventory {
     public Item getEquippedItem(EquipSlot slot) { return equippedItems.get(slot); }
 
     // returns an unmodifiable map of the entire item map each time called. this doesnt get an individual index
-    public List<Item> getAllEquippedItems() { return Collections.unmodifiableList((List<? extends Item>) equippedItems.values()); }
+    public List<Item> getAllEquippedItems() { return Collections.unmodifiableList(new ArrayList<>(equippedItems.values())); }
 
     // this gets all items, not just equipped items, again as an unmodifiable map
     public List<Item> getAllItems() { return Collections.unmodifiableList(items); }
