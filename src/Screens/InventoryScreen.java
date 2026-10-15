@@ -22,6 +22,7 @@ public class InventoryScreen extends Screen {
     private static final Color SLOT_BORDER = new Color(90, 90, 90);
     private static final Color PANEL_FILL = new Color(60, 60, 60);
     private static final Color DIM = new Color(0, 0, 0, 140);
+    private static final Color BAR_BACK = new Color(20, 20, 20);   // empty part of the lvl / xp bars
     private static final String INSTRUCTIONS = "ARROWS: MOVE   ENTER: EQUIP / UNEQUIP   ESC: CLOSE";
     private static final int NAME_SCALE = 2;   // item name
     private static final int BODY_SCALE = 2;   // rarity + stats
@@ -154,5 +155,19 @@ public class InventoryScreen extends Screen {
             case LEGENDARY -> new Color(230, 150, 40);
             default -> new Color(130, 130, 130);
         };
+    }
+
+    // draws the bar  for the lvl and xp for each item
+    private static void drawBar(GraphicsHandler g, int x, int y, int width, int height, double fraction, Color fill) {
+        g.drawFilledRectangleWithBorder(x, y, width, height, BAR_BACK, SLOT_BORDER, 1);
+        int filled = (int) Math.round((width - 2) * Math.clamp(fraction, 0.0, 1.0));
+        if (filled > 0) g.drawFilledRectangle(x + 1, y + 1, filled, height - 2, fill);
+        y += 4;
+        //BattleUI.text(g, item.getItemRarity().name(), x, y, BODY_SCALE, Color.lightGray);
+        //for (var e : item.getTotalItemBuffs().entrySet()) {
+        //y += bodyLineH;
+        //String line = (e.getKey() + "  " + e.getValue()).replace('_', ' ');
+        //BattleUI.text(g, line, x, y, BODY_SCALE, Color.white);
+        //}
     }
 }
