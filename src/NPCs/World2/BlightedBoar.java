@@ -3,11 +3,13 @@ package NPCs.World2;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class BlightedBoar extends Enemy {
+public class BlightedBoar extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -78,6 +80,31 @@ public class BlightedBoar extends Enemy {
             case 1: moveGoreCharge(player); break;
             case 2: moveBlightSpit(player); break;
             default: moveFrenziedTrample(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Wild Tusk", 1.10f);
+            case 1:  return Move.attack("Gore Charge", 1.30f).lowersPlayer(Move.DEF, 0.10f);
+            case 2:  return Move.attack("Blight Spit", 0.50f).lowersPlayer(Move.ATK, 0.10f);
+            default: return Move.attack("Frenzied Trample", 0.45f).hits(2);
         }
     }
 

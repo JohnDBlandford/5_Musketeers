@@ -3,11 +3,13 @@ package NPCs.World2;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class BaronOfTheClearedWood extends Enemy {
+public class BaronOfTheClearedWood extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -88,6 +90,31 @@ public class BaronOfTheClearedWood extends Enemy {
             case 0: moveCommandingSmite(player); break;
             case 1: moveIronRally(); break;
             default: moveDecapitatingSweep(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        if (turnCount % 3 == 0) return Move.attack("Cleared Wood Cleave", 1.60f).lowersPlayer(Move.DEF, 0.15f);   // every 3rd turn
+        switch (rng.nextInt(3)) {
+            case 0:  return Move.attack("Commanding Smite", 1.30f);
+            case 1:  return Move.status("Iron Rally").raisesSelf(Move.DEF, 0.20f);
+            default: return Move.attack("Decapitating Sweep", 1.10f).lowersPlayer(Move.SPD, 0.10f);
         }
     }
 

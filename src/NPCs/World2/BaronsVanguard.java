@@ -3,11 +3,13 @@ package NPCs.World2;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class BaronsVanguard extends Enemy {
+public class BaronsVanguard extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -81,6 +83,32 @@ public class BaronsVanguard extends Enemy {
             case 0: moveVanguardStrike(player); break;
             case 1: moveVanguardShieldBracing(player); break;
             default: moveDisarmingLunge(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        // Elite passive: always uses Dual Flurry below 50% HP
+        if ((currentHP / maxHP) < 0.50f) return Move.attack("Dual Flurry", 0.90f).hits(2);
+        switch (rng.nextInt(3)) {
+            case 0:  return Move.attack("Vanguard Strike", 1.25f);
+            case 1:  return Move.attack("Shield Bracing", 0.70f).raisesSelf(Move.DEF, 0.20f);
+            default: return Move.attack("Disarming Lunge", 1.0f).lowersPlayer(Move.ATK, 0.15f);
         }
     }
 

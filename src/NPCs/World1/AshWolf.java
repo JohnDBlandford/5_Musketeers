@@ -3,11 +3,13 @@ package NPCs.World1;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class AshWolf extends Enemy {
+public class AshWolf extends Enemy implements BattleEnemy {
 
     public int enemyLevel;
     private int turnCount = 0;
@@ -80,6 +82,35 @@ public class AshWolf extends Enemy {
             case 1: movePredatoryStrike(player); break;
             case 2: moveEmberHowl(player); break;
             default: moveSmogClaws(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Ash Ambush", 1.10f + (turnCount <= 1 ? 0.20f : 0f));   // stronger on the first turn
+            case 1: {
+                float m = 1.20f;
+                if (player != null && player.getCurrentHP() / player.getMaxHP() < 0.35f) m += 0.40f;   // finishes the weak
+                return Move.attack("Predatory Strike", m);
+            }
+            case 2:  return Move.attack("Ember Howl", 0.40f).lowersPlayer(Move.SPD, 0.10f);
+            default: return Move.attack("Smog Claws", 0.55f).hits(2);
         }
     }
 
