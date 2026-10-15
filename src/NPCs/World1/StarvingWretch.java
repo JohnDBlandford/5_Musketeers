@@ -4,15 +4,18 @@ import Engine.CombatResolver;
 import Level.MapEntityStatus;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class StarvingWretch extends Enemy {
+public class StarvingWretch extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int fleeTurns = 0;
     private boolean hasFled = false;
+    private boolean inBattle = false;   // in the battle screen, fleeing is decided on the enemy's turn only
     private final Random random = new Random();
 
     // Starter Baseline Stats (Level 1)
@@ -94,6 +97,7 @@ public class StarvingWretch extends Enemy {
 
     @Override
     protected void onTakeDamage(float damageAmount) {
+        if (inBattle) return;   // in battle the flee check happens on its turn (chooseBattleMove)
         if (currentHP < (maxHP * 0.25f) && !hasFled) {
             evaluateFlee();
         }
@@ -116,6 +120,36 @@ public class StarvingWretch extends Enemy {
             return true;
         }
         return false;
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        fleeTurns = 0;
+        hasFled = false;
+        inBattle = true;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        // when badly hurt (< 25% HP) it may run away, more likely every turn
+        if (currentHP < (maxHP * 0.25f) && !hasFled) {
+            if (evaluateFlee()) return Move.flee("Starving Wretch");
+        }
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Desperation Scratch", 0.85f);
+            case 1:  return Move.attack("Bite of Envy", 1.30f).accuracy(0.80f);
+            case 2:  return Move.attack("Mud Fling", 0.50f).lowersPlayer(Move.SPD, 0.05f).lowersPlayer(Move.DEF, 0.10f);
+            default: return Move.attack("Scrappy Flail", 0.35f).hits(2 + rng.nextInt(2));
+        }
     }
 
     public int getEnemyLevel() {

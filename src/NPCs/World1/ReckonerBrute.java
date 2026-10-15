@@ -3,15 +3,18 @@ package NPCs.World1;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class ReckonerBrute extends Enemy {
+public class ReckonerBrute extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
     private boolean guardActive = true;
+    private String pendingNote = null;
     private static final Random random = new Random();
 
     // Baseline Stats (Level 2 Baseline)
@@ -99,6 +102,43 @@ public class ReckonerBrute extends Enemy {
             case 2: moveAlphaRoar(player); break;
             default: moveTremorOfReckoning(player); break;
         }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+        guardActive = true;
+        alterDEFModifier(0.50f);   // Guard passive (the battle resets modifiers when it starts)
+        pendingNote = null;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        boolean wasGuarding = guardActive;
+        advanceTurn();                       // removes the Guard after turn 5
+        pendingNote = (wasGuarding && !guardActive) ? "Reckoner Brute's Guard has worn off!" : null;
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Reckoning Strike", 1.35f);
+            case 1:  return Move.attack("Crushing Slam", 1.10f).lowersPlayer(Move.DEF, 0.10f);
+            case 2:  return Move.attack("Alpha Roar", 0.40f).lowersPlayer(Move.ATK, 0.10f);
+            default: return Move.attack("Tremor of Reckoning", 0.70f).lowersPlayer(Move.SPD, 0.15f);
+        }
+    }
+
+    @Override
+    public String pollMessage() {
+        String n = pendingNote;
+        pendingNote = null;
+        return n;
     }
 
     public int getEnemyLevel() {
