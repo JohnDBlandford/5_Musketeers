@@ -2,12 +2,14 @@ package NPCs.World2;
 
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 import Engine.CombatResolver;
 
 import java.util.Random;
 
-public class RaiderSkirmisher extends Enemy {
+public class RaiderSkirmisher extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -26,7 +28,7 @@ public class RaiderSkirmisher extends Enemy {
     }
 
     public RaiderSkirmisher(int id, Point location, int level){
-        super(id, location, "RaiderSkirmisher",
+        super(id, location, "Raider Skirmisher",
                 BASE_HP + ((level - 5) * 20f),
                 BASE_ATK + ((level - 5) * 4f),
                 BASE_DEF + ((level - 5) * 2.5f),
@@ -89,6 +91,31 @@ public class RaiderSkirmisher extends Enemy {
         }
     }
 
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Slash", getDamageMultiplier(player, 1.0f));
+            case 1:  return Move.attack("Execute Strike", getDamageMultiplier(player, 1.35f));
+            case 2:  return Move.attack("Feint Thrust", getDamageMultiplier(player, 0.70f)).lowersPlayer(Move.DEF, 0.10f);
+            default: return Move.attack("Quick Dagger", getDamageMultiplier(player, 0.60f)).hits(2);
+        }
+    }
+
     public int getEnemyLevel() {
         return enemyLevel;
     }
@@ -97,4 +124,3 @@ public class RaiderSkirmisher extends Enemy {
         return turnCount;
     }
 }
-

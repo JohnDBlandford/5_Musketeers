@@ -3,11 +3,13 @@ package NPCs.World1;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class TheFamineWarden extends Enemy {
+public class TheFamineWarden extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -84,6 +86,31 @@ public class TheFamineWarden extends Enemy {
             case 0: moveHeavyGreatsword(player); break;
             case 1: moveDesolationWave(player); break;
             default: moveWardensGrasp(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        if (turnCount % 3 == 0) return Move.attack("Famine Cleave", 1.50f);   // scripted: every 3rd turn
+        switch (rng.nextInt(3)) {
+            case 0:  return Move.attack("Heavy Greatsword", 1.25f);
+            case 1:  return Move.attack("Desolation Wave", 0.90f).lowersPlayer(Move.DEF, 0.15f);
+            default: return Move.attack("Warden's Grasp", 0.60f).lowersPlayer(Move.SPD, 0.20f);
         }
     }
 

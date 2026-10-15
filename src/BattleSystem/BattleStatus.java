@@ -1,4 +1,4 @@
-package Screens.Battle;
+package BattleSystem;
 
 public enum BattleStatus {
     STARTED, IN_PROGRESS, COMPLETED

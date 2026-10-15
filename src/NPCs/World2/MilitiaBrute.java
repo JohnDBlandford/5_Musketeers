@@ -3,11 +3,13 @@ package NPCs.World2;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class MilitiaBrute extends Enemy {
+public class MilitiaBrute extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -34,7 +36,7 @@ public class MilitiaBrute extends Enemy {
                 BASE_SPD + ((level - 6) * 1.5f),
                 Math.round(BASE_XP * (1f + ((level - 6) * 0.15f))),
                 Math.round(BASE_GOLD * (1f + ((level - 6) * 0.15f))),
-                30.0f); 
+                30.0f);
 
         this.enemyLevel = Math.min(8, Math.max(6, level));
     }
@@ -93,6 +95,40 @@ public class MilitiaBrute extends Enemy {
             case 1: moveShieldBash(player); break;
             default: moveWarCry(player); break;
         }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+        isGuarding = false;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        // alternates between a guard stance (+30% DEF until its next attack) and attacking
+        if (!isGuarding && rng.nextDouble() < 0.35) {
+            isGuarding = true;
+            return Move.status("Guard Stance").raisesSelf(Move.DEF, 0.30f);
+        }
+        boolean wasGuarding = isGuarding;
+        isGuarding = false;
+        Move m;
+        switch (rng.nextInt(3)) {
+            case 0:  m = Move.attack("Heavy Slam", 1.20f); break;
+            case 1:  m = Move.attack("Shield Bash", 0.85f).lowersPlayer(Move.SPD, 0.15f); break;
+            default: m = Move.attack("War Cry", 0.40f).lowersPlayer(Move.ATK, 0.10f); break;
+        }
+        return wasGuarding ? m.lowersSelf(Move.DEF, 0.30f) : m;   // the guard bonus ends when it attacks
     }
 
     public int getEnemyLevel() {
