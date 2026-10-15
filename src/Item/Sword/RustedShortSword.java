@@ -1,7 +1,9 @@
-package Item;
+package Item.Sword;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
+import Engine.ImageLoader;
 import GameObject.SpriteSheet;
 
 public final class RustedShortSword extends Sword {
@@ -12,7 +14,17 @@ public final class RustedShortSword extends Sword {
             AbilityType.FINISHER, Map.of(ItemAbilities.RECKONING_BLOW, 0.00)
     );
 
-    RustedShortSword(SpriteSheet itemLook) {
+    public RustedShortSword(SpriteSheet itemLook) {
         super("RustedShortSword", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
+    }
+
+    @Override
+    public SpriteSheet assignSprite() {
+        // load the full item sprite sheet
+        BufferedImage mstrSheet = ImageLoader.load("Items.png");
+
+        // get the subimage (the actual sprite for each item type)
+        BufferedImage croppedIcon = mstrSheet.getSubimage(0, 0, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
     }
 }

@@ -1,7 +1,9 @@
-package Item;
+package Item.Armor;
 
+import Engine.ImageLoader;
 import GameObject.SpriteSheet;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
 public final class FamineEdgeVestmentsArmor extends Armor {
@@ -17,7 +19,20 @@ public final class FamineEdgeVestmentsArmor extends Armor {
             AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.15)
     );
 
-    FamineEdgeVestmentsArmor(SpriteSheet itemLook) {
+    public FamineEdgeVestmentsArmor(SpriteSheet itemLook) {
         super("FamineEdgeVestmentsArmor", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 20);
+    }
+
+    @Override
+    public SpriteSheet assignSprite() {
+        // load the full item sprite sheet
+        BufferedImage mstrSheet = ImageLoader.load("Items.png");
+
+        int row = 1;
+        int col = 1;
+
+        // get the subimage (the actual sprite for each item type)
+        BufferedImage croppedIcon = mstrSheet.getSubimage(col * 32, row * 32, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
     }
 }

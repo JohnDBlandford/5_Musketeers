@@ -1,6 +1,7 @@
-package Item;
+package Item.Shield;
 
 import GameObject.SpriteSheet;
+import Item.Item;
 import inventory.EquipSlot;
 
 import java.util.Map;

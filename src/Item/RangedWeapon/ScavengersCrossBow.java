@@ -1,7 +1,9 @@
-package Item;
+package Item.RangedWeapon;
 
+import Engine.ImageLoader;
 import GameObject.SpriteSheet;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
 public final class ScavengersCrossBow extends RangedWeapon {
@@ -16,7 +18,19 @@ public final class ScavengersCrossBow extends RangedWeapon {
             AbilityType.DEBUFF, Map.of(ItemAbilities.HUNTERS_MARK, 0.00)
     );
 
-    ScavengersCrossBow(SpriteSheet itemLook) {
+    public ScavengersCrossBow(SpriteSheet itemLook) {
         super("ScavengersCrossBow", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 40);
+    }
+
+    @Override
+    public SpriteSheet assignSprite() {
+        // load the full item sprite sheet
+        BufferedImage mstrSheet = ImageLoader.load("Items.png");
+
+        int col = 1;
+
+        // get the subimage (the actual sprite for each item type)
+        BufferedImage croppedIcon = mstrSheet.getSubimage(col * 32, 0, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
     }
 }
