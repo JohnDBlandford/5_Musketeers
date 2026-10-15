@@ -202,12 +202,6 @@ public class InventoryScreen extends Screen {
         int filled = (int) Math.round((width - 2) * Math.clamp(fraction, 0.0, 1.0));
         if (filled > 0) g.drawFilledRectangle(x + 1, y + 1, filled, height - 2, fill);
         y += 4;
-        BattleUI.text(g, item.getItemRarity().name(), x, y, BODY_SCALE, Color.lightGray);
-        for (var e : item.getTotalItemBuffs().entrySet()) {
-            y += bodyLineH;
-            String line = (e.getKey() + "  " + e.getValue()).replace('_', ' ');
-            BattleUI.text(graphicsHandler, line, x, y, BODY_SCALE, Color.white);
-        }
     }
 
     // draws the durability lvls for each item so you can quickly look at it
