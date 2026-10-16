@@ -22,7 +22,6 @@ import Screens.Battle.PlayBattleScreen;
 import SpriteFont.MonoSpriteFont;
 import SpriteFont.SpriteFont;
 import Utils.Direction;
-import Utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import inventory.Inventory;
