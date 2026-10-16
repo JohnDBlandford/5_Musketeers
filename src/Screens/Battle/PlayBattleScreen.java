@@ -567,7 +567,10 @@ public class PlayBattleScreen extends Screen {
             steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprite.Pose.ATTACK)));
             float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(EquipSlot.MELEE));
             int counter = Math.max(1, Math.round(CombatResolver.calculateDamage(atk * 1.2f, enemy.getBaseDEF())));
-            steps.add(new Step("It hit for " + counter + " damage!", () -> dealToEnemy(counter, log)));
+            steps.add(new Step("It hit for " + counter + " damage!", () -> {
+                TurnHistoryScreen.Entry counterLog = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "RETAL", enemy.getCurrentHP());
+                dealToEnemy(counter, counterLog);
+            }));
         }
         enemyEffects(steps, move, true);
         insert(steps);
