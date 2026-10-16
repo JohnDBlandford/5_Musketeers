@@ -19,7 +19,7 @@ public class Inventory {
         equippedItems.values().remove(item); // for reference cleanup with the enum map
     }
 
-    // removes broken items from the inventory and unequips it  if needed
+    // removes broken items from the inventory and unequips it if needed
     public int removeBrokenItem() {
         int removedCount = 0;
         // loop through all of the items in the inventory and if the item is broken, remove it and increment the counter
