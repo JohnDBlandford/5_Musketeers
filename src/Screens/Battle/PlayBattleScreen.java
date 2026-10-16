@@ -53,7 +53,7 @@ public class PlayBattleScreen extends Screen {
 
     // the pieces (the skeleton's classes)
     private BattleBackgroundScreen backgroundScreen;
-    private TurnHistoryScreen turnHistoryScreen;   // your partner's screen, only created and drawn here
+    private TurnHistoryScreen turnHistoryScreen;
     private InventoryDisplayScreen inventoryDisplayScreen;
     private MainMenu optionScreen;
     private AbilityScreen abilityScreen;
@@ -283,6 +283,7 @@ public class PlayBattleScreen extends Screen {
 
     // queue one round: both fighters act (SPD decides who is first, heal/run always go first), then the round ends
     private void startRound(Runnable playerBlock, boolean priority) {
+        turnHistoryScreen.nxtTurn();
         phase = Phase.SCRIPT;
         optionScreen.close();
         abilityScreen.close();
@@ -303,6 +304,9 @@ public class PlayBattleScreen extends Screen {
     private void playerAbilityBlock(Ability a) {
         if (isOver()) return;
         Item weapon = inventory.getEquippedItem(a.getCategory().getSlot());   // sword / bow / shield (null = bare hands)
+        boolean stance = a.getEffect() == Effect.GUARD || a.getEffect() == Effect.COUNTER;
+        TurnHistoryScreen.Entry log = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, a.getName(),
+                stance ? TurnHistoryScreen.N_TRGT : enemy.getCurrentHP());
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " used " + a.getName() + "!", null));
 
@@ -340,7 +344,7 @@ public class PlayBattleScreen extends Screen {
             int dmg = Math.max(1, Math.round(CombatResolver.calculateDamage((float) raw, def)));
             final boolean c = crit;
             steps.add(new Step(c ? "A critical hit! " + dmg + " damage!" : (hits > 1 ? "HIT! " + dmg + " damage!" : "It hit for " + dmg + " damage!"),
-                    () -> dealToEnemy(dmg)));
+                    () -> dealToEnemy(dmg, log)));
             if (a.getEffect() == Effect.LIFESTEAL) {
                 int heal = Math.max(1, dmg / 2);
                 steps.add(new Step(playerName + " drained " + heal + " HP!", () -> player.setCurrentHP(player.getCurrentHP() + heal)));
@@ -407,13 +411,18 @@ public class PlayBattleScreen extends Screen {
     }
 
     private void playerHealBlock() {
+        TurnHistoryScreen.Entry log = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "HEAL", player.getCurrentHP());
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " used HEAL!", null));
-        steps.add(new Step(playerName + "'s HP was fully restored!", () -> player.setCurrentHP(player.getMaxHP())));
+        steps.add(new Step(playerName + "'s HP was fully restored!", () -> {
+            player.setCurrentHP(player.getMaxHP());
+            log.hit(0, player.getCurrentHP());   // no damage, but the HP column shows the HP after the heal
+            }));
         insert(steps);
     }
 
     private void playerRunBlock() {
+        turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "RUN", TurnHistoryScreen.N_TRGT);
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " tries to run away...", null));
         if (boss) {
@@ -458,6 +467,7 @@ public class PlayBattleScreen extends Screen {
         if (isOver()) return;
         List<Step> steps = new ArrayList<>();
         if (enemyStunned) {
+            turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.ENEMY, "STUNNED", TurnHistoryScreen.N_TRGT);
             steps.add(new Step(enemyName + " is stunned and can't move!", () -> enemyStunned = false));
             insert(steps);
             return;
@@ -468,6 +478,8 @@ public class PlayBattleScreen extends Screen {
         EnemyMoves.Move move = brain != null ? brain.chooseBattleMove(rng, player) : null;
         if (move == null) move = EnemyMoves.pick(enemyName, rng, lastEnemyMove);
         lastEnemyMove = move;
+        TurnHistoryScreen.Entry log = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.ENEMY, move.name,
+                move.damages && !move.flees ? player.getCurrentHP() : TurnHistoryScreen.N_TRGT);
         String note = brain != null ? brain.pollMessage() : null;
         if (note != null) steps.add(new Step(note, null));
 
@@ -525,6 +537,7 @@ public class PlayBattleScreen extends Screen {
                 if (player.getCurrentHP() <= 0) return;
                 dealt[0] += hit;
                 player.applyDamage(hit);
+                log.hit(hit, player.getCurrentHP());
                 playerSprite.setPose(BattleSprite.Pose.HURT);
             }));
             if (blocked) steps.add(new Step("The shield took some of the blow!", null));
@@ -543,14 +556,18 @@ public class PlayBattleScreen extends Screen {
 
         int thorns = (int) Math.round(dmg * BattleMath.thorns(inventory));
         if (thorns > 0) {
-            steps.add(new Step(enemyName + " was hurt by thorns for " + thorns + "!", () -> dealToEnemy(thorns)));
+            steps.add(new Step(enemyName + " was hurt by thorns for " + thorns + "!", () -> {
+                TurnHistoryScreen.Entry thornsLog = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER,
+                        "THORNS", enemy.getCurrentHP());
+                dealToEnemy(thorns, log);
+                }));
         }
         if (playerCounter && player.getCurrentHP() - dmg > 0) {
             playerCounter = false;
             steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprite.Pose.ATTACK)));
             float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(EquipSlot.MELEE));
             int counter = Math.max(1, Math.round(CombatResolver.calculateDamage(atk * 1.2f, enemy.getBaseDEF())));
-            steps.add(new Step("It hit for " + counter + " damage!", () -> dealToEnemy(counter)));
+            steps.add(new Step("It hit for " + counter + " damage!", () -> dealToEnemy(counter, log)));
         }
         enemyEffects(steps, move, true);
         insert(steps);
@@ -558,9 +575,10 @@ public class PlayBattleScreen extends Screen {
 
     // ---------------------------------------------------------------- results
 
-    private void dealToEnemy(int dmg) {
+    private void dealToEnemy(int dmg, TurnHistoryScreen.Entry log) {
         // null player on purpose: rewards are handed out by the victory steps so the XP bar can animate
         enemy.applyDamage(dmg, null);
+        log.hit(dmg, enemy.getCurrentHP());
         enemySprite.setPose(BattleSprite.Pose.HURT);
     }
 
@@ -651,6 +669,7 @@ public class PlayBattleScreen extends Screen {
         turnHistoryScreen.draw(gh);
 
         drawTextBox(gh);
+        inventoryDisplayScreen.draw(gh);
         optionScreen.draw(gh);
         abilityScreen.draw(gh);
         abilityInfoScreen.draw(gh);
@@ -816,11 +835,11 @@ public class PlayBattleScreen extends Screen {
         }
 
         private String subtitle(int i) {
-            switch (i) {
-                case 0: case 1: case 2: return "";
-                case 3: return battle.getHealsLeft() > 0 ? "Full HP  x" + battle.getHealsLeft() : "Used up";
-                default: return "Flee the fight";
-            }
+            return switch (i) {
+                case 0, 1, 2 -> "";
+                case 3 -> battle.getHealsLeft() > 0 ? "Full HP  x" + battle.getHealsLeft() : "Used up";
+                default -> "Flee the fight";
+            };
         }
     }
 }

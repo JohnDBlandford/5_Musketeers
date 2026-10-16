@@ -15,7 +15,6 @@ import java.util.List;
 // All text goes through MonoSpriteFont (the VCR OSD sprite font), always in capitals.
 public final class BattleUI {
     private BattleUI() {}
-
     // light box colors
     public static final Color INK = new Color(40, 40, 58);          // dark text on light boxes
     public static final Color INK_SOFT = new Color(104, 108, 128);  // secondary text on light boxes
@@ -61,6 +60,7 @@ public final class BattleUI {
     public static int barHeight() { return 150; }
     public static int boxX() { return 8; }
     public static int boxW() { return 382; }
+    public static int boxH() { return 96; }
     public static int btnX() { return 398; }
     public static int btnW() { return W() - 398 - 8; }
 
