@@ -13,9 +13,9 @@ import java.awt.*;
 
 // The small strip under the enemy's plate:  M S R H
 // M, S, R light up when a melee weapon, shield or ranged weapon is equipped, H lights up while the heal is still available.
-public class InventoryDisplayScreen extends Screen {
+public final class InventoryDisplayScreen extends Screen {
     private final Inventory inventory;
-    private static final EquipSlot[] ORDER = {EquipSlot.MELEE, EquipSlot.SHIELD, EquipSlot.RANGED_WEAPON, EquipSlot.ARMOR};
+    private static final EquipSlot[] ORDER = { EquipSlot.MELEE, EquipSlot.SHIELD, EquipSlot.RANGED_WEAPON, EquipSlot.ARMOR };
     private static final int SLOT = 48, GAP = 6;
     private static final Color SLOT_FILL = new Color(35, 35, 35);
     private static final Color SLOT_BORDER = new Color(90, 90, 90);
