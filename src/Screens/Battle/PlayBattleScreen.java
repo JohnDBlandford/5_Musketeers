@@ -161,9 +161,10 @@ public class PlayBattleScreen extends Screen {
         backgroundScreen.update();
         playerSprite.update();
         enemySprite.update();
-        turnHistoryScreen.update();
+        turnHistoryScreen.updateScreen(historyAvailable());
         glideBars();
         if (hintTimer > 0 && --hintTimer == 0) hint = "";
+        if (turnHistoryScreen.isExpanded()) return;   // the full move log is open: the battle is paused until it closes
 
         switch (phase) {
             case COMMAND: optionScreen.update(); break;
@@ -347,7 +348,12 @@ public class PlayBattleScreen extends Screen {
                     () -> dealToEnemy(dmg, log)));
             if (a.getEffect() == Effect.LIFESTEAL) {
                 int heal = Math.max(1, dmg / 2);
-                steps.add(new Step(playerName + " drained " + heal + " HP!", () -> player.setCurrentHP(player.getCurrentHP() + heal)));
+                steps.add(new Step(playerName + " drained " + heal + " HP!", () -> {
+                    player.setCurrentHP(player.getCurrentHP() + heal);
+                    // no damage, but the HP column shows the knight's HP after the drain (same as HEAL)
+                    turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "DRAIN", player.getCurrentHP())
+                            .hit(0, player.getCurrentHP());
+                    }));
             }
         }
         // stat effects only happen if the enemy is still standing after the hits land
@@ -559,7 +565,7 @@ public class PlayBattleScreen extends Screen {
             steps.add(new Step(enemyName + " was hurt by thorns for " + thorns + "!", () -> {
                 TurnHistoryScreen.Entry thornsLog = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER,
                         "THORNS", enemy.getCurrentHP());
-                dealToEnemy(thorns, log);
+                dealToEnemy(thorns, thornsLog);
                 }));
         }
         if (playerCounter && player.getCurrentHP() - dmg > 0) {
@@ -654,6 +660,11 @@ public class PlayBattleScreen extends Screen {
     private int playerFootX() { return 165; }
     private int playerFootY() { return BattleUI.barTop() - 8; }
 
+    // the move log may only be opened once the fight has really started and before it is fading out
+    private boolean historyAvailable() {
+        return introTimer >= INTRO_FRAMES && phase != Phase.INTRO && phase != Phase.END_FADE;
+    }
+
     @Override
     // order matters here: backdrop first, then the fighters, then the plates, then the bottom bar on top
     public void draw(GraphicsHandler gh) {
@@ -669,14 +680,13 @@ public class PlayBattleScreen extends Screen {
 
         drawEnemyPlate(gh);
         drawPlayerPlate(gh);
-        turnHistoryScreen.draw(gh);
-
         drawTextBox(gh);
         inventoryDisplayScreen.draw(gh);
         optionScreen.draw(gh);
         abilityScreen.draw(gh);
         abilityInfoScreen.draw(gh);
         runAwayScreen.draw(gh);
+        turnHistoryScreen.draw(gh);   // last of the HUD, so the expanded log (and its dim overlay) covers the menus too
 
         // the opening flash, then the fade to black when the battle is over
         if (introTimer < INTRO_FRAMES && (introTimer / 5) % 2 == 0) {
