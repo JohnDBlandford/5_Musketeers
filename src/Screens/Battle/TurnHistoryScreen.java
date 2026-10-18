@@ -43,9 +43,11 @@ public final class TurnHistoryScreen extends Screen {
 
     // layout (pixels). Text is drawn at scale 1.
     private static final int PANEL_W = 290, MARGIN = 8, PAD = 12, HEADER_H = 14, ROW_H = 14;
+
     // column positions, measured from the left edge of the text area (PANEL_W - 2 * PAD = 266 wide)
     private static final int COL_WHO = 26, COL_MOVE = 40, COL_DMG_RIGHT = 216, COL_HP_RIGHT = 266;
     private static final int DMG_WIDTH = 24;  // room kept for a 4 digit damage number
+
     // account for the fact that the expanded panel is bigger than the compact one, obviously
     private static final int EXPANDED_W = PANEL_W + 16, FOOTER_H = 16, SCROLLBAR_W = 4;
 
@@ -55,6 +57,7 @@ public final class TurnHistoryScreen extends Screen {
     // colors using the battle UI
     private static final Color PLAYER_COLOR = BattleUI.BOX_FRAME;
     private static final Color ENEMY_COLOR = BattleUI.RED.darker();
+
     // background dims on pause
     private static final Color DIM = new Color(0, 0, 0, 140);
 
@@ -71,7 +74,7 @@ public final class TurnHistoryScreen extends Screen {
 
     @Override
     public void initialize() {
-        entries.removeAll(entries);
+        entries.removeAll(entries); // each battle starts with an empty screen
         turn = 0;
         isExpanded = false;
         scrollBackEntries = 0;
@@ -82,7 +85,6 @@ public final class TurnHistoryScreen extends Screen {
     public void update() { updateScreen(true); }
 
     void updateScreen(boolean available) {
-        //if (BattleInput.tap(Key.T)) System.out.println("T tap: available=" + available + " expanded=" + isExpanded);
         canExpand = available;
         if (!isExpanded) {
             if (available && BattleInput.tap(Key.T)) open();
