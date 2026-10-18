@@ -28,7 +28,7 @@ public final class BattleBackgroundScreen extends PlayBattleScreen {
 
     private final BattleWorld world;
     private int w, h, lw, lh, frame;
-    private BufferedImage lowres;
+    private BufferedImage lowRes;
     private Graphics2D lg;
     private Scene[] scenes;                           // one scene, or two (festival and plague) for world 3
     private BufferedImage vignette;
@@ -57,8 +57,8 @@ public final class BattleBackgroundScreen extends PlayBattleScreen {
         h = BattleUI.H();
         lw = w / SCALE;
         lh = h / SCALE;
-        lowres = new BufferedImage(lw, lh, BufferedImage.TYPE_INT_ARGB);
-        lg = lowres.createGraphics();
+        lowRes = new BufferedImage(lw, lh, BufferedImage.TYPE_INT_ARGB);
+        lg = lowRes.createGraphics();
         switch (world) {
             case WORLD_2: scenes = new Scene[]{buildWorld2()}; break;
             case WORLD_3: scenes = new Scene[]{buildWorld3(false), buildWorld3(true)}; break;
@@ -91,7 +91,7 @@ public final class BattleBackgroundScreen extends PlayBattleScreen {
 
         Object oldHint = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g.drawImage(lowres, 0, 0, w, h, null);
+        g.drawImage(lowRes, 0, 0, w, h, null);
         if (oldHint != null) g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldHint);
         g.drawImage(vignette, 0, 0, null);
     }
