@@ -6,6 +6,8 @@ import SpriteFont.MonoSpriteFont;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.ArrayList;
 
 // Builds the sprites for a fight.
 //  - The knight is cut straight out of Spritesheet.png using the same cells Knight.java uses (3 columns x 4 rows of 32x32).
@@ -58,7 +60,7 @@ public final class BattleSprites {
         gh.setGraphics(g2);
         MonoSpriteFont f = BattleUI.font();
         int scale = 2;
-        java.util.List<String> lines = wrapName(f, name.toUpperCase(), w - 16, scale);
+        List<String> lines = wrapName(f, name.toUpperCase(), w - 16, scale);
         if (lines.size() * 12 * scale > h - 12) { scale = 1; lines = wrapName(f, name.toUpperCase(), w - 16, scale); }
         int lineH = 6 * scale + 7 * scale;
         int total = lines.size() * lineH - 6 * scale;
@@ -71,8 +73,8 @@ public final class BattleSprites {
         return new BattleSprite(img, null, null, enemy, 1, false);
     }
 
-    private static java.util.List<String> wrapName(MonoSpriteFont f, String text, int maxW, int scale) {
-        java.util.List<String> out = new java.util.ArrayList<>();
+    private static List<String> wrapName(MonoSpriteFont f, String text, int maxW, int scale) {
+        List<String> out = new ArrayList<>();
         String cur = "";
         for (String word : text.split(" ")) {
             String t = cur.isEmpty() ? word : cur + " " + word;
