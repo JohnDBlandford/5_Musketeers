@@ -113,7 +113,7 @@ public class InventoryScreen extends Screen {
 
     private void debugAddXpToSelected() {
         Item item = selectedItem();
-        if (item != null) item.getItemStats().addXp(500);
+        if (item != null) item.getItemStats().addXp(50000);
     }
 
     @Override
@@ -153,7 +153,6 @@ public class InventoryScreen extends Screen {
         y += BODY_BASELINE_OFFSET;
         graphicsHandler.drawString(item.getItemRarity().name(), x, y, BODY_FONT, Color.lightGray);
         for (Map.Entry<Item.ItemBuffs, Double> entry : item.getScaledBuffs().entrySet()) {
-            if (entry.getKey() == Item.ItemBuffs.SPD_BOOST || entry.getKey() == Item.ItemBuffs.BONUS_MAX_HP) continue;
             y += 20;
             graphicsHandler.drawString(entry.getKey() + "  " + formatBuff(entry.getKey(), entry.getValue()), x, y, BODY_FONT,
                     item.isBuffCapped(entry.getKey()) ? GOLD : Color.white);
