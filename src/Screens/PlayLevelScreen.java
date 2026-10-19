@@ -1,5 +1,6 @@
 package Screens;
 
+import BattleSystem.Battle;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
@@ -15,7 +16,6 @@ import Players.Knight;
 import BattleSystem.BattleListener;
 import Encounters.EnemyFactory;
 import Locations.NamedLocations;
-import BattleSystem.BattleResult;
 import BattleSystem.BattleWorld;
 import Screens.Battle.EncounterScreen;
 import Screens.Battle.PlayBattleScreen;
@@ -302,10 +302,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // BATTLE: the battle calls this when it has finished fading out
     @Override
-    public void onBattleEnd(BattleResult result) {
+    public void onBattleEnd(Battle.BattleResult result) {
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
-        if (result == BattleResult.DEFEAT) {
+        if (result == Battle.BattleResult.DEFEAT) {
             // the knight fell: show the game-over screen, which then sends him back to the last named location
             player.lock();
             gameOverScreen = new GameOverScreen(lastPlace != null ? lastPlace.name : "the start");

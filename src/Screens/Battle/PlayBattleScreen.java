@@ -45,11 +45,11 @@ public class PlayBattleScreen extends Screen {
     private BattleListener listener;
     private boolean boss;
 
-    private BattleStatus status = BattleStatus.STARTED;
+    private Battle.BattleStatus status = Battle.BattleStatus.STARTED;
     private Phase phase = Phase.INTRO;
     private final Random rng = new Random();
     private int tick, fade, introTimer;
-    private BattleResult pendingResult;
+    private Battle.BattleResult pendingResult;
 
     // the pieces (the skeleton's classes)
     private BattleBackgroundScreen backgroundScreen;
@@ -140,14 +140,14 @@ public class PlayBattleScreen extends Screen {
         shownLevel = player.getLevel();
         shownXp = targetXp = xpFraction();
 
-        status = BattleStatus.STARTED;
+        status = Battle.BattleStatus.STARTED;
         pendingResult = null;
         current = null;
         script.clear();
 
         say(enemyName + " blocks your path!", null);
         say("GO! " + playerName + "!", null);
-        script.addLast(new Step(null, () -> { status = BattleStatus.IN_PROGRESS; toCommands(); }));
+        script.addLast(new Step(null, () -> { status = Battle.BattleStatus.IN_PROGRESS; toCommands(); }));
         phase = Phase.SCRIPT;   // the opening flash is drawn while introTimer counts up, the script waits for it
     }
 
@@ -174,7 +174,7 @@ public class PlayBattleScreen extends Screen {
             case SCRIPT: if (introTimer >= INTRO_FRAMES) runScript(); break;
             case END_FADE:
                 if (++fade >= FADE_FRAMES) {
-                    status = BattleStatus.COMPLETED;
+                    status = Battle.BattleStatus.COMPLETED;
                     player.resetStatModifiers();
                     enemy.resetStatModifiers();
                     if (listener != null) listener.onBattleEnd(pendingResult);
@@ -442,7 +442,7 @@ public class PlayBattleScreen extends Screen {
             steps.add(new Step(playerName + " has fled!", () -> playerSprite.setPose(BattleSprite.Pose.FLEE)));
             steps.add(new Step(null, () -> {
                 script.clear();
-                finish(BattleResult.FLED);
+                finish(Battle.BattleResult.FLED);
             }));
         } else {
             steps.add(new Step("CAN'T ESCAPE!", null));
@@ -494,7 +494,7 @@ public class PlayBattleScreen extends Screen {
             steps.add(new Step(enemyName + " ran away!", () -> enemySprite.setPose(BattleSprite.Pose.FLEE)));
             steps.add(new Step(null, () -> {
                 script.clear();
-                finish(BattleResult.FLED);
+                finish(Battle.BattleResult.FLED);
             }));
             insert(steps);
             return;
@@ -612,7 +612,7 @@ public class PlayBattleScreen extends Screen {
             script.clear();
             say(playerName + " fainted!", () -> playerSprite.setPose(BattleSprite.Pose.FAINT));
             say("YOU WERE DEFEATED...", null);
-            script.addLast(new Step(null, () -> finish(BattleResult.DEFEAT)));
+            script.addLast(new Step(null, () -> finish(Battle.BattleResult.DEFEAT)));
         }
     }
 
@@ -637,10 +637,10 @@ public class PlayBattleScreen extends Screen {
             }
         });
         if (gold > 0) say("FOUND " + gold + " GOLD!", null);
-        script.addLast(new Step(null, () -> finish(BattleResult.VICTORY)));
+        script.addLast(new Step(null, () -> finish(Battle.BattleResult.VICTORY)));
     }
 
-    private void finish(BattleResult result) {
+    private void finish(Battle.BattleResult result) {
         pendingResult = result;
         phase = Phase.END_FADE;
         fade = 0;
@@ -780,7 +780,7 @@ public class PlayBattleScreen extends Screen {
     Inventory getInventory() { return inventory; }
     int getHealsLeft() { return healsLeft; }
     boolean isBoss() { return boss; }
-    public BattleStatus getStatus() { return status; }
+    public Battle.BattleStatus getStatus() { return status; }
     public boolean isAwaitingCommand() { return phase == Phase.COMMAND; }
     public BattleWorld getWorld() { return world; }
 
