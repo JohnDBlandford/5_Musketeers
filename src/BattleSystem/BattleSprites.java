@@ -36,7 +36,7 @@ public final class BattleSprites {
         private boolean fxUp;
         private Color fxColor = Color.WHITE;
 
-        private BattleSystem.BattleSprite.Pose pose = BattleSystem.BattleSprite.Pose.IDLE;
+        private BattleSystem.BattleSprites.BattleSprite.Pose pose = BattleSystem.BattleSprites.BattleSprite.Pose.IDLE;
         private int t;
 
         private final boolean flipImage;  // false for text placeholders so the name never mirrors
@@ -54,18 +54,19 @@ public final class BattleSprites {
             this.scale = scale;
         }
 
-        public void setPose(BattleSystem.BattleSprite.Pose p) {
-            if (p == null || p == pose && p == BattleSystem.BattleSprite.Pose.IDLE) return;
+        public void setPose(BattleSystem.BattleSprites.BattleSprite.Pose p) {
+            if (p == null || p == pose && p == BattleSystem.BattleSprites.BattleSprite.Pose.IDLE) return;
             pose = p;
             t = 0;
         }
 
-        public BattleSystem.BattleSprite.Pose getPose() {
+        public BattleSystem.BattleSprites.BattleSprite.Pose getPose() {
             return pose;
         }
 
         public boolean isBusy() {
-            return pose != BattleSystem.BattleSprite.Pose.IDLE && pose != BattleSystem.BattleSprite.Pose.FAINT && pose != BattleSystem.BattleSprite.Pose.FLEE;
+            return pose != BattleSystem.BattleSprites.BattleSprite.Pose.IDLE && pose != BattleSystem.BattleSprites.BattleSprite.Pose.FAINT
+                    && pose != BattleSystem.BattleSprites.BattleSprite.Pose.FLEE;
         }
 
         private int duration() {
@@ -96,7 +97,7 @@ public final class BattleSprites {
             if (fxT >= 0 && ++fxT > FX_FRAMES) fxT = -1;
             t++;
             if (t > duration()) {
-                pose = BattleSystem.BattleSprite.Pose.IDLE;
+                pose = BattleSystem.BattleSprites.BattleSprite.Pose.IDLE;
                 t = 0;
             }
         }
@@ -152,17 +153,17 @@ public final class BattleSprites {
 
             Composite old = g.getComposite();
             Shape oldClip = g.getClip();
-            if (pose == BattleSystem.BattleSprite.Pose.FAINT)
+            if (pose == BattleSystem.BattleSprites.BattleSprite.Pose.FAINT)
                 g.clipRect(cx - w, footY - h - 10, w * 2, h + 10);   // sinks "into" the ground
             if (alpha < 1f) g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
             gh.drawImage(img, cx - w / 2 + dx, footY - h + dy, w, h, flipImage ? ImageEffect.FLIP_HORIZONTAL : ImageEffect.NONE);
             g.setComposite(old);
 
-            if (pose == BattleSystem.BattleSprite.Pose.GUARD || pose == BattleSystem.BattleSprite.Pose.HEAL) {
+            if (pose == BattleSystem.BattleSprites.BattleSprite.Pose.GUARD || pose == BattleSystem.BattleSprites.BattleSprite.Pose.HEAL) {
                 float p = t / (float) duration();
                 float a = (float) Math.sin(Math.PI * p) * 0.45f;
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, a)));
-                g.setColor(pose == BattleSystem.BattleSprite.Pose.GUARD ? BattleUI.BLUE : BattleUI.GREEN);
+                g.setColor(pose == BattleSystem.BattleSprites.BattleSprite.Pose.GUARD ? BattleUI.BLUE : BattleUI.GREEN);
                 int r = (int) (Math.max(w, h) * 0.62);
                 g.fillOval(cx - r, footY - h / 2 - r, r * 2, r * 2);
                 g.setComposite(old);

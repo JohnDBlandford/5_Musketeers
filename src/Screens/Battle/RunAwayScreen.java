@@ -14,7 +14,7 @@ public class RunAwayScreen extends OptionScreen {
     protected int optionCount() { return 1; }   // only YES is a move; NO just backs out
 
     @Override
-    protected BattleSprite.Pose poseFor(int index) { return BattleSprite.Pose.RUN; }
+    protected BattleSprites.BattleSprite.Pose poseFor(int index) { return BattleSprites.BattleSprite.Pose.RUN; }
 
     @Override
     protected void perform(int index) {

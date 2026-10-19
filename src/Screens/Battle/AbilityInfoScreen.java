@@ -24,8 +24,9 @@ public class AbilityInfoScreen extends OptionScreen {
     protected int optionCount() { return ability == null ? 0 : 1; }
 
     @Override
-    protected BattleSprite.Pose poseFor(int index) {
-        return ability.getCategory() == MoveCategory.SHIELD ? BattleSprite.Pose.GUARD : BattleSprite.Pose.ATTACK;
+    protected BattleSprites.BattleSprite.Pose poseFor(int index) {
+        return ability.getCategory() == MoveCategory.SHIELD ? BattleSprites.BattleSprite.Pose.GUARD
+                : BattleSprites.BattleSprite.Pose.ATTACK;
     }
 
     @Override

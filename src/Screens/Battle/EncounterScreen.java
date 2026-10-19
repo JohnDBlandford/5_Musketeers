@@ -98,8 +98,8 @@ public final class EncounterScreen extends Screen {
     }
 
     private void startImpact() {
-        knight.setPose(BattleSprite.Pose.HURT);
-        foe.setPose(BattleSprite.Pose.HURT);
+        knight.setPose(BattleSprites.BattleSprite.Pose.HURT);
+        foe.setPose(BattleSprites.BattleSprite.Pose.HURT);
         sparks = new Spark[90];
         int cx = 400, cy = contactY();
         for (int i = 0; i < sparks.length; i++) {

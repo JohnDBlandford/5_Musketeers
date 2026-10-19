@@ -440,7 +440,7 @@ public class PlayBattleScreen extends Screen {
         runAttempts++;
         boolean escaped = BattleMath.runEscapes(Math.round(playerSpd()), Math.round(enemy.getBaseSPD()), runAttempts, rng);
         if (escaped) {
-            steps.add(new Step(playerName + " has fled!", () -> playerSprite.setPose(BattleSprite.Pose.FLEE)));
+            steps.add(new Step(playerName + " has fled!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.FLEE)));
             steps.add(new Step(null, () -> {
                 script.clear();
                 finish(Battle.BattleResult.FLED);
@@ -492,7 +492,7 @@ public class PlayBattleScreen extends Screen {
 
         // the enemy runs away (Starving Wretch): the fight ends with no rewards
         if (move.flees) {
-            steps.add(new Step(enemyName + " ran away!", () -> enemySprite.setPose(BattleSprite.Pose.FLEE)));
+            steps.add(new Step(enemyName + " ran away!", () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.FLEE)));
             steps.add(new Step(null, () -> {
                 script.clear();
                 finish(Battle.BattleResult.FLED);
@@ -500,7 +500,7 @@ public class PlayBattleScreen extends Screen {
             insert(steps);
             return;
         }
-        steps.add(new Step(enemyName + " used " + move.name + "!", move.damages ? () -> enemySprite.setPose(BattleSprite.Pose.ATTACK) : null));
+        steps.add(new Step(enemyName + " used " + move.name + "!", move.damages ? () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.ATTACK) : null));
 
         // status moves do no damage: they just change stats (your guard and counter stay ready)
         if (!move.damages) {
@@ -511,7 +511,7 @@ public class PlayBattleScreen extends Screen {
         if (playerGuard) {
             steps.add(new Step(playerName + " blocked the attack!", () -> {
                 playerGuard = false;
-                playerSprite.setPose(BattleSprite.Pose.GUARD);
+                playerSprite.setPose(BattleSprites.BattleSprite.Pose.GUARD);
             }));
             enemyEffects(steps, move, false);
             insert(steps);
@@ -545,7 +545,7 @@ public class PlayBattleScreen extends Screen {
                 dealt[0] += hit;
                 player.applyDamage(hit);
                 log.hit(hit, player.getCurrentHP());
-                playerSprite.setPose(BattleSprite.Pose.HURT);
+                playerSprite.setPose(BattleSprites.BattleSprite.Pose.HURT);
             }));
             if (blocked) steps.add(new Step("The shield took some of the blow!", null));
         }
@@ -571,7 +571,7 @@ public class PlayBattleScreen extends Screen {
         }
         if (playerCounter && player.getCurrentHP() - dmg > 0) {
             playerCounter = false;
-            steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprite.Pose.ATTACK)));
+            steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.ATTACK)));
             float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(EquipSlot.MELEE));
             int counter = Math.max(1, Math.round(CombatResolver.calculateDamage(atk * 1.2f, enemy.getBaseDEF())));
             steps.add(new Step("It hit for " + counter + " damage!", () -> {
@@ -589,7 +589,7 @@ public class PlayBattleScreen extends Screen {
         // null player on purpose: rewards are handed out by the victory steps so the XP bar can animate
         enemy.applyDamage(dmg, null);
         log.hit(dmg, enemy.getCurrentHP());
-        enemySprite.setPose(BattleSprite.Pose.HURT);
+        enemySprite.setPose(BattleSprites.BattleSprite.Pose.HURT);
     }
 
     private boolean isOver() {
@@ -611,7 +611,7 @@ public class PlayBattleScreen extends Screen {
             victory();
         } else if (player.getCurrentHP() <= 0) {
             script.clear();
-            say(playerName + " fainted!", () -> playerSprite.setPose(BattleSprite.Pose.FAINT));
+            say(playerName + " fainted!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.FAINT));
             say("YOU WERE DEFEATED...", null);
             script.addLast(new Step(null, () -> finish(Battle.BattleResult.DEFEAT)));
         }
@@ -619,7 +619,7 @@ public class PlayBattleScreen extends Screen {
 
     private void victory() {
         int xp = enemy.getXpReward(), gold = enemy.getGoldReward();
-        say(enemyName + " fainted!", () -> enemySprite.setPose(BattleSprite.Pose.FAINT));
+        say(enemyName + " fainted!", () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.FAINT));
         say(playerName + " gained " + xp + " EXP!", () -> {
             int before = player.getLevel();
             player.addXP(xp);        // Player.addXP does the leveling (and the full heal on level up)
@@ -801,8 +801,8 @@ public class PlayBattleScreen extends Screen {
         protected int optionCount() { return LABELS.length; }
 
         @Override
-        protected BattleSprite.Pose poseFor(int index) {
-            return index == 3 ? BattleSprite.Pose.HEAL : BattleSprite.Pose.IDLE;   // the others only open another window
+        protected BattleSprites.BattleSprite.Pose poseFor(int index) {
+            return index == 3 ? BattleSprites.BattleSprite.Pose.HEAL : BattleSprites.BattleSprite.Pose.IDLE;   // the others only open another window
         }
 
         @Override
