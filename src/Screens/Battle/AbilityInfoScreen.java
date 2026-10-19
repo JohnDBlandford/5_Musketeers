@@ -8,7 +8,7 @@ import java.util.List;
 
 // Shows the name, type, power and description of the ability you pressed Y on.
 // ENTER from here uses the move, Y or B closes it and goes back to the ability window.
-public class AbilityInfoScreen extends OptionScreen {
+public final class AbilityInfoScreen extends OptionScreen {
     private Ability ability;
 
     public AbilityInfoScreen(PlayBattleScreen battle) {

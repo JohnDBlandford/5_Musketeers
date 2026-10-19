@@ -9,7 +9,7 @@ import java.awt.*;
 
 // The 2x2 window of abilities for MELEE, SHIELD or RANGED, numbered 1-4 (press 1-4 to jump to a slot).
 // It takes the place of the main buttons. ENTER uses the hovered ability, Y shows its name / power / description, B goes back.
-public class AbilityScreen extends OptionScreen {
+public final class AbilityScreen extends OptionScreen {
     private MoveCategory category = MoveCategory.MELEE;
     private Ability[] slots = new Ability[4];
     private String itemName = "";
