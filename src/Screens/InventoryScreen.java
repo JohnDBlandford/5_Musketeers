@@ -38,6 +38,7 @@ public class InventoryScreen extends Screen {
     private static final int NAME_SCALE = 2;   // item name
     private static final int BODY_SCALE = 2;   // rarity + stats
     private static final int HELP_SCALE = 2;   // instructions line
+    private static final int BODY_BASELINE_OFFSET = 12; // top-to-baseline gap between the pixel-font name and the body text
     private int row, col;
     private int panelX, panelY, panelW, panelH, slotsY, equipX, gridX, detailX, detailW, detailH;
     private final int screenWidth = ScreenManager.getScreenWidth();
@@ -149,6 +150,7 @@ public class InventoryScreen extends Screen {
             BattleUI.text(graphicsHandler, line, x, y, NAME_SCALE, rarityColor(item));
             y += nameLineH;
         }
+        y += BODY_BASELINE_OFFSET;
         graphicsHandler.drawString(item.getItemRarity().name(), x, y, BODY_FONT, Color.lightGray);
         for (Map.Entry<Item.ItemBuffs, Double> entry : item.getScaledBuffs().entrySet()) {
             if (entry.getKey() == Item.ItemBuffs.SPD_BOOST || entry.getKey() == Item.ItemBuffs.BONUS_MAX_HP) continue;
