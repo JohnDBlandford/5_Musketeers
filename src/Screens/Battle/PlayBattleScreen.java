@@ -59,7 +59,8 @@ public class PlayBattleScreen extends Screen {
     private AbilityScreen abilityScreen;
     private AbilityInfoScreen abilityInfoScreen;
     private RunAwayScreen runAwayScreen;
-    private BattleSprite playerSprite, enemySprite;
+    private BattleSprites.BattleSprite playerSprite;
+    private BattleSprites.BattleSprite enemySprite;
 
     // what the plates show (they glide toward the real numbers, like Gen 1's draining bars)
     private float shownPlayerHP, shownEnemyHP, shownXp, targetXp;
@@ -132,8 +133,8 @@ public class PlayBattleScreen extends Screen {
         abilityInfoScreen.initialize();
         runAwayScreen.initialize();
 
-        playerSprite = BattleSprites.knight();
-        enemySprite = BattleSprites.enemy(enemy.getEnemyName());
+        playerSprite = BattleSprites.BattleSprite.knight();
+        enemySprite = BattleSprites.BattleSprite.enemy(enemy.getEnemyName());
 
         shownPlayerHP = player.getCurrentHP();
         shownEnemyHP = enemy.getCurrentHP();
@@ -776,7 +777,7 @@ public class PlayBattleScreen extends Screen {
 
     // ---------------------------------------------------------------- getters used by the option screens
 
-    BattleSprite getPlayerSprite() { return playerSprite; }
+    BattleSprites.BattleSprite getPlayerSprite() { return playerSprite; }
     Inventory getInventory() { return inventory; }
     int getHealsLeft() { return healsLeft; }
     boolean isBoss() { return boss; }

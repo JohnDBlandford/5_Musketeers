@@ -34,7 +34,8 @@ public final class EncounterScreen extends Screen {
     private final String enemyName;
 
     private BattleBackgroundScreen backdrop;
-    private BattleSprite knight, foe;
+    private BattleSprites.BattleSprite knight;
+    private BattleSprites.BattleSprite foe;
     private int t;
     private boolean done;
     private final KeyLocker keyLocker = new KeyLocker();
@@ -55,8 +56,8 @@ public final class EncounterScreen extends Screen {
         rng = new Random(enemyName.hashCode() * 31L + 7);
         backdrop = new BattleBackgroundScreen(world);
         backdrop.initialize();
-        knight = BattleSprites.knight();
-        foe = BattleSprites.enemy(enemyName);
+        knight = BattleSprites.BattleSprite.knight();
+        foe = BattleSprites.BattleSprite.enemy(enemyName);
         sparks = null;
         keyLocker.lockKey(Key.ENTER);
         keyLocker.lockKey(Key.SPACE);
