@@ -1,7 +1,7 @@
 package Item;
 
 import GameObject.SpriteSheet;
-import inventory.EquipSlot;
+import inventory.Inventory;
 
 import java.util.*;
 
@@ -83,7 +83,7 @@ public abstract class Item {
     }
 
     // new subtypes must declare a type for this method because Item is abstract
-    public abstract EquipSlot getEquipSlot();
+    public abstract Inventory.EquipSlot getEquipSlot();
 
     // note that these two methods return the entire map every time they are called
     // they are unmodifiable

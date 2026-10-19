@@ -5,6 +5,7 @@ import Item.Item;
 import java.util.*;
 
 public class Inventory {
+    public enum EquipSlot { MELEE, RANGED_WEAPON, SHIELD, ARMOR }
     private static final int MAX_INVENTORY_SLOTS = 20;
     private final List<Item> items = new ArrayList<>();
     private final Map<EquipSlot, Item> equippedItems = new EnumMap<>(EquipSlot.class);

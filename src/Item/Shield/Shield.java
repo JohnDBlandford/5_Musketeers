@@ -2,8 +2,8 @@ package Item.Shield;
 
 import GameObject.SpriteSheet;
 import Item.Item;
-import inventory.EquipSlot;
 import Item.ItemStats;
+import inventory.Inventory;
 
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public sealed abstract class Shield extends Item permits
     public double getBlockAmount() { return this.blockAmount; }
 
     @Override
-    public EquipSlot getEquipSlot() { return EquipSlot.SHIELD; }
+    public Inventory.EquipSlot getEquipSlot() { return Inventory.EquipSlot.SHIELD; }
 
     @Override
     public int getBaseDefense() { return this.baseDef; }

@@ -2,8 +2,8 @@ package Item.Armor;
 
 import GameObject.SpriteSheet;
 import Item.Item;
-import inventory.EquipSlot;
 import Item.ItemStats;
+import inventory.Inventory;
 
 import java.util.Map;
 
@@ -31,5 +31,5 @@ public sealed abstract class Armor extends Item permits BeggarsWrapsArmor, Famin
     public int getBaseDefense() { return this.baseDef; }
 
     @Override
-    public EquipSlot getEquipSlot() { return EquipSlot.ARMOR; }
+    public Inventory.EquipSlot getEquipSlot() { return Inventory.EquipSlot.ARMOR; }
 }

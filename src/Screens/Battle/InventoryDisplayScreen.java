@@ -6,7 +6,6 @@ import Engine.GraphicsHandler;
 import Engine.Screen;
 import Item.Item;
 import Screens.InventoryScreen;
-import inventory.EquipSlot;
 import inventory.Inventory;
 
 import java.awt.*;
@@ -15,7 +14,8 @@ import java.awt.*;
 // M, S, R light up when a melee weapon, shield or ranged weapon is equipped, H lights up while the heal is still available.
 public final class InventoryDisplayScreen extends Screen {
     private final Inventory inventory;
-    private static final EquipSlot[] ORDER = { EquipSlot.MELEE, EquipSlot.SHIELD, EquipSlot.RANGED_WEAPON, EquipSlot.ARMOR };
+    private static final Inventory.EquipSlot[] ORDER = { Inventory.EquipSlot.MELEE, Inventory.EquipSlot.SHIELD,
+            Inventory.EquipSlot.RANGED_WEAPON, Inventory.EquipSlot.ARMOR };
     private static final int SLOT = 48, GAP = 6;
     private static final Color SLOT_FILL = new Color(35, 35, 35);
     private static final Color SLOT_BORDER = new Color(90, 90, 90);

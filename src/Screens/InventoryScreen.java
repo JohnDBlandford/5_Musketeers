@@ -4,7 +4,6 @@ import BattleSystem.BattleUI;
 import Engine.*;
 import Item.Item;
 import SpriteFont.SpriteFont;
-import inventory.EquipSlot;
 import inventory.Inventory;
 import Item.ItemStats;
 
@@ -123,8 +122,8 @@ public class InventoryScreen extends Screen {
         graphicsHandler.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, PANEL_FILL, Color.black, 3);
         BattleUI.shadowText(graphicsHandler, INSTRUCTIONS, panelX + 30, panelY + 24, HELP_SCALE, BattleUI.WHITE);
 
-        for (int i = 0; i < EquipSlot.values().length; i++)
-            drawEquipSlot(graphicsHandler, inv, equipX, slotsY + i * PITCH, EquipSlot.values()[i]);
+        for (int i = 0; i < Inventory.EquipSlot.values().length; i++)
+            drawEquipSlot(graphicsHandler, inv, equipX, slotsY + i * PITCH, Inventory.EquipSlot.values()[i]);
         List<Item> pack = inv.getAllItems();
         for (int r = 0; r < ROWS; r++)
             for (int c = 0; c < COLS; c++) {
@@ -235,7 +234,7 @@ public class InventoryScreen extends Screen {
             g.drawFilledRectangleWithBorder(x + SLOT - 14, y + 2, 12, 12, new Color(230, 190, 40), Color.black, 1);
     }
 
-    private void drawEquipSlot(GraphicsHandler graphicsHandler, Inventory inv, int x, int y, EquipSlot slot) {
+    private void drawEquipSlot(GraphicsHandler graphicsHandler, Inventory inv, int x, int y, Inventory.EquipSlot slot) {
         Item item = inv.getEquippedItem(slot);
         drawSlot(graphicsHandler, inv, x, y, item);
         if (item == null) {

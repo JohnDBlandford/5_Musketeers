@@ -9,7 +9,6 @@ import Item.Item;
 import Level.Player;
 import NPCs.Enemy;
 import BattleSystem.Ability.Effect;
-import inventory.EquipSlot;
 import inventory.Inventory;
 
 import java.awt.*;
@@ -572,7 +571,7 @@ public class PlayBattleScreen extends Screen {
         if (playerCounter && player.getCurrentHP() - dmg > 0) {
             playerCounter = false;
             steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.ATTACK)));
-            float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(EquipSlot.MELEE));
+            float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(Inventory.EquipSlot.MELEE));
             int counter = Math.max(1, Math.round(CombatResolver.calculateDamage(atk * 1.2f, enemy.getBaseDEF())));
             steps.add(new Step("It hit for " + counter + " damage!", () -> {
                 TurnHistoryScreen.Entry counterLog = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "RETAL", enemy.getCurrentHP());
