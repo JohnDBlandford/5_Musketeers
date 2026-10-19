@@ -140,7 +140,8 @@ public final class ItemStats {
     // chance-type buffs are held under their cap unless the raw value starts above that cap
     public double scaleBuff(Item.ItemBuffs buff, double baseValue) {
         double value = Math.min(scale(baseValue, buffGrowth), baseValue * MAX_SCALE);
-        if (CHANCE_BUFFS.contains(buff)) value = Math.min(value, Math.max(CHANCE_CEILING, baseValue));
+        if (CHANCE_BUFFS.contains(buff)) //noinspection MathClampMigration
+            value = Math.min(value, Math.max(CHANCE_CEILING, baseValue));
         return value;
     }
 
