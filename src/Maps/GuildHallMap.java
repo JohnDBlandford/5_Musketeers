@@ -8,13 +8,14 @@ import Level.EnhancedMapTile;
 import Level.Map;
 
 import Tilesets.CommonTileset;
+import Tilesets.TavernTileset;
 import Utils.Point;
 
 public class GuildHallMap extends Map {
 
     public GuildHallMap() {
-        super("guild_hall_map.txt", new CommonTileset());
-        this.playerStartPosition = new Point(3360, 2340); // Brackenford plaza
+        super("guild_hall_map.txt", new TavernTileset());
+        this.playerStartPosition = new Point(0, 0); //
 
     }
 

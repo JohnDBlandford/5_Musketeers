@@ -30,7 +30,7 @@ public class World1Map extends Map {
         enhancedMapTiles.add(world2portal);
 
         Door hallDoor = new Door(getMapTile(82, 82).getX(), getMapTile(82, 82).getY(),
-                "world2_map", 0, 0, 48, 48); // replace name and destination once the interior map exists
+                "guild_hall_map", 0, 0, 48, 48);
         hallDoor.setInteractScript(new DoorScript());
         enhancedMapTiles.add(hallDoor);
 
