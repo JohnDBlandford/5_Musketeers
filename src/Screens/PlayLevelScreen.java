@@ -1,6 +1,7 @@
 package Screens;
 
 import BattleSystem.Battle;
+import BattleSystem.BattleMath;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
@@ -200,6 +201,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             case ENCOUNTER:
                 encounterScreen.update();
                 if (encounterScreen.isDone()) {
+                    syncGearHealth();
                     battleScreen = new PlayBattleScreen(player, inventory, pendingEnemy, pendingLevel, pendingWorld, this);
                     battleScreen.setBoss(pendingBoss);
                     battleScreen.initialize();
@@ -269,6 +271,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // after a defeat: back to the last named location with full health
     private void respawn() {
+        syncGearHealth();
         player.setCurrentHP(player.getMaxHP());
         moveToPlace(lastPlace);
     }
@@ -474,8 +477,14 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public void closeInventory() {
+        syncGearHealth();
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
+    // pushes the max HP bonus of the equipped gear into the player
+    private void syncGearHealth() {
+        if (player != null && inventory != null) player.setBonusMaxHP(BattleMath.bonusMaxHp(inventory));
     }
 
     public Inventory getInventory() { return inventory; }

@@ -37,6 +37,16 @@ public final class BattleMath {
         return total;
     }
 
+    // flat max HP from every equipped item, at each item's current level. Flat buffs are stored as value / 100
+    public static int bonusMaxHp(Inventory inv) {
+        double total = 0;
+        for (Inventory.EquipSlot slot : Inventory.EquipSlot.values()) {
+            Item item = inv.getEquippedItem(slot);
+            if (item != null) total += item.getItemBonusMaxHp();
+        }
+        return (int) Math.round(total * 100.0);
+    }
+
     // the number an equipped item gives one of its abilities (armor passives like HARDEN 0.12 live here); 0 if nothing has it
     public static double abilityValue(Inventory inv, Item.ItemAbilities ability) {
         double total = 0;
