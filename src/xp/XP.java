@@ -12,6 +12,7 @@ import java.util.function.IntToLongFunction;
 // before and after), then applies its own rewards
 public class XP {
     private final int maxLvl;
+    // using IntToLongFunction because its a curve and this is a built in class to handle it
     private final IntToLongFunction xpToNextLvl;
     private int startLvl = 1;
     private long xp = 0; // xp earned inside the current level, 0 at max level
