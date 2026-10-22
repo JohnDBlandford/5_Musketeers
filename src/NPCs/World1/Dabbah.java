@@ -3,11 +3,13 @@ package NPCs.World1;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class Dabbah extends Enemy {
+public class Dabbah extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -135,6 +137,54 @@ public class Dabbah extends Enemy {
             case 1: moveWrathOfTheBeast(player); break;
             default: moveInfernalRupture(player); break;
         }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+        phase = 1;
+        formTitle = "Dabbah, Beast of the Earth";
+        currentHP = maxHP;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        if (turnCount % 3 == 0) {   // scripted: every 3rd turn
+            return Move.attack("Judgement of Dabbah", getPhaseMultiplier(1.80f)).lowersPlayer(Move.DEF, 0.25f);
+        }
+        switch (rng.nextInt(3)) {
+            case 0:  return Move.attack("Earthshaking Slam", getPhaseMultiplier(1.40f)).lowersPlayer(Move.SPD, 0.20f);
+            case 1:  return Move.attack("Wrath of the Beast", getPhaseMultiplier(1.20f)).lowersPlayer(Move.ATK, 0.15f);
+            default: return Move.attack("Infernal Rupture", getPhaseMultiplier(0.75f)).hits(2);
+        }
+    }
+
+    // reaching 0 HP in phase 1 or 2 revives Dabbah in the next phase (the revive in onTakeDamage can never run, because the
+    // damage code only calls it while HP is still above 0)
+    @Override
+    public String[] onBattleDefeat() {
+        if (phase >= 3) return null;
+        phase++;
+        currentHP = maxHP;
+        turnCount = 0;
+        if (phase == 2) {
+            formTitle = "Dabbah, Scourge of the Ash";
+            return new String[] {"Dabbah's carcass splits open, bathed in black embers!",
+                    "\"Fools... You think this dirt can bind what was promised to the stars?\""};
+        }
+        formTitle = "Dabbah, The Unbound Ruin";
+        return new String[] {"The very earth beneath you shatters as Dabbah unearths its true form!",
+                "\"Behold the hour of harvest... I am the end written before time!\""};
     }
 
     public int getEnemyLevel() {

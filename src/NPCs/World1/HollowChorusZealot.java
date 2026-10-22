@@ -3,13 +3,16 @@ package NPCs.World1;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class HollowChorusZealot extends Enemy {
+public class HollowChorusZealot extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
+    private boolean siphoned = false;
     private static final Random random = new Random();
 
     // Baseline Stats (Level 5)
@@ -85,6 +88,43 @@ public class HollowChorusZealot extends Enemy {
             case 1: moveFanaticalSlash(player); break;
             default: moveDarkChant(player); break;
         }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        siphoned = false;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        siphoned = false;
+        // AI: when heavily wounded (< 40% HP) it may use Doomsday Rite
+        if ((currentHP / maxHP) < 0.40f && rng.nextBoolean()) {
+            return Move.attack("Doomsday Rite", 1.60f);
+        }
+        switch (rng.nextInt(3)) {
+            case 0:  siphoned = true; return Move.attack("Siphon Strike", 1.20f);
+            case 1:  return Move.attack("Fanatical Slash", 1.35f);
+            default: return Move.attack("Dark Chant", 0.50f).lowersPlayer(Move.ATK, 0.15f).lowersPlayer(Move.DEF, 0.10f);
+        }
+    }
+
+    // Siphon Strike heals the Zealot for 20% of the damage it dealt
+    @Override
+    public String onDealtDamage(int damage) {
+        if (!siphoned) return null;
+        siphoned = false;
+        currentHP = Math.min(maxHP, currentHP + damage * 0.20f);
+        return "Hollow Chorus Zealot drains health!";
     }
 
     public int getEnemyLevel() {

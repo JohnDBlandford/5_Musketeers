@@ -3,17 +3,19 @@ package Maps;
 import java.util.ArrayList;
 
 import EnhancedMapTiles.Sign;
+import GameObject.Door;
 import GameObject.Portal;
 import Level.EnhancedMapTile;
 import Level.Map;
 import Scripts.World1.*;
+import Scripts.DoorScript;
 import Scripts.PortalScript;
 import Tilesets.World1Tileset;
 
 public class World1Map extends Map {
     public World1Map() {
         super("world1_map.txt", new World1Tileset());
-        this.playerStartPosition = getMapTile(81, 90).getLocation(); // Brackenford plaza
+        this.playerStartPosition = getMapTile(76, 87).getLocation(); // Brackenford plaza
 
     }
 
@@ -21,13 +23,18 @@ public class World1Map extends Map {
     public ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {
         ArrayList<EnhancedMapTile> enhancedMapTiles = new ArrayList<>();
 
-        // The portal is placed at the location of the tile at (60, 90) in the world1
+        // The portal is placed at the location of the tile at (55, 87) in the world1
         // map
         // and teleports to (48, 48) in the map
-        Portal portal = new Portal(getMapTile(60, 90).getX(), getMapTile(60, 90).getY(),
+        Portal world2portal = new Portal(getMapTile(55, 87).getX(), getMapTile(55, 87).getY(),
                 "world2_map", 3360, 2340, 48, 48);
-        portal.setInteractScript(new PortalScript());
-        enhancedMapTiles.add(portal);
+        world2portal.setInteractScript(new PortalScript());
+        enhancedMapTiles.add(world2portal);
+
+        Door hallDoor = new Door(getMapTile(77, 79).getX(), getMapTile(77, 79).getY(),
+                "guild_hall_map", 408, 624, 48, 48);
+        hallDoor.setInteractScript(new DoorScript());
+        enhancedMapTiles.add(hallDoor);
 
         //Signs with storys that are placed around the map, press enter to interact with them
         //Intro
@@ -66,6 +73,7 @@ public class World1Map extends Map {
         enhancedMapTiles.add(barrows);
 
         return enhancedMapTiles;
+
     }
 
 }

@@ -1,6 +1,7 @@
 package MapEditor;
 
 import Level.Map;
+import Maps.GuildHallMap;
 import Maps.TestMap;
 import Maps.TitleScreenMap;
 import Maps.World1Map;
@@ -14,6 +15,7 @@ public class EditorMaps {
                 add("TestMap");
                 add("TitleScreen");
                 add("World1");
+                add("GuildHall");
             }
         };
     }
@@ -26,6 +28,8 @@ public class EditorMaps {
                 return new TitleScreenMap();
             case "World1":
                 return new World1Map();
+            case "GuildHall":
+                return new GuildHallMap();
             default:
                 throw new RuntimeException("Unrecognized map name");
         }

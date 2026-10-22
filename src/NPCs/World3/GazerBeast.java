@@ -3,11 +3,13 @@ package NPCs.World3;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class GazerBeast extends Enemy {
+public class GazerBeast extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -80,6 +82,31 @@ public class GazerBeast extends Enemy {
             case 1: moveMindPiercingGlare(player); break;
             case 2: moveVoidBlink(player); break;
             default: moveMultiBeamBarrage(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Eyestalk Beam", 1.15f);
+            case 1:  return Move.attack("Mind-Piercing Glare", 0.85f).lowersPlayer(Move.ATK, 0.15f);
+            case 2:  return Move.attack("Void Blink", 0.50f).lowersPlayer(Move.SPD, 0.20f);
+            default: return Move.attack("Multi-Beam Barrage", 0.45f).hits(3);
         }
     }
 
