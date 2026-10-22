@@ -29,25 +29,62 @@ public class TavernTileset extends Tileset {
         ArrayList<MapTileBuilder> t = new ArrayList<>();
 
         // row 1
-        t.add(ground(0, 0)); // ID 0 - brown base ground
-        t.add(ground(0, 1)); // ID 1 - brown base ground, variant
-        t.add(ground(0, 2)); // ID 2 - lighter grey-brown dirt
-        t.add(ground(0, 3)); // ID 3 - lighter grey-brown dirt, variant
-        t.add(ground(0, 4)); // ID 4 - tan dirt with dark debris marks
-        t.add(ground(0, 5).withTileType(TileType.NOT_PASSABLE)); // ID 5 - tan dirt with dark debris marks, variant
-        t.add(ground(0, 6));
-        t.add(ground(0, 7));
-        t.add(ground(0, 8));
+        t.add(ground(0, 0));
+        t.add(ground(0, 1));
+        t.add(ground(0, 2));
+        t.add(ground(0, 3));
+        t.add(ground(0, 4));
+        t.add(ground(0, 5).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(0, 6).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(0, 7).withTileType(TileType.NOT_PASSABLE));
 
-        // rows 8-9: brown earth with olive-green veins (4x2 block)
-        t.add(ground(8, 0)); // ID 17
-        t.add(ground(8, 1)); // ID 18
-        t.add(ground(8, 2)); // ID 19
-        t.add(ground(8, 3)); // ID 20
-        t.add(ground(9, 0)); // ID 21
-        t.add(ground(9, 1)); // ID 22
-        t.add(ground(9, 2)); // ID 23
-        t.add(ground(9, 3)); // ID 24
+        // row 2
+        t.add(ground(1, 0));
+        t.add(ground(1, 1));
+        t.add(ground(1, 2));
+        t.add(ground(1, 3));
+        t.add(ground(1, 4).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(1, 5));
+        t.add(ground(1, 6));
+        t.add(ground(1, 7));
+
+        // row 3
+        t.add(ground(2, 0));
+        t.add(ground(2, 1));
+        t.add(ground(2, 2));
+        t.add(ground(2, 3));
+        t.add(ground(2, 4));
+        t.add(ground(2, 5));
+        t.add(ground(2, 6).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(2, 7).withTileType(TileType.NOT_PASSABLE));
+        // row 4
+        t.add(ground(3, 0).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 1).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 2).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 3).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 4).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 5).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 6).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(3, 7).withTileType(TileType.NOT_PASSABLE));
+        // row 5
+        t.add(ground(4, 0).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 1).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 2).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 3).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 4).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 5).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 6).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(4, 7).withTileType(TileType.NOT_PASSABLE));
+
+        // row 6
+        t.add(ground(5, 0).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 1).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 2).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 3).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 4).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 5).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 6).withTileType(TileType.NOT_PASSABLE));
+        t.add(ground(5, 7).withTileType(TileType.NOT_PASSABLE));
 
         return t;
     }
