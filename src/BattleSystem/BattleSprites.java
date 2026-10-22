@@ -21,6 +21,9 @@ public final class BattleSprites {
     public static BattleSprite knight() {
         try {
             BufferedImage sheet = ImageLoader.load("Spritesheet.png");
+            BufferedImage attacks = ImageLoader.load("Attacks.png");
+            BufferedImage[] melee = {cell(attacks, 0, 0), cell(attacks, 1, 0), cell(attacks, 2, 0), cell(attacks, 0, 1)};
+            BufferedImage[] ranged = {cell(attacks, 1, 1), cell(attacks, 2, 1), cell(attacks, 0, 2), cell(attacks, 1, 2)};
             BufferedImage idle = cell(sheet, 0, 0);
             BufferedImage[] hurt = {cell(sheet, 1, 0), cell(sheet, 2, 0), cell(sheet, 0, 1)};
             BufferedImage[] attack = {cell(sheet, 1, 1), cell(sheet, 2, 1), cell(sheet, 0, 2), cell(sheet, 1, 2)};
@@ -34,8 +37,29 @@ public final class BattleSprites {
         String file = "Battle/" + enemyName.replace(" ", "") + ".png";
         try {
             BufferedImage img = ImageLoader.load(file);
-            int scale = Math.max(1, ENEMY_HEIGHT / img.getHeight());
-            return new BattleSprite(img, null, null, true, scale);
+            BufferedImage[] attack = null;
+            BufferedImage[] hurt = null;
+            BufferedImage idleBase = null;
+            int scale = Math.max(1, KNIGHT_HEIGHT / 32);
+            if (enemyName.equals("HighChorusZealot")) {
+                attack = new BufferedImage[] {cell(img, 0, 0), cell(img, 1, 0), cell(img, 2, 0), cell(img, 0, 1)};
+                hurt = new BufferedImage[] {cell(img, 0, 0), cell(img, 1, 1), cell(img, 2, 1), cell(img, 0, 2), cell(img, 1, 2)};
+                idleBase = cell(img, 0, 0);
+                //idle = new BufferedImage[] {cell(img, 0, 0), cell(img, 2, 2), cell(img, 0, 3), cell(img, 1, 3), cell(img, 2, 3)};
+            } else if (enemyName.equals("FamineWarden")) {
+                attack = new BufferedImage[] {superCell(img, 0, 0), superCell(img, 1, 0), superCell(img, 2, 0), superCell(img, 3, 0), superCell(img, 0, 1), superCell(img, 1, 1), superCell(img, 2, 1), superCell(img, 3, 1)};
+                hurt = new BufferedImage[] {superCell(img, 0, 0), superCell(img, 0, 2), superCell(img, 1, 2), superCell(img, 2, 2), superCell(img, 3, 2), superCell(img, 0, 3)};
+                idleBase = superCell(img, 0, 0);
+                scale = Math.max(1, KNIGHT_HEIGHT / 16);
+                //idle = new BufferedImage[] {superCell(img, 0, 0), superCell(img, 1, 3), superCell(img, 2, 3), superCell(img, 3, 3), superCell(img, 0, 4), superCell(img, 1, 4)};
+            } else {
+                attack = new BufferedImage[] {cell(img, 0, 0), cell(img, 1, 0), cell(img, 2, 0), cell(img, 0, 1)};
+                hurt = new BufferedImage[] {cell(img, 0, 0), cell(img, 1, 1), cell(img, 2, 1), cell(img, 0, 2)};
+                idleBase = cell(img, 0, 0);
+                //idle = new BufferedImage[] {cell(img, 0, 0), cell(img, 1, 2), cell(img, 2, 2), cell(img, 0, 3)};
+            }
+            
+            return new BattleSprite(idleBase, attack, hurt, true, scale);
         } catch (RuntimeException e) {
             return placeholder(enemyName, true);
         }
@@ -43,6 +67,9 @@ public final class BattleSprites {
 
     private static BufferedImage cell(BufferedImage sheet, int col, int row) {
         return sheet.getSubimage(col * 32, row * 32, 32, 32);
+    }
+     private static BufferedImage superCell(BufferedImage sheet, int col, int row) {
+        return sheet.getSubimage(col * 48, row * 48, 48, 48);
     }
 
     // PLACEHOLDER ART: a black box with a white border and the name inside it. It acts as the "alt text" of the sprite.
