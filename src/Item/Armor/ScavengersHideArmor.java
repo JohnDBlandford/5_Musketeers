@@ -1,7 +1,9 @@
 package Item.Armor;
 
+import Engine.ImageLoader;
 import GameObject.SpriteSheet;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
 public final class ScavengersHideArmor extends Armor {
@@ -17,5 +19,18 @@ public final class ScavengersHideArmor extends Armor {
 
     public ScavengersHideArmor(SpriteSheet itemLook) {
         super("ScavengersHideArmor", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 14);
+    }
+
+    @Override
+    public SpriteSheet assignSprite() {
+        // load the full item sprite sheet
+        BufferedImage mstrSheet = ImageLoader.load("Items.png");
+
+        int row = 1;
+        int col = 1;
+
+        // get the subimage (the actual sprite for each item type)
+        BufferedImage croppedIcon = mstrSheet.getSubimage(col * 32, row * 32, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
     }
 }

@@ -55,13 +55,14 @@ public abstract class Item {
         this.itemAbilities = itemAbilities;
         this.buffModifiers = buffModifiers;
     }
-        //protected abstract SpriteSheet assignAutomaticSprite();     
+        protected abstract SpriteSheet assignSprite();
 
     public String getItemName() {
         return this.itemName;
     }
 
     public SpriteSheet getItemLook() {
+        if (this.itemLook == null) this.itemLook = assignSprite();
         return this.itemLook;
     }
 

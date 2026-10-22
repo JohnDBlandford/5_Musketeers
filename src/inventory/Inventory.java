@@ -30,7 +30,7 @@ public class Inventory {
     public Item getEquippedItem(EquipSlot slot) { return equippedItems.get(slot); }
 
     // returns an unmodifiable map of the entire item map each time called. this doesnt get an individual index
-    public List<Item> getAllEquippedItems() { return Collections.unmodifiableList(items); }
+    public List<Item> getAllEquippedItems() { return Collections.unmodifiableList((List<? extends Item>) equippedItems.values()); }
 
     // this gets all items, not just equipped items, again as an unmodifiable map
     public List<Item> getAllItems() { return Collections.unmodifiableList(items); }

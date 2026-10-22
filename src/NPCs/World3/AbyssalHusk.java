@@ -3,11 +3,13 @@ package NPCs.World3;
 import Engine.CombatResolver;
 import Level.Player;
 import NPCs.Enemy;
+import BattleSystem.BattleEnemy;
+import BattleSystem.EnemyMoves.Move;
 import Utils.Point;
 
 import java.util.Random;
 
-public class AbyssalHusk extends Enemy {
+public class AbyssalHusk extends Enemy implements BattleEnemy {
 
     private int enemyLevel;
     private int turnCount = 0;
@@ -77,6 +79,31 @@ public class AbyssalHusk extends Enemy {
             case 1: moveAbyssalBite(player); break;
             case 2: moveVoidScreech(player); break;
             default: moveRecklessLunge(player); break;
+        }
+    }
+
+    // ---------------------------------------------------------------- BATTLE hooks (used by Screens.Battle.PlayBattleScreen)
+    // Same moves, multipliers and passives as executeTurn(), but the battle does the damage and shows the text.
+    // Stat changes use the exact amounts above; "-" effects on the knight happen only if the move lands.
+
+    @Override
+    public void onBattleStart() {
+        turnCount = 0;
+    }
+
+    @Override
+    public int battleLevel() {
+        return enemyLevel;
+    }
+
+    @Override
+    public Move chooseBattleMove(Random rng, Player player) {
+        advanceTurn();
+        switch (rng.nextInt(4)) {
+            case 0:  return Move.attack("Frenzied Claws", 0.60f).hits(2);
+            case 1:  return Move.attack("Abyssal Bite", 1.30f);
+            case 2:  return Move.attack("Void Screech", 0.40f).lowersPlayer(Move.DEF, 0.15f);
+            default: return Move.attack("Reckless Lunge", 1.50f).lowersSelf(Move.DEF, 0.10f);   // high risk
         }
     }
 

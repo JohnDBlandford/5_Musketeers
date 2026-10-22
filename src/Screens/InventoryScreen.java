@@ -1,19 +1,18 @@
 package Screens;
 
+import BattleSystem.BattleUI;
 import Engine.*;
 import Item.Item;
-import SpriteFont.SpriteFont;
 import inventory.EquipSlot;
 import inventory.Inventory;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
+// The inventory, drawn with the same pixel font (VCR OSD Mono) as the title screen and the battle screens.
 public class InventoryScreen extends Screen {
     private KeyLocker keyLocker = new KeyLocker();
     private PlayLevelScreen playLevelScreen;
-    private SpriteFont instructions;
     private static final int COLS = 5;
     private static final int ROWS = 4;
     private static final int SLOT = 56;
@@ -23,8 +22,11 @@ public class InventoryScreen extends Screen {
     private static final Color SLOT_BORDER = new Color(90, 90, 90);
     private static final Color PANEL_FILL = new Color(60, 60, 60);
     private static final Color DIM = new Color(0, 0, 0, 140);
-    private static final Font NAME_FONT = new Font("Arial", Font.BOLD, 18);
-    private static final Font BODY_FONT = new Font("Arial", Font.PLAIN, 14);;
+    private static final Color BAR_BACK = new Color(20, 20, 20);   // empty part of the lvl / xp bars
+    private static final String INSTRUCTIONS = "ARROWS: MOVE   ENTER: EQUIP / UNEQUIP   ESC: CLOSE";
+    private static final int NAME_SCALE = 2;   // item name
+    private static final int BODY_SCALE = 2;   // rarity + stats
+    private static final int HELP_SCALE = 2;   // instructions line
     private int row, col;
     private int panelX, panelY, panelW, panelH, slotsY, equipX, gridX, detailX, detailW, detailH;
     private final int screenWidth = ScreenManager.getScreenWidth();
@@ -38,9 +40,6 @@ public class InventoryScreen extends Screen {
 
     @Override
     public void initialize() {
-        instructions = new SpriteFont("Arrows: move   ENTER: equip / unequip   ESC: close", 80, 70, "Arial", 25, Color.white);
-        instructions.setOutlineColor(Color.black);
-        instructions.setOutlineThickness(2);
         keyLocker.lockKey(Key.ESC);
         panelX = 40;
         panelY = 40;
@@ -90,7 +89,7 @@ public class InventoryScreen extends Screen {
         Inventory inv = playLevelScreen.getInventory();
         graphicsHandler.drawFilledRectangle(0, 0, screenWidth, screenHeight, DIM);
         graphicsHandler.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, PANEL_FILL, Color.black, 3);
-        instructions.draw(graphicsHandler);
+        BattleUI.shadowText(graphicsHandler, INSTRUCTIONS, panelX + 30, panelY + 24, HELP_SCALE, BattleUI.WHITE);
 
         for (int i = 0; i < EquipSlot.values().length; i++)
             drawEquipSlot(graphicsHandler, inv, equipX, slotsY + i * PITCH, EquipSlot.values()[i]);
@@ -110,16 +109,21 @@ public class InventoryScreen extends Screen {
         graphicsHandler.drawFilledRectangleWithBorder(detailX, slotsY, detailW, detailH, SLOT_FILL, SLOT_BORDER, 2);
         if (item == null) return;
         int x = detailX + 12;
-        int y = slotsY + 28;
+        int y = slotsY + 12;
+        int nameLineH = BattleUI.font().getCapHeight(NAME_SCALE) + 8;
+        int bodyLineH = BattleUI.font().getCapHeight(BODY_SCALE) + 8;
+        int nameChars = Math.max(1, (detailW - 24) / (6 * NAME_SCALE));   // every letter is 6 px wide at scale 1
         String name = item.getItemName().replaceAll("(?<=[a-z])(?=[A-Z])", " ");
-        for (String line : wrapWord(graphicsHandler.getGraphics(), name, NAME_FONT, detailW - 24)) {
-            graphicsHandler.drawString(line, x, y, NAME_FONT, rarityColor(item));
-            y += 22;
+        for (String line : BattleUI.wrap(name, nameChars)) {
+            BattleUI.text(graphicsHandler, line, x, y, NAME_SCALE, rarityColor(item));
+            y += nameLineH;
         }
-        graphicsHandler.drawString(item.getItemRarity().name(), x, y, BODY_FONT, Color.lightGray);
+        y += 4;
+        BattleUI.text(graphicsHandler, item.getItemRarity().name(), x, y, BODY_SCALE, Color.lightGray);
         for (var e : item.getTotalItemBuffs().entrySet()) {
-            y += 20;
-            graphicsHandler.drawString(e.getKey() + "  " + e.getValue(), x, y, BODY_FONT, Color.white);
+            y += bodyLineH;
+            String line = (e.getKey() + "  " + e.getValue()).replace('_', ' ');
+            BattleUI.text(graphicsHandler, line, x, y, BODY_SCALE, Color.white);
         }
     }
 
@@ -137,8 +141,10 @@ public class InventoryScreen extends Screen {
     private void drawEquipSlot(GraphicsHandler graphicsHandler, Inventory inv, int x, int y, EquipSlot slot) {
         Item item = inv.getEquippedItem(slot);
         drawSlot(graphicsHandler, inv, x, y, item);
-        if (item == null)
-            graphicsHandler.drawString(slot.name().substring(0, 1), x + SLOT / 2 - 5, y + SLOT / 2 + 6, NAME_FONT, Color.gray);
+        if (item == null) {
+            int scale = 3;
+            BattleUI.textCenter(graphicsHandler, slot.name().substring(0, 1), x + SLOT / 2, y + (SLOT - BattleUI.font().getCapHeight(scale)) / 2, scale, Color.gray);
+        }
     }
 
     // rarity color assigner
@@ -151,23 +157,17 @@ public class InventoryScreen extends Screen {
         };
     }
 
-    // helper for wrapping long item names so that they dont go past the edge of the rect
-    private List<String> wrapWord(Graphics2D g2d, String txt, Font font, int maxWidth) {
-        FontMetrics metrics = g2d.getFontMetrics(font);
-        List<String> lines = new ArrayList<>();
-        StringBuilder line = new StringBuilder();
-        // for each word, split it at the empty spot
-        for (String word : txt.split(" ")) {
-            String candidate = line.isEmpty() ? word : line + " " + word;
-            // if the array is empty and the font metrics width is less then the max width, add it to the builder and create a new builder
-            if (!line.isEmpty() && metrics.stringWidth(candidate) > maxWidth) {
-                lines.add(line.toString());
-                line = new StringBuilder(word);
-            } else {
-                line = new StringBuilder(candidate);
-            }
-        }
-        if (!line.isEmpty()) lines.add(line.toString());
-        return lines;
+    // draws the bar  for the lvl and xp for each item
+    private static void drawBar(GraphicsHandler g, int x, int y, int width, int height, double fraction, Color fill) {
+        g.drawFilledRectangleWithBorder(x, y, width, height, BAR_BACK, SLOT_BORDER, 1);
+        int filled = (int) Math.round((width - 2) * Math.clamp(fraction, 0.0, 1.0));
+        if (filled > 0) g.drawFilledRectangle(x + 1, y + 1, filled, height - 2, fill);
+        y += 4;
+        //BattleUI.text(g, item.getItemRarity().name(), x, y, BODY_SCALE, Color.lightGray);
+        //for (var e : item.getTotalItemBuffs().entrySet()) {
+        //y += bodyLineH;
+        //String line = (e.getKey() + "  " + e.getValue()).replace('_', ' ');
+        //BattleUI.text(g, line, x, y, BODY_SCALE, Color.white);
+        //}
     }
 }
