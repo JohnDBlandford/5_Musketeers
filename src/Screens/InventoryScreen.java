@@ -36,7 +36,7 @@ public final class InventoryScreen extends Screen {
     private static final Font BODY_FONT = new Font("Arial", Font.PLAIN, 14);;
     private static final String INSTRUCTIONS = "ARROWS: MOVE   ENTER: EQUIP / UNEQUIP   ESC: CLOSE";
     private static final int NAME_SCALE = 2;   // item name
-    private static final int BODY_SCALE = 2;   // rarity + stats
+    private static final int BODY_SCALE = 2;   // rarity + stats (a line that is too wide for the panel drops to scale 1 by itself)
     private static final int HELP_SCALE = 2;   // instructions line
     private static final int BODY_BASELINE_OFFSET = 12; // top-to-baseline gap between the pixel-font name and the body text
     private int row, col;
@@ -46,7 +46,7 @@ public final class InventoryScreen extends Screen {
     private static final boolean DEBUG_KEYS = true;
     // for debug: W subtracts 10 durability, I gives 500 xp to selected item
     private static final Key[] INPUT_KEYS = DEBUG_KEYS ? new Key[]{ Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER, Key.I, Key.W }
-                                                                                       : new Key[]{Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER};
+            : new Key[]{Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER};
 
     public InventoryScreen(PlayLevelScreen playLevelScreen) {
         this.playLevelScreen = playLevelScreen;
@@ -137,62 +137,78 @@ public final class InventoryScreen extends Screen {
         drawDetails(graphicsHandler, selectedItem());
     }
 
+    private static final float DETAIL_ZOOM = 1.5f;   // size of every line of text under the item name (1 = small, 2 = big); the longest line only fits up to about 1.55
+
+    // height of one line of body text (a capital letter plus some space)
+    private static int lineH() { return Math.round(BattleUI.font().getCapHeight(1) * DETAIL_ZOOM) + 9; }
+
+    // draws one line of pixel-font body text with its capitals' top edge at y, enlarged by DETAIL_ZOOM
+    private static void bodyText(GraphicsHandler g, String s, int x, int y, int width, Color color) {
+        Graphics2D g2 = g.getGraphics();
+        java.awt.geom.AffineTransform saved = g2.getTransform();
+        Object hint = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+        g2.translate(x, y);
+        g2.scale(DETAIL_ZOOM, DETAIL_ZOOM);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);   // keep the pixels sharp
+        BattleUI.text(g, s, 0, 0, 1, color);
+        g2.setTransform(saved);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint == null ? RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR : hint);
+    }
+
+    // draws "LABEL  value" on one line and returns the y where the next line starts
+    private static int statLine(GraphicsHandler g, String label, String value, int x, int y, int width, Color color) {
+        bodyText(g, label + "  " + value, x, y, width, color);
+        return y + lineH();
+    }
+
     private void drawDetails(GraphicsHandler graphicsHandler, Item item) {
         graphicsHandler.drawFilledRectangleWithBorder(detailX, slotsY, detailW, detailH, SLOT_FILL, SLOT_BORDER, 2);
         if (item == null) return;
         int x = detailX + 12;
         int y = slotsY + 12;
+        int width = detailW - 24;
         int nameLineH = BattleUI.font().getCapHeight(NAME_SCALE) + 8;
-        int bodyLineH = BattleUI.font().getCapHeight(BODY_SCALE) + 8;
-        int nameChars = Math.max(1, (detailW - 24) / (6 * NAME_SCALE));   // every letter is 6 px wide at scale 1
+        int nameChars = Math.max(1, width / (6 * NAME_SCALE));   // every letter is 6 px wide at scale 1
         String name = item.getItemName().replaceAll("(?<=[a-z])(?=[A-Z])", " ");
         for (String line : BattleUI.wrap(name, nameChars)) {
             BattleUI.text(graphicsHandler, line, x, y, NAME_SCALE, rarityColor(item));
             y += nameLineH;
         }
-        y += BODY_BASELINE_OFFSET;
-        graphicsHandler.drawString(item.getItemRarity().name(), x, y, BODY_FONT, Color.lightGray);
+        y += 4;
+        bodyText(graphicsHandler, item.getItemRarity().name(), x, y, width, Color.lightGray);
+        y += lineH();
         for (Map.Entry<Item.ItemBuffs, Double> entry : item.getScaledBuffs().entrySet()) {
-            y += 20;
-            graphicsHandler.drawString(entry.getKey() + "  " + formatBuff(entry.getKey(), entry.getValue()), x, y, BODY_FONT,
-                    item.isBuffCapped(entry.getKey()) ? GOLD : Color.white);
+            y = statLine(graphicsHandler, entry.getKey().toString().replace('_', ' '), formatBuff(entry.getKey(), entry.getValue()),
+                    x, y, width, item.isBuffCapped(entry.getKey()) ? GOLD : Color.white);
         }
-        drawStats(graphicsHandler, item, x, y, detailW - 24);
+        drawStats(graphicsHandler, item, x, y, width);
     }
 
     // this method draws everything below the dividing line: lvl, xp, durability, then atk, def, spd and bhp
-    // y is the baseline of the last line drawn above, so this follows however tall the name and buffs were
+    // y is where the next line starts, so this follows however tall the name and buffs were
     private void drawStats(GraphicsHandler g, Item item, int x, int y, int width) {
         ItemStats stats = item.getItemStats();
 
-        y += 14;
+        y += 2;
         g.drawFilledRectangle(x, y, width, 2, SLOT_BORDER);   // the divider between the old and the new
+        y += 10;
 
-        y += 24;
-        g.drawString("Level  " + stats.getLvl() + " / " + ItemStats.MAX_LVL, x, y, BODY_FONT, Color.white);
+        y = statLine(g, "Level", stats.getLvl() + " / " + ItemStats.MAX_LVL, x, y, width, Color.white);
 
-        y += 20;
-        g.drawString(stats.isMaxLvl() ? "XP  MAX" : "XP  " + stats.getXp() + " / " + stats.getXpToNextLvl(),
-                x, y, BODY_FONT, Color.white);
-        drawBar(g, x, y + 6, width, 8, stats.getXpBarFullness(), XP_COLOR);
-        y += 14;
+        y = statLine(g, "XP", stats.isMaxLvl() ? "MAX" : stats.getXp() + " / " + stats.getXpToNextLvl(), x, y, width, Color.white);
+        drawBar(g, x, y - 3, width, 8, stats.getXpBarFullness(), XP_COLOR);   // the bar sits right under the text
+        y += 12;
 
-        y += 20;
-        g.drawString("Durability  " + stats.getDurability() + " / " + stats.getItemMaxDurability(),
-                x, y, BODY_FONT, Color.white);
-        drawBar(g, x, y + 6, width, 8, stats.getDurabilityFraction(), drawDurabilityColor(stats.getDurabilityFraction()));
-        y += 14;
+        y = statLine(g, "Durability", stats.getDurability() + " / " + stats.getItemMaxDurability(), x, y, width, Color.white);
+        drawBar(g, x, y - 3, width, 8, stats.getDurabilityFraction(), drawDurabilityColor(stats.getDurabilityFraction()));
+        y += 12;
 
         // every stat is always shown, a 0 is a real value and never "N/A"
-        y += 24;
-        g.drawString("Attack  " + item.getAttack(), x, y, BODY_FONT, Color.white);
-        y += 20;
-        g.drawString("Defense  " + item.getDefense(), x, y, BODY_FONT, Color.white);
-        y += 20;
-        g.drawString("Speed  " + formatPercent(item.getItemSpeed()), x, y, BODY_FONT,
+        y = statLine(g, "Attack", String.valueOf(item.getAttack()), x, y, width, Color.white);
+        y = statLine(g, "Defense", String.valueOf(item.getDefense()), x, y, width, Color.white);
+        y = statLine(g, "Speed", formatPercent(item.getItemSpeed()), x, y, width,
                 item.isBuffCapped(Item.ItemBuffs.SPD_BOOST) ? GOLD : Color.white);
-        y += 20;
-        g.drawString("Bonus HP  " + formatBuff(Item.ItemBuffs.BONUS_MAX_HP, item.getItemBonusMaxHp()), x, y, BODY_FONT,
+        statLine(g, "Bonus HP", formatBuff(Item.ItemBuffs.BONUS_MAX_HP, item.getItemBonusMaxHp()), x, y, width,
                 item.isBuffCapped(Item.ItemBuffs.BONUS_MAX_HP) ? GOLD : Color.white);
     }
 
