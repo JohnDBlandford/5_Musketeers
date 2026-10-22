@@ -11,7 +11,7 @@ public class Portal extends EnhancedMapTile {
     private final String targetMap;
     private final float targetX;
     private final float targetY;
-    private boolean interactionArmed = true;
+    protected boolean interactionArmed = true;
 
     public Portal(float x, float y, String targetMap, float targetX, float targetY, int width, int height) {
         super(x, y, new GameObject(x, y), null, TileType.PASSABLE);

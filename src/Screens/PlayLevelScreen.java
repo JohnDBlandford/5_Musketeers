@@ -7,6 +7,7 @@ import Item.ItemTestFactory;
 import Game.PlayerData;
 import Level.*;
 import Maps.BlankMap;
+import Maps.GuildHallMap;
 import Maps.TestMap;
 import Maps.World1Map;
 import Maps.World2Map;
@@ -357,6 +358,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 return new World1Map();
             case "world2_map":
                 return new World2Map();
+            case "guild_hall_map":
+                return new GuildHallMap();
             default:
                 return new TestMap();
         }
