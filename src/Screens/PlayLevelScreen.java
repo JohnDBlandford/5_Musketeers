@@ -13,7 +13,7 @@ import Maps.World2Map;
 import Players.Knight;
 import SpriteFont.SpriteFont;
 import Utils.Direction;
-import java.awt.Color;
+import java.awt.*;
 import inventory.Inventory;
 
 // This class is for when the RPG game is actually being played
@@ -29,6 +29,10 @@ public class PlayLevelScreen extends Screen implements GameListener {
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
     private Inventory inventory;
+    //XP DISPLAY TESTING
+    private SpriteFont xpDisplay;
+    private int xp;
+    Color xpColor;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -41,6 +45,8 @@ public class PlayLevelScreen extends Screen implements GameListener {
         flagManager.addFlag("hasTalkedToWalrus", false);
         flagManager.addFlag("hasTalkedToDinosaur", false);
         flagManager.addFlag("hasFoundBall", false);
+        flagManager.addFlag("sawIntro", false);
+
         inventory = new Inventory();
 
         // define/setup map
@@ -114,6 +120,16 @@ public class PlayLevelScreen extends Screen implements GameListener {
                     keyLocker.unlockKey(Key.W);
                 }
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
+
+                //XP TESTING
+                if(Keyboard.isKeyDown(Key.X) && !keyLocker.isKeyLocked(Key.X)) {
+                    keyLocker.lockKey(Key.X);
+                    xp = xp + 1;
+                }
+                if(Keyboard.isKeyUp(Key.X)){
+                    keyLocker.unlockKey(Key.X);
+                }
+                xpDisplay = new SpriteFont("XP " + xp ,10,8,"Arial",20,Color.WHITE);
                 break;
             // if level has been completed, bring up level cleared screen
             case LEVEL_COMPLETED:
@@ -129,7 +145,6 @@ public class PlayLevelScreen extends Screen implements GameListener {
             //If the game state was changed to attach window then the attack window should open
             case ATTACK_WINDOW:
                 attackWindow.update();
-
                 break;
 
         }
@@ -180,6 +195,20 @@ public class PlayLevelScreen extends Screen implements GameListener {
             case RUNNING:
                 map.draw(player, graphicsHandler);
                 coinCountDisplay.draw(graphicsHandler);
+                //DISPLAY XP
+                xpDisplay.draw(graphicsHandler);
+                graphicsHandler.drawFilledRectangle(77, 8, 307, 25,new Color(0,0,0));
+                graphicsHandler.drawFilledRectangle(80,10,30,20,new Color(204,255,204));
+                graphicsHandler.drawFilledRectangle(110,10,30,20,new Color(188, 246, 188));
+                graphicsHandler.drawFilledRectangle(140,10,30,20,new Color(165, 243, 165));
+                graphicsHandler.drawFilledRectangle(170,10,30,20,new Color(141, 244, 141));
+                graphicsHandler.drawFilledRectangle(200,10,30,20,new Color(113, 244, 113));
+                graphicsHandler.drawFilledRectangle(230,10,30,20,new Color(93, 246, 93));
+                graphicsHandler.drawFilledRectangle(260,10,30,20,new Color(66, 243, 66));
+                graphicsHandler.drawFilledRectangle(290,10,30,20,new Color(49, 243, 49, 216));
+                graphicsHandler.drawFilledRectangle(320,10,30,20,new Color(24, 243, 24, 163));
+                graphicsHandler.drawFilledRectangle(350,10,30,20,new Color(0, 255, 0, 115));
+                graphicsHandler.drawFilledRectangle(80 + (xp * 3), 10, 300 - (xp * 3), 20, Color.LIGHT_GRAY);
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);

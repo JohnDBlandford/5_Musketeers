@@ -17,7 +17,7 @@ public class Knight extends Player {
     public Knight(float x, float y) {
         // Starts with STAND_RIGHT so the base Player class initializes safely
         super(new SpriteSheet(ImageLoader.load("Spritesheet.png"), 32, 32), x, y, "STAND_RIGHT");
-        walkSpeed = 2.3f;
+        walkSpeed = 10f;
     }
 
     @Override
