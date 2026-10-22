@@ -80,6 +80,8 @@ public final class NamedLocations {
 
     // true if this pixel position is inside a no-encounter zone
     public static boolean isSafe(String mapName, float px, float py) {
+        if ("guild_hall_map".equals(mapName))
+            return true; // the whole tavern is safe
         int[][] zones = SAFE_ZONES.get(mapName);
         if (zones == null)
             return false;
