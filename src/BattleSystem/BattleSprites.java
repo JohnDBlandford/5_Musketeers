@@ -22,11 +22,11 @@ public final class BattleSprites {
         try {
             BufferedImage sheet = ImageLoader.load("Spritesheet.png");
             BufferedImage attacks = ImageLoader.load("Attacks.png");
-            BufferedImage[] melee = {cell(attacks, 0, 0), cell(attacks, 1, 0), cell(attacks, 2, 0), cell(attacks, 0, 1)};
+            BufferedImage[] attack = {cell(attacks, 0, 0), cell(attacks, 1, 0), cell(attacks, 2, 0), cell(attacks, 0, 1)};
             BufferedImage[] ranged = {cell(attacks, 1, 1), cell(attacks, 2, 1), cell(attacks, 0, 2), cell(attacks, 1, 2)};
             BufferedImage idle = cell(sheet, 0, 0);
             BufferedImage[] hurt = {cell(sheet, 1, 0), cell(sheet, 2, 0), cell(sheet, 0, 1)};
-            BufferedImage[] attack = {cell(sheet, 1, 1), cell(sheet, 2, 1), cell(sheet, 0, 2), cell(sheet, 1, 2)};
+            //BufferedImage[] attack = {cell(sheet, 1, 1), cell(sheet, 2, 1), cell(sheet, 0, 2), cell(sheet, 1, 2)};
             return new BattleSprite(idle, attack, hurt, false, KNIGHT_HEIGHT / 32);
         } catch (RuntimeException e) {
             return placeholder("KNIGHT", false);

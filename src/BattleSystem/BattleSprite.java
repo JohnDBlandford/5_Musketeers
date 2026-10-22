@@ -14,8 +14,6 @@ public class BattleSprite {
 
     private final BufferedImage idle;
     private final BufferedImage[] attack;
-    //private final BufferedImage[] rangedAttack;
-    //private final BufferedImage[] swordAttack;
     private final BufferedImage[] hurt;
     private final boolean facesLeft;   // true for the enemy on the right (the picture is flipped to look at the player)
     private final int scale;
