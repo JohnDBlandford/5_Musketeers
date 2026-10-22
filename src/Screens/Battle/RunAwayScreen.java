@@ -5,7 +5,7 @@ import BattleSystem.*;
 import Engine.GraphicsHandler;
 
 // "RUN AWAY?  YES / NO". YES switches the player to the running pose and attempts to flee (the Gen 1 Pokemon run formula, see BattleMath.runEscapes).
-public class RunAwayScreen extends OptionScreen {
+public final class RunAwayScreen extends OptionScreen {
     public RunAwayScreen(PlayBattleScreen battle) {
         super(battle);
     }
@@ -14,7 +14,7 @@ public class RunAwayScreen extends OptionScreen {
     protected int optionCount() { return 1; }   // only YES is a move; NO just backs out
 
     @Override
-    protected BattleSprite.Pose poseFor(int index) { return BattleSprite.Pose.RUN; }
+    protected BattleSprites.BattleSprite.Pose poseFor(int index) { return BattleSprites.BattleSprite.Pose.RUN; }
 
     @Override
     protected void perform(int index) {

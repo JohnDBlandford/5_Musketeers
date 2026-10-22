@@ -9,7 +9,6 @@ import Item.Item;
 import Level.Player;
 import NPCs.Enemy;
 import BattleSystem.Ability.Effect;
-import inventory.EquipSlot;
 import inventory.Inventory;
 
 import java.awt.*;
@@ -45,21 +44,22 @@ public class PlayBattleScreen extends Screen {
     private BattleListener listener;
     private boolean boss;
 
-    private BattleStatus status = BattleStatus.STARTED;
+    private Battle.BattleStatus status = Battle.BattleStatus.STARTED;
     private Phase phase = Phase.INTRO;
     private final Random rng = new Random();
     private int tick, fade, introTimer;
-    private BattleResult pendingResult;
+    private Battle.BattleResult pendingResult;
 
     // the pieces (the skeleton's classes)
     private BattleBackgroundScreen backgroundScreen;
-    private TurnHistoryScreen turnHistoryScreen;   // your partner's screen, only created and drawn here
+    private TurnHistoryScreen turnHistoryScreen;
     private InventoryDisplayScreen inventoryDisplayScreen;
     private MainMenu optionScreen;
     private AbilityScreen abilityScreen;
     private AbilityInfoScreen abilityInfoScreen;
     private RunAwayScreen runAwayScreen;
-    private BattleSprite playerSprite, enemySprite;
+    private BattleSprites.BattleSprite playerSprite;
+    private BattleSprites.BattleSprite enemySprite;
 
     // what the plates show (they glide toward the real numbers, like Gen 1's draining bars)
     private float shownPlayerHP, shownEnemyHP, shownXp, targetXp;
@@ -132,22 +132,22 @@ public class PlayBattleScreen extends Screen {
         abilityInfoScreen.initialize();
         runAwayScreen.initialize();
 
-        playerSprite = BattleSprites.knight();
-        enemySprite = BattleSprites.enemy(enemy.getEnemyName());
+        playerSprite = BattleSprites.BattleSprite.knight();
+        enemySprite = BattleSprites.BattleSprite.enemy(enemy.getEnemyName());
 
         shownPlayerHP = player.getCurrentHP();
         shownEnemyHP = enemy.getCurrentHP();
         shownLevel = player.getLevel();
         shownXp = targetXp = xpFraction();
 
-        status = BattleStatus.STARTED;
+        status = Battle.BattleStatus.STARTED;
         pendingResult = null;
         current = null;
         script.clear();
 
         say(enemyName + " blocks your path!", null);
         say("GO! " + playerName + "!", null);
-        script.addLast(new Step(null, () -> { status = BattleStatus.IN_PROGRESS; toCommands(); }));
+        script.addLast(new Step(null, () -> { status = Battle.BattleStatus.IN_PROGRESS; toCommands(); }));
         phase = Phase.SCRIPT;   // the opening flash is drawn while introTimer counts up, the script waits for it
     }
 
@@ -161,9 +161,10 @@ public class PlayBattleScreen extends Screen {
         backgroundScreen.update();
         playerSprite.update();
         enemySprite.update();
-        turnHistoryScreen.update();
+        turnHistoryScreen.updateScreen(historyAvailable());
         glideBars();
         if (hintTimer > 0 && --hintTimer == 0) hint = "";
+        if (turnHistoryScreen.isExpanded()) return;   // the full move log is open: the battle is paused until it closes
 
         switch (phase) {
             case COMMAND: optionScreen.update(); break;
@@ -173,7 +174,7 @@ public class PlayBattleScreen extends Screen {
             case SCRIPT: if (introTimer >= INTRO_FRAMES) runScript(); break;
             case END_FADE:
                 if (++fade >= FADE_FRAMES) {
-                    status = BattleStatus.COMPLETED;
+                    status = Battle.BattleStatus.COMPLETED;
                     player.resetStatModifiers();
                     enemy.resetStatModifiers();
                     if (listener != null) listener.onBattleEnd(pendingResult);
@@ -283,6 +284,7 @@ public class PlayBattleScreen extends Screen {
 
     // queue one round: both fighters act (SPD decides who is first, heal/run always go first), then the round ends
     private void startRound(Runnable playerBlock, boolean priority) {
+        turnHistoryScreen.nxtTurn();
         phase = Phase.SCRIPT;
         optionScreen.close();
         abilityScreen.close();
@@ -303,6 +305,9 @@ public class PlayBattleScreen extends Screen {
     private void playerAbilityBlock(Ability a) {
         if (isOver()) return;
         Item weapon = inventory.getEquippedItem(a.getCategory().getSlot());   // sword / bow / shield (null = bare hands)
+        boolean stance = a.getEffect() == Effect.GUARD || a.getEffect() == Effect.COUNTER;
+        TurnHistoryScreen.Entry log = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, a.getName(),
+                stance ? TurnHistoryScreen.N_TRGT : enemy.getCurrentHP());
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " used " + a.getName() + "!", null));
 
@@ -340,10 +345,15 @@ public class PlayBattleScreen extends Screen {
             int dmg = Math.max(1, Math.round(CombatResolver.calculateDamage((float) raw, def)));
             final boolean c = crit;
             steps.add(new Step(c ? "A critical hit! " + dmg + " damage!" : (hits > 1 ? "HIT! " + dmg + " damage!" : "It hit for " + dmg + " damage!"),
-                    () -> dealToEnemy(dmg)));
+                    () -> dealToEnemy(dmg, log)));
             if (a.getEffect() == Effect.LIFESTEAL) {
                 int heal = Math.max(1, dmg / 2);
-                steps.add(new Step(playerName + " drained " + heal + " HP!", () -> player.setCurrentHP(player.getCurrentHP() + heal)));
+                steps.add(new Step(playerName + " drained " + heal + " HP!", () -> {
+                    player.setCurrentHP(player.getCurrentHP() + heal);
+                    // no damage, but the HP column shows the knight's HP after the drain (same as HEAL)
+                    turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "DRAIN", player.getCurrentHP())
+                            .hit(0, player.getCurrentHP());
+                    }));
             }
         }
         // stat effects only happen if the enemy is still standing after the hits land
@@ -407,13 +417,18 @@ public class PlayBattleScreen extends Screen {
     }
 
     private void playerHealBlock() {
+        TurnHistoryScreen.Entry log = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "HEAL", player.getCurrentHP());
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " used HEAL!", null));
-        steps.add(new Step(playerName + "'s HP was fully restored!", () -> player.setCurrentHP(player.getMaxHP())));
+        steps.add(new Step(playerName + "'s HP was fully restored!", () -> {
+            player.setCurrentHP(player.getMaxHP());
+            log.hit(0, player.getCurrentHP());   // no damage, but the HP column shows the HP after the heal
+            }));
         insert(steps);
     }
 
     private void playerRunBlock() {
+        turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "RUN", TurnHistoryScreen.N_TRGT);
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " tries to run away...", null));
         if (boss) {
@@ -424,10 +439,10 @@ public class PlayBattleScreen extends Screen {
         runAttempts++;
         boolean escaped = BattleMath.runEscapes(Math.round(playerSpd()), Math.round(enemy.getBaseSPD()), runAttempts, rng);
         if (escaped) {
-            steps.add(new Step(playerName + " has fled!", () -> playerSprite.setPose(BattleSprite.Pose.FLEE)));
+            steps.add(new Step(playerName + " has fled!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.FLEE)));
             steps.add(new Step(null, () -> {
                 script.clear();
-                finish(BattleResult.FLED);
+                finish(Battle.BattleResult.FLED);
             }));
         } else {
             steps.add(new Step("CAN'T ESCAPE!", null));
@@ -458,6 +473,7 @@ public class PlayBattleScreen extends Screen {
         if (isOver()) return;
         List<Step> steps = new ArrayList<>();
         if (enemyStunned) {
+            turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.ENEMY, "STUNNED", TurnHistoryScreen.N_TRGT);
             steps.add(new Step(enemyName + " is stunned and can't move!", () -> enemyStunned = false));
             insert(steps);
             return;
@@ -468,20 +484,22 @@ public class PlayBattleScreen extends Screen {
         EnemyMoves.Move move = brain != null ? brain.chooseBattleMove(rng, player) : null;
         if (move == null) move = EnemyMoves.pick(enemyName, rng, lastEnemyMove);
         lastEnemyMove = move;
+        TurnHistoryScreen.Entry log = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.ENEMY, move.name,
+                move.damages && !move.flees ? player.getCurrentHP() : TurnHistoryScreen.N_TRGT);
         String note = brain != null ? brain.pollMessage() : null;
         if (note != null) steps.add(new Step(note, null));
 
         // the enemy runs away (Starving Wretch): the fight ends with no rewards
         if (move.flees) {
-            steps.add(new Step(enemyName + " ran away!", () -> enemySprite.setPose(BattleSprite.Pose.FLEE)));
+            steps.add(new Step(enemyName + " ran away!", () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.FLEE)));
             steps.add(new Step(null, () -> {
                 script.clear();
-                finish(BattleResult.FLED);
+                finish(Battle.BattleResult.FLED);
             }));
             insert(steps);
             return;
         }
-        steps.add(new Step(enemyName + " used " + move.name + "!", move.damages ? () -> enemySprite.setPose(BattleSprite.Pose.ATTACK) : null));
+        steps.add(new Step(enemyName + " used " + move.name + "!", move.damages ? () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.ATTACK) : null));
 
         // status moves do no damage: they just change stats (your guard and counter stay ready)
         if (!move.damages) {
@@ -492,7 +510,7 @@ public class PlayBattleScreen extends Screen {
         if (playerGuard) {
             steps.add(new Step(playerName + " blocked the attack!", () -> {
                 playerGuard = false;
-                playerSprite.setPose(BattleSprite.Pose.GUARD);
+                playerSprite.setPose(BattleSprites.BattleSprite.Pose.GUARD);
             }));
             enemyEffects(steps, move, false);
             insert(steps);
@@ -525,7 +543,8 @@ public class PlayBattleScreen extends Screen {
                 if (player.getCurrentHP() <= 0) return;
                 dealt[0] += hit;
                 player.applyDamage(hit);
-                playerSprite.setPose(BattleSprite.Pose.HURT);
+                log.hit(hit, player.getCurrentHP());
+                playerSprite.setPose(BattleSprites.BattleSprite.Pose.HURT);
             }));
             if (blocked) steps.add(new Step("The shield took some of the blow!", null));
         }
@@ -543,14 +562,21 @@ public class PlayBattleScreen extends Screen {
 
         int thorns = (int) Math.round(dmg * BattleMath.thorns(inventory));
         if (thorns > 0) {
-            steps.add(new Step(enemyName + " was hurt by thorns for " + thorns + "!", () -> dealToEnemy(thorns)));
+            steps.add(new Step(enemyName + " was hurt by thorns for " + thorns + "!", () -> {
+                TurnHistoryScreen.Entry thornsLog = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER,
+                        "THORNS", enemy.getCurrentHP());
+                dealToEnemy(thorns, thornsLog);
+                }));
         }
         if (playerCounter && player.getCurrentHP() - dmg > 0) {
             playerCounter = false;
-            steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprite.Pose.ATTACK)));
-            float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(EquipSlot.MELEE));
+            steps.add(new Step(playerName + " counter-attacks!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.ATTACK)));
+            float atk = BattleMath.effectiveAtk(player, inventory, inventory.getEquippedItem(Inventory.EquipSlot.MELEE));
             int counter = Math.max(1, Math.round(CombatResolver.calculateDamage(atk * 1.2f, enemy.getBaseDEF())));
-            steps.add(new Step("It hit for " + counter + " damage!", () -> dealToEnemy(counter)));
+            steps.add(new Step("It hit for " + counter + " damage!", () -> {
+                TurnHistoryScreen.Entry counterLog = turnHistoryScreen.beginBattleLog(TurnHistoryScreen.Actor.PLAYER, "RETAL", enemy.getCurrentHP());
+                dealToEnemy(counter, counterLog);
+            }));
         }
         enemyEffects(steps, move, true);
         insert(steps);
@@ -558,10 +584,11 @@ public class PlayBattleScreen extends Screen {
 
     // ---------------------------------------------------------------- results
 
-    private void dealToEnemy(int dmg) {
+    private void dealToEnemy(int dmg, TurnHistoryScreen.Entry log) {
         // null player on purpose: rewards are handed out by the victory steps so the XP bar can animate
         enemy.applyDamage(dmg, null);
-        enemySprite.setPose(BattleSprite.Pose.HURT);
+        log.hit(dmg, enemy.getCurrentHP());
+        enemySprite.setPose(BattleSprites.BattleSprite.Pose.HURT);
     }
 
     private boolean isOver() {
@@ -583,15 +610,15 @@ public class PlayBattleScreen extends Screen {
             victory();
         } else if (player.getCurrentHP() <= 0) {
             script.clear();
-            say(playerName + " fainted!", () -> playerSprite.setPose(BattleSprite.Pose.FAINT));
+            say(playerName + " fainted!", () -> playerSprite.setPose(BattleSprites.BattleSprite.Pose.FAINT));
             say("YOU WERE DEFEATED...", null);
-            script.addLast(new Step(null, () -> finish(BattleResult.DEFEAT)));
+            script.addLast(new Step(null, () -> finish(Battle.BattleResult.DEFEAT)));
         }
     }
 
     private void victory() {
         int xp = enemy.getXpReward(), gold = enemy.getGoldReward();
-        say(enemyName + " fainted!", () -> enemySprite.setPose(BattleSprite.Pose.FAINT));
+        say(enemyName + " fainted!", () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.FAINT));
         say(playerName + " gained " + xp + " EXP!", () -> {
             int before = player.getLevel();
             player.addXP(xp);        // Player.addXP does the leveling (and the full heal on level up)
@@ -610,10 +637,10 @@ public class PlayBattleScreen extends Screen {
             }
         });
         if (gold > 0) say("FOUND " + gold + " GOLD!", null);
-        script.addLast(new Step(null, () -> finish(BattleResult.VICTORY)));
+        script.addLast(new Step(null, () -> finish(Battle.BattleResult.VICTORY)));
     }
 
-    private void finish(BattleResult result) {
+    private void finish(Battle.BattleResult result) {
         pendingResult = result;
         phase = Phase.END_FADE;
         fade = 0;
@@ -633,6 +660,11 @@ public class PlayBattleScreen extends Screen {
     private int playerFootX() { return 165; }
     private int playerFootY() { return BattleUI.barTop() - 8; }
 
+    // the move log may only be opened once the fight has really started and before it is fading out
+    private boolean historyAvailable() {
+        return introTimer >= INTRO_FRAMES && phase != Phase.INTRO && phase != Phase.END_FADE;
+    }
+
     @Override
     // order matters here: backdrop first, then the fighters, then the plates, then the bottom bar on top
     public void draw(GraphicsHandler gh) {
@@ -648,13 +680,13 @@ public class PlayBattleScreen extends Screen {
 
         drawEnemyPlate(gh);
         drawPlayerPlate(gh);
-        turnHistoryScreen.draw(gh);
-
         drawTextBox(gh);
+        inventoryDisplayScreen.draw(gh);
         optionScreen.draw(gh);
         abilityScreen.draw(gh);
         abilityInfoScreen.draw(gh);
         runAwayScreen.draw(gh);
+        turnHistoryScreen.draw(gh);   // last of the HUD, so the expanded log (and its dim overlay) covers the menus too
 
         // the opening flash, then the fade to black when the battle is over
         if (introTimer < INTRO_FRAMES && (introTimer / 5) % 2 == 0) {
@@ -744,11 +776,11 @@ public class PlayBattleScreen extends Screen {
 
     // ---------------------------------------------------------------- getters used by the option screens
 
-    BattleSprite getPlayerSprite() { return playerSprite; }
+    BattleSprites.BattleSprite getPlayerSprite() { return playerSprite; }
     Inventory getInventory() { return inventory; }
     int getHealsLeft() { return healsLeft; }
     boolean isBoss() { return boss; }
-    public BattleStatus getStatus() { return status; }
+    public Battle.BattleStatus getStatus() { return status; }
     public boolean isAwaitingCommand() { return phase == Phase.COMMAND; }
     public BattleWorld getWorld() { return world; }
 
@@ -768,8 +800,8 @@ public class PlayBattleScreen extends Screen {
         protected int optionCount() { return LABELS.length; }
 
         @Override
-        protected BattleSprite.Pose poseFor(int index) {
-            return index == 3 ? BattleSprite.Pose.HEAL : BattleSprite.Pose.IDLE;   // the others only open another window
+        protected BattleSprites.BattleSprite.Pose poseFor(int index) {
+            return index == 3 ? BattleSprites.BattleSprite.Pose.HEAL : BattleSprites.BattleSprite.Pose.IDLE;   // the others only open another window
         }
 
         @Override
@@ -816,11 +848,11 @@ public class PlayBattleScreen extends Screen {
         }
 
         private String subtitle(int i) {
-            switch (i) {
-                case 0: case 1: case 2: return "";
-                case 3: return battle.getHealsLeft() > 0 ? "Full HP  x" + battle.getHealsLeft() : "Used up";
-                default: return "Flee the fight";
-            }
+            return switch (i) {
+                case 0, 1, 2 -> "";
+                case 3 -> battle.getHealsLeft() > 0 ? "Full HP  x" + battle.getHealsLeft() : "Used up";
+                default -> "Flee the fight";
+            };
         }
     }
 }

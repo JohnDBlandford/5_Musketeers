@@ -1,5 +1,7 @@
 package Screens;
 
+import BattleSystem.Battle;
+import BattleSystem.BattleMath;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
@@ -16,14 +18,12 @@ import Players.Knight;
 import BattleSystem.BattleListener;
 import Encounters.EnemyFactory;
 import Locations.NamedLocations;
-import BattleSystem.BattleResult;
 import BattleSystem.BattleWorld;
 import Screens.Battle.EncounterScreen;
 import Screens.Battle.PlayBattleScreen;
 import SpriteFont.MonoSpriteFont;
 import SpriteFont.SpriteFont;
 import Utils.Direction;
-import Utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.*;
@@ -137,6 +137,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public void update() {
+        if (inventory != null) inventory.removeBrokenItem();
         if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         MouseInput.update();
         java.awt.Point click = MouseInput.pollClick();   // a mouse click this frame, if any
@@ -207,7 +208,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             //If the game state was changed to attach window then the attack window should open
             case ATTACK_WINDOW:
                 attackWindow.update();
-
                 break;
 
             // BATTLE: the map and player are frozen while the fight plays
@@ -219,6 +219,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             case ENCOUNTER:
                 encounterScreen.update();
                 if (encounterScreen.isDone()) {
+                    syncGearHealth();
                     battleScreen = new PlayBattleScreen(player, inventory, pendingEnemy, pendingLevel, pendingWorld, this);
                     battleScreen.setBoss(pendingBoss);
                     battleScreen.initialize();
@@ -288,6 +289,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // after a defeat: back to the last named location with full health
     private void respawn() {
+        syncGearHealth();
         player.setCurrentHP(player.getMaxHP());
         moveToPlace(lastPlace);
     }
@@ -321,10 +323,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // BATTLE: the battle calls this when it has finished fading out
     @Override
-    public void onBattleEnd(BattleResult result) {
+    public void onBattleEnd(Battle.BattleResult result) {
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
-        if (result == BattleResult.DEFEAT) {
+        if (result == Battle.BattleResult.DEFEAT) {
             // the knight fell: show the game-over screen, which then sends him back to the last named location
             player.lock();
             gameOverScreen = new GameOverScreen(lastPlace != null ? lastPlace.name : "the start");
@@ -503,8 +505,14 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public void closeInventory() {
+        syncGearHealth();
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
+    // pushes the max HP bonus of the equipped gear into the player
+    private void syncGearHealth() {
+        if (player != null && inventory != null) player.setBonusMaxHP(BattleMath.bonusMaxHp(inventory));
     }
 
     public Inventory getInventory() { return inventory; }

@@ -6,7 +6,6 @@ import Item.RangedWeapon.RangedWeapon;
 import Item.Shield.Shield;
 import Item.Sword.Sword;
 import Level.Player;
-import inventory.EquipSlot;
 import inventory.Inventory;
 
 import java.util.Map;
@@ -31,17 +30,27 @@ public final class BattleMath {
     // total of one buff over every equipped item (ATK_BOOST, CRIT_CHANCE, ...)
     public static double sumBuff(Inventory inv, Item.ItemBuffs buff) {
         double total = 0;
-        for (EquipSlot slot : EquipSlot.values()) {
+        for (Inventory.EquipSlot slot : Inventory.EquipSlot.values()) {
             Item item = inv.getEquippedItem(slot);
             if (item != null) total += item.getItemBuffModifiers(buff);
         }
         return total;
     }
 
+    // flat max HP from every equipped item, at each item's current level. Flat buffs are stored as value / 100
+    public static int bonusMaxHp(Inventory inv) {
+        double total = 0;
+        for (Inventory.EquipSlot slot : Inventory.EquipSlot.values()) {
+            Item item = inv.getEquippedItem(slot);
+            if (item != null) total += item.getItemBonusMaxHp();
+        }
+        return (int) Math.round(total * 100.0);
+    }
+
     // the number an equipped item gives one of its abilities (armor passives like HARDEN 0.12 live here); 0 if nothing has it
     public static double abilityValue(Inventory inv, Item.ItemAbilities ability) {
         double total = 0;
-        for (EquipSlot slot : EquipSlot.values()) {
+        for (Inventory.EquipSlot slot : Inventory.EquipSlot.values()) {
             Item item = inv.getEquippedItem(slot);
             if (item == null) continue;
             for (Map<Item.ItemAbilities, Double> group : item.getTotalItemAbilities().values()) {
@@ -60,7 +69,7 @@ public final class BattleMath {
     // DEF = (your DEF + armor baseDef) * (1 + BONUS_DEF + DEF_BOOST + IRON_STANCE).
     // BONUS_DEF is stored as a fraction (0.22 on the Wraithbone shield) so it is treated as a percentage like DEF_BOOST.
     public static float effectiveDef(Player p, Inventory inv) {
-        Item armor = inv.getEquippedItem(EquipSlot.ARMOR);
+        Item armor = inv.getEquippedItem(Inventory.EquipSlot.ARMOR);
         float flat = p.getBaseDEF() + (armor instanceof Armor ? ((Armor) armor).getBaseDef() : 0);
         double pct = sumBuff(inv, Item.ItemBuffs.BONUS_DEF) + sumBuff(inv, Item.ItemBuffs.DEF_BOOST) + abilityValue(inv, Item.ItemAbilities.IRON_STANCE);
         return flat * (float) (1 + pct);
@@ -115,12 +124,12 @@ public final class BattleMath {
 
     // shield: chance to block any hit you take, and how much of that hit a block removes (the shield's own numbers)
     public static double blockChance(Inventory inv) {
-        Item s = inv.getEquippedItem(EquipSlot.SHIELD);
+        Item s = inv.getEquippedItem(Inventory.EquipSlot.SHIELD);
         return s instanceof Shield ? ((Shield) s).getBlockChance() : 0;
     }
 
     public static double blockAmount(Inventory inv) {
-        Item s = inv.getEquippedItem(EquipSlot.SHIELD);
+        Item s = inv.getEquippedItem(Inventory.EquipSlot.SHIELD);
         return s instanceof Shield ? Math.min(0.95, ((Shield) s).getBlockAmount()) : 0;
     }
 

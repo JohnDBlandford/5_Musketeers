@@ -8,7 +8,7 @@ import java.util.List;
 
 // Shows the name, type, power and description of the ability you pressed Y on.
 // ENTER from here uses the move, Y or B closes it and goes back to the ability window.
-public class AbilityInfoScreen extends OptionScreen {
+public final class AbilityInfoScreen extends OptionScreen {
     private Ability ability;
 
     public AbilityInfoScreen(PlayBattleScreen battle) {
@@ -24,8 +24,9 @@ public class AbilityInfoScreen extends OptionScreen {
     protected int optionCount() { return ability == null ? 0 : 1; }
 
     @Override
-    protected BattleSprite.Pose poseFor(int index) {
-        return ability.getCategory() == MoveCategory.SHIELD ? BattleSprite.Pose.GUARD : BattleSprite.Pose.ATTACK;
+    protected BattleSprites.BattleSprite.Pose poseFor(int index) {
+        return ability.getCategory() == MoveCategory.SHIELD ? BattleSprites.BattleSprite.Pose.GUARD
+                : BattleSprites.BattleSprite.Pose.ATTACK;
     }
 
     @Override

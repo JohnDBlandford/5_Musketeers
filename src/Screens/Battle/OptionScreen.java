@@ -23,7 +23,7 @@ public abstract class OptionScreen implements IScreen {
     protected abstract int optionCount();
 
     // which pose the player's sprite switches to when this option is chosen
-    protected abstract BattleSprite.Pose poseFor(int index);
+    protected abstract BattleSprites.BattleSprite.Pose poseFor(int index);
 
     // the move itself
     protected abstract void perform(int index);
