@@ -22,7 +22,7 @@ public class GuildHallMap extends Map {
     public ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {
         ArrayList<EnhancedMapTile> enhancedMapTiles = new ArrayList<>();
         Door hallDoor = new Door(getMapTile(9, 14).getX(), getMapTile(9, 14).getY(),
-                "world1", 3888, 3936, 96, 48);
+                "world1", 3648, 3792, 96, 48);
         hallDoor.setInteractScript(new DoorScript());
         enhancedMapTiles.add(hallDoor);
         return enhancedMapTiles;
