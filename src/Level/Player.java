@@ -59,6 +59,7 @@ public abstract class Player extends GameObject {
     // Player Combat Stats
     protected float maxHP = 100.0f;
     protected float currentHP = 100.0f;
+    protected float bonusMaxHP = 0.0f;
     protected float baseATK = 15.0f;
     protected float baseDEF = 10.0f;
     protected float baseSPD = 25.0f;
@@ -272,7 +273,7 @@ public abstract class Player extends GameObject {
         }
 
         maxHP += 15.0f;
-        currentHP = maxHP;
+        currentHP = getMaxHP();
         baseATK += 3.5f;
         baseDEF += 2.0f;
         baseSPD += 1.5f;
@@ -385,7 +386,19 @@ public abstract class Player extends GameObject {
     }
 
     public float getMaxHP() {
-        return maxHP;
+        return maxHP + bonusMaxHP;
+    }
+
+    public float getBonusMaxHP() { return bonusMaxHP; }
+
+    // Sets the gear bonus to max HP. Current HP moves by the same amount the bonus changed, so equipping armor
+    // doesn't leave you below full and unequipping it doesn't leave you above the new max
+    public void setBonusMaxHP(float bonus) {
+        float newBonus = Math.max(0.0f, bonus);
+        float delta = newBonus - this.bonusMaxHP;
+        this.bonusMaxHP = newBonus;
+        if (delta == 0.0f || currentHP <= 0.0f) return;
+        this.currentHP = Math.max(1.0f, Math.min(currentHP + delta, getMaxHP()));
     }
 
     public float getCurrentHP() {
