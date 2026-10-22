@@ -25,20 +25,7 @@ public final class BattleSprites {
     public static final int KNIGHT_HEIGHT = 192;   // the knight is the big sprite in front (bottom left)
     public static final int ENEMY_HEIGHT = 128;    // the enemy is further away (upper right), so it is drawn smaller
 
-    public static BattleSprite knight() {
-        try {
-            BufferedImage sheet = ImageLoader.load("Spritesheet.png");
-            BufferedImage attacks = ImageLoader.load("Attacks.png");
-            BufferedImage[] attack = {cell(attacks, 0, 0), cell(attacks, 1, 0), cell(attacks, 2, 0), cell(attacks, 0, 1)};
-            BufferedImage[] ranged = {cell(attacks, 1, 1), cell(attacks, 2, 1), cell(attacks, 0, 2), cell(attacks, 1, 2)};
-            BufferedImage idle = cell(sheet, 0, 0);
-            BufferedImage[] hurt = {cell(sheet, 1, 0), cell(sheet, 2, 0), cell(sheet, 0, 1)};
-            //BufferedImage[] attack = {cell(sheet, 1, 1), cell(sheet, 2, 1), cell(sheet, 0, 2), cell(sheet, 1, 2)};
-            return new BattleSprite(idle, attack, hurt, false, KNIGHT_HEIGHT / 32);
-        } catch (RuntimeException e) {
-            return placeholder("KNIGHT", false);
-        }
-    }
+    
     public static final class BattleSprite {
         public enum Pose {IDLE, ATTACK, HURT, GUARD, HEAL, RUN, FLEE, FAINT}
 
@@ -238,16 +225,19 @@ public final class BattleSprites {
 
 
         public static BattleSprite knight() {
-            try {
-                BufferedImage sheet = ImageLoader.load("Spritesheet.png");
-                BufferedImage idle = cell(sheet, 0, 0);
-                BufferedImage[] hurt = {cell(sheet, 1, 0), cell(sheet, 2, 0), cell(sheet, 0, 1)};
-                BufferedImage[] attack = {cell(sheet, 1, 1), cell(sheet, 2, 1), cell(sheet, 0, 2), cell(sheet, 1, 2)};
-                return new BattleSprite(idle, attack, hurt, false, KNIGHT_HEIGHT / 32);
-            } catch (RuntimeException e) {
-                return placeholder("KNIGHT", false);
-            }
+        try {
+            BufferedImage sheet = ImageLoader.load("Spritesheet.png");
+            BufferedImage attacks = ImageLoader.load("Attacks.png");
+            BufferedImage[] attack = {cell(attacks, 0, 0), cell(attacks, 1, 0), cell(attacks, 2, 0), cell(attacks, 0, 1)};
+            BufferedImage[] ranged = {cell(attacks, 1, 1), cell(attacks, 2, 1), cell(attacks, 0, 2), cell(attacks, 1, 2)};
+            BufferedImage idle = cell(sheet, 0, 0);
+            BufferedImage[] hurt = {cell(sheet, 1, 0), cell(sheet, 2, 0), cell(sheet, 0, 1)};
+            //BufferedImage[] attack = {cell(sheet, 1, 1), cell(sheet, 2, 1), cell(sheet, 0, 2), cell(sheet, 1, 2)};
+            return new BattleSprite(idle, attack, hurt, false, KNIGHT_HEIGHT / 32);
+        } catch (RuntimeException e) {
+            return placeholder("KNIGHT", false);
         }
+    }
 
     public static BattleSprite enemy(String enemyName) {
         String file = "Battle/" + enemyName.replace(" ", "") + ".png";

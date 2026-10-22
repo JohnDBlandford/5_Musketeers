@@ -73,6 +73,7 @@ public class Knight extends Player {
 
                 // Attack Right: 2 remaining on row 1 (Col 1 & 2), and the first 2 on row 2 (Col
                 // 0 & 1)
+                /*
                 put("ATTACK_RIGHT", new Frame[] {
                         new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 1), 8).withScale(2).withBounds(6, 12, 12, 7)
                                 .build(),
@@ -95,6 +96,7 @@ public class Knight extends Player {
                         new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 2), 8).withScale(2)
                                 .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build()
                 });
+                */
 
                 // Walking right: The remaining sprites (Row 2 Col 2, and all of Row 3)
                 put("WALK_RIGHT", new Frame[] {
