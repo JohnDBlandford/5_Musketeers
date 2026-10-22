@@ -295,8 +295,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     // ---- random encounters: every full tile the knight walks outside a SAFE place may start a fight ----
-    private static final int GRACE_STEPS = 6;           // no fight until this many steps after the last one
-    private static final double STEP_CHANCE = 0.07;     // chance per step after the grace period
+    private static final int GRACE_STEPS = 15;           // no fight until this many steps after the last one
+    private static final double STEP_CHANCE = 0.5;     // chance per step after the grace period
     private float lastX, lastY, stepDist;
     private int stepsSinceBattle;
     private final java.util.Random encRng = new java.util.Random();
