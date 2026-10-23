@@ -3,16 +3,12 @@ package BattleSystem;
 import Engine.GraphicsHandler;
 import Engine.ImageLoader;
 import GameObject.ImageEffect;
-import GameObject.ImageEffect;
 import SpriteFont.MonoSpriteFont;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-
-import static BattleSystem.BattleSprites.BattleSprite.cell;
-import static BattleSystem.BattleSprites.BattleSprite.placeholder;
 
 // Builds the sprites for a fight.
 //  - The knight is cut straight out of Spritesheet.png using the same cells Knight.java uses (3 columns x 4 rows of 32x32).
