@@ -44,10 +44,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
     private Inventory inventory;
-    //XP DISPLAY TESTING
+    //XP DISPLAY
     private SpriteFont xpDisplay;
+    private SpriteFont xpTillNextLevel;
     private int xp;
-    Color xpColor;
 
     // BATTLE: the running fight, and the name of the map the player is in (the battle uses it to pick its animated background)
     private PlayBattleScreen battleScreen;
@@ -183,16 +183,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     keyLocker.unlockKey(Key.W);
                 }
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
-
-                //XP TESTING
-                if(Keyboard.isKeyDown(Key.X) && !keyLocker.isKeyLocked(Key.X)) {
-                    keyLocker.lockKey(Key.X);
-                    xp = xp + 1;
-                }
-                if(Keyboard.isKeyUp(Key.X)){
-                    keyLocker.unlockKey(Key.X);
-                }
-                xpDisplay = new SpriteFont("XP " + xp ,10,8,"Arial",20,Color.WHITE);
+                //XP Display
+                xp = player.getCurrentXP();
+                xpDisplay = new SpriteFont("Player XP:" ,10,6,"Arial",16,Color.WHITE);
+                xpTillNextLevel = new SpriteFont(xp + "/" + player.getXpToNextLevel(),400,6,"Arial",16,Color.WHITE);
                 break;
             // if level has been completed, bring up level cleared screen
             case LEVEL_COMPLETED:
@@ -392,18 +386,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 coinCountDisplay.draw(graphicsHandler);
                 //DISPLAY XP
                 xpDisplay.draw(graphicsHandler);
-                graphicsHandler.drawFilledRectangle(77, 8, 307, 25,new Color(0,0,0));
-                graphicsHandler.drawFilledRectangle(80,10,30,20,new Color(204,255,204));
-                graphicsHandler.drawFilledRectangle(110,10,30,20,new Color(188, 246, 188));
-                graphicsHandler.drawFilledRectangle(140,10,30,20,new Color(165, 243, 165));
-                graphicsHandler.drawFilledRectangle(170,10,30,20,new Color(141, 244, 141));
-                graphicsHandler.drawFilledRectangle(200,10,30,20,new Color(113, 244, 113));
-                graphicsHandler.drawFilledRectangle(230,10,30,20,new Color(93, 246, 93));
-                graphicsHandler.drawFilledRectangle(260,10,30,20,new Color(66, 243, 66));
-                graphicsHandler.drawFilledRectangle(290,10,30,20,new Color(49, 243, 49, 216));
-                graphicsHandler.drawFilledRectangle(320,10,30,20,new Color(24, 243, 24, 163));
-                graphicsHandler.drawFilledRectangle(350,10,30,20,new Color(0, 255, 0, 115));
-                graphicsHandler.drawFilledRectangle(80 + (xp * 3), 10, 300 - (xp * 3), 20, Color.LIGHT_GRAY);
+                xpTillNextLevel.draw(graphicsHandler);
+                graphicsHandler.drawFilledRectangle(87,10,30,10,new Color(204,255,204));
+                graphicsHandler.drawFilledRectangle(117,10,30,10,new Color(188, 246, 188));
+                graphicsHandler.drawFilledRectangle(147,10,30,10,new Color(165, 243, 165));
+                graphicsHandler.drawFilledRectangle(177,10,30,10,new Color(141, 244, 141));
+                graphicsHandler.drawFilledRectangle(207,10,30,10,new Color(113, 244, 113));
+                graphicsHandler.drawFilledRectangle(237,10,30,10,new Color(93, 246, 93));
+                graphicsHandler.drawFilledRectangle(267,10,30,10,new Color(66, 243, 66));
+                graphicsHandler.drawFilledRectangle(297,10,30,10,new Color(49, 243, 49, 216));
+                graphicsHandler.drawFilledRectangle(327,10,30,10,new Color(24, 243, 24, 163));
+                graphicsHandler.drawFilledRectangle(357,10,30,10,new Color(0, 255, 0, 115));
+                graphicsHandler.drawFilledRectangle(87 + (xp * 3), 10, 300 - (xp * 3), 10, Color.LIGHT_GRAY);
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
