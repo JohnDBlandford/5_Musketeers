@@ -6,7 +6,7 @@ import inventory.Inventory;
 import java.util.*;
 
 // NOTE: This class is never meant to be instantiated. Only instantiate the specific class needed
-public abstract class Item {
+public abstract class Item implements Stockable {
     protected final String itemName;
     protected SpriteSheet itemLook;
     protected ItemRarity itemRarity;
@@ -148,7 +148,6 @@ public abstract class Item {
         return buffModifiers.containsKey(buff) ? itemStats.scaleBuff(buff, buffModifiers.get(buff)) : 0.0;
     }
 
-    // fix later
     @Override
     public String toString() {
         List<String> abilityNames = new ArrayList<>();
