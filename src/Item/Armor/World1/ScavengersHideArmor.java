@@ -1,7 +1,9 @@
-package Item.Armor;
+package Item.Armor.World1;
 
 import Engine.ImageLoader;
 import GameObject.SpriteSheet;
+import Item.Armor.Armor;
+import Item.ItemStats;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -18,7 +20,8 @@ public final class ScavengersHideArmor extends Armor {
     );
 
     public ScavengersHideArmor(SpriteSheet itemLook) {
-        super("ScavengersHideArmor", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 14);
+        super("ScavengersHideArmor", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 14,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.UNCOMMON));
     }
 
     @Override

@@ -7,8 +7,7 @@ import inventory.Inventory;
 
 import java.util.Map;
 
-public sealed abstract class Shield extends Item permits
-        WarpedBucklerShield, PatchedWoodShield, ScavengersRoundShield, FamineEdgeAegis, WraithboneBulwarkShield {
+public abstract class Shield extends Item {
     protected double blockChance;
     protected double blockAmount;
     protected int baseDef;
@@ -21,7 +20,7 @@ public sealed abstract class Shield extends Item permits
                 0, ItemStats.getDefaultsForItemRarity(itemRarity));
     }
 
-    Shield(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
+    protected Shield(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
            Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities,
            Map<ItemBuffs, Double> itemBuffs, double blockChance, double blockAmount, int baseDef, ItemStats stats) {
         super(itemName, itemLook, itemRarity, itemAbilities, itemBuffs, stats);

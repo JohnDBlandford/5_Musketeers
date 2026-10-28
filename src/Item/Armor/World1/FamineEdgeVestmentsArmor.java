@@ -1,7 +1,9 @@
-package Item.Armor;
+package Item.Armor.World1;
 
 import Engine.ImageLoader;
 import GameObject.SpriteSheet;
+import Item.Armor.Armor;
+import Item.ItemStats;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -20,7 +22,8 @@ public final class FamineEdgeVestmentsArmor extends Armor {
     );
 
     public FamineEdgeVestmentsArmor(SpriteSheet itemLook) {
-        super("FamineEdgeVestmentsArmor", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 20);
+        super("FamineEdgeVestmentsArmor", itemLook, ItemRarity.EPIC, ABILITIES, BUFFS, 20,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.EPIC));
     }
 
     @Override

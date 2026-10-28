@@ -1,7 +1,9 @@
-package Item.Armor;
+package Item.Armor.World1;
 
 import Engine.ImageLoader;
 import GameObject.SpriteSheet;
+import Item.Armor.Armor;
+import Item.ItemStats;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -22,7 +24,8 @@ public final class WraithboneMailArmor extends Armor {
     );
 
     public WraithboneMailArmor(SpriteSheet itemLook) {
-        super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 28);
+        super("WraithboneMailArmor", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 28,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.LEGENDARY));
     }
 
     @Override

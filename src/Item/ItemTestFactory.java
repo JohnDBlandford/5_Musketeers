@@ -1,10 +1,10 @@
 package Item;
 
 import GameObject.SpriteSheet;
-import Item.Armor.*;
-import Item.RangedWeapon.*;
-import Item.Shield.*;
-import Item.Sword.*;
+import Item.Armor.World1.*;
+import Item.RangedWeapon.World1.*;
+import Item.Shield.World1.*;
+import Item.Sword.World1.*;
 
 public final class ItemTestFactory {
     private ItemTestFactory() {}

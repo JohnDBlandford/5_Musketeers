@@ -1,12 +1,14 @@
-package Item.Sword;
+package Item.Sword.World1;
+
+import Engine.ImageLoader;
+import GameObject.SpriteSheet;
+import Item.ItemStats;
+import Item.Sword.Sword;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
-import Engine.ImageLoader;
-import GameObject.SpriteSheet;
-
-public final class RustedShortSword extends Sword {
+public final class BentKitchenCleaver extends Sword {
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
             AbilityType.BUFF, Map.of(ItemAbilities.GALE_SLASH, 0.00),
             AbilityType.BURST, Map.of(ItemAbilities.HEAVY_CLEAVE, 0.00),
@@ -14,8 +16,9 @@ public final class RustedShortSword extends Sword {
             AbilityType.FINISHER, Map.of(ItemAbilities.RECKONING_BLOW, 0.00)
     );
 
-    public RustedShortSword(SpriteSheet itemLook) {
-        super("RustedShortSword", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 30);
+    public BentKitchenCleaver(SpriteSheet itemLook) {
+        super("BentKitchenCleaver", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 35,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.COMMON));
     }
 
     @Override

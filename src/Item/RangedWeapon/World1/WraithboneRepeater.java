@@ -1,7 +1,9 @@
-package Item.RangedWeapon;
+package Item.RangedWeapon.World1;
 
 import Engine.ImageLoader;
 import GameObject.SpriteSheet;
+import Item.ItemStats;
+import Item.RangedWeapon.RangedWeapon;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -21,7 +23,8 @@ public final class WraithboneRepeater extends RangedWeapon {
     );
 
     public WraithboneRepeater(SpriteSheet itemLooks) {
-        super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 75);
+        super("WraithboneRepeater", itemLooks, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 75,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.LEGENDARY));
     }
 
     @Override

@@ -1,16 +1,16 @@
-package Item.Sword;
+package Item.Sword.World1;
 
 import Engine.ImageLoader;
 import GameObject.SpriteSheet;
+import Item.ItemStats;
+import Item.Sword.Sword;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
-public final class WraithboneSaber extends Sword {
+public final class ScavengersFalchion extends Sword {
     private static final Map<ItemBuffs, Double> BUFFS = Map.of(
-            ItemBuffs.CRIT_CHANCE, 0.10,
-            ItemBuffs.ATK_BOOST, 0.14,
-            ItemBuffs.CRIT_DMG, 0.25
+            ItemBuffs.CRIT_CHANCE, 0.06
     );
 
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
@@ -20,8 +20,9 @@ public final class WraithboneSaber extends Sword {
             AbilityType.FINISHER, Map.of(ItemAbilities.RECKONING_BLOW, 0.00)
     );
 
-    public WraithboneSaber(SpriteSheet itemLook) {
-        super("WraithboneSaber", itemLook, ItemRarity.LEGENDARY, ABILITIES, BUFFS, 80);
+    public ScavengersFalchion(SpriteSheet itemLook) {
+        super("ScavengersFalchion", itemLook, ItemRarity.UNCOMMON, ABILITIES, BUFFS, 45,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.UNCOMMON));
     }
 
     @Override

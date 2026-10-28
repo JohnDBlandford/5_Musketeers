@@ -7,8 +7,7 @@ import inventory.Inventory;
 
 import java.util.Map;
 
-public sealed abstract class Armor extends Item permits BeggarsWrapsArmor, FamineEdgeVestmentsArmor,
-        PatchedLeatherArmor, ScavengersHideArmor, WraithboneMailArmor{
+public abstract class Armor extends Item {
     protected int baseDef;
 
     // placeholder constructor
@@ -17,7 +16,7 @@ public sealed abstract class Armor extends Item permits BeggarsWrapsArmor, Famin
         this(itemName, itemLook, itemRarity, itemAbilities, itemBuffs, baseDef, ItemStats.getDefaultsForItemRarity(itemRarity));
     }
 
-    Armor(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
+    protected Armor(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
           Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities, Map<ItemBuffs, Double> itemBuffs, int baseDef,
           ItemStats stats) {
         super(itemName, itemLook, itemRarity, itemAbilities, itemBuffs, stats);

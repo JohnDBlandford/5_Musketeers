@@ -1,12 +1,14 @@
-package Item.Armor;
+package Item.Armor.World1;
 
 import Engine.ImageLoader;
 import GameObject.SpriteSheet;
+import Item.Armor.Armor;
+import Item.ItemStats;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
-public final class PatchedLeatherArmor extends Armor {
+public final class BeggarsWrapsArmor extends Armor {
     private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
             AbilityType.HEAL, Map.of(ItemAbilities.SECOND_WIND, 0.05),
             AbilityType.SPD_BOOST, Map.of(ItemAbilities.LIGHT_FOOTING, 0.03),
@@ -14,8 +16,9 @@ public final class PatchedLeatherArmor extends Armor {
             AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.05)
     );
 
-    public PatchedLeatherArmor(SpriteSheet itemLook) {
-        super("PatchedLeatherArmor", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 10);
+    public BeggarsWrapsArmor(SpriteSheet itemLook) {
+        super("BeggarsWrapsArmor", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 8,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.COMMON));
     }
 
     @Override
@@ -24,9 +27,9 @@ public final class PatchedLeatherArmor extends Armor {
         BufferedImage mstrSheet = ImageLoader.load("Items.png");
 
         int row = 1;
-        int col = 1;
+         int col = 1;
 
-        // get the subimage (the actual sprite for each item type)
+         // get the subimage (the actual sprite for each item type)
         BufferedImage croppedIcon = mstrSheet.getSubimage(col * 32, row * 32, 32, 32);
         return new SpriteSheet(croppedIcon, 32, 32);
     }
