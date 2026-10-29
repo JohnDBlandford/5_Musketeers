@@ -407,19 +407,39 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 graphicsHandler.drawFilledRectangle(327,10,30,10,new Color(24, 243, 24, 163));
                 graphicsHandler.drawFilledRectangle(357,10,30,10,new Color(0, 255, 0, 115));
                 graphicsHandler.drawFilledRectangle(87 + (xp * 3), 10, 300 - (xp * 3), 10, Color.LIGHT_GRAY);
+                //HEALTH BAR
                 healthDisplay.draw(graphicsHandler);
                 currHealth.draw(graphicsHandler);
-                graphicsHandler.drawFilledRectangle(87,28,30,10,new Color(255, 59, 54));
-                graphicsHandler.drawFilledRectangle(117,28,30,10,new Color(246, 27, 24));
-                graphicsHandler.drawFilledRectangle(147,28,30,10,new Color(255, 17, 13, 200));
-                graphicsHandler.drawFilledRectangle(177,28,30,10,new Color(241, 169, 15, 236));
-                graphicsHandler.drawFilledRectangle(207,28,30,10,new Color(253, 154, 73));
-                graphicsHandler.drawFilledRectangle(237,28,30,10,new Color(145, 248, 145, 158));
-                graphicsHandler.drawFilledRectangle(267,28,30,10,new Color(66, 243, 66, 165));
-                graphicsHandler.drawFilledRectangle(297,28,30,10,new Color(85, 246, 85, 152));
-                graphicsHandler.drawFilledRectangle(327,28,30,10,new Color(48, 255, 48, 84));
-                graphicsHandler.drawFilledRectangle(357,28,30,10,new Color(0, 255, 0, 71));
-
+                if(player.getCurrentHP() >= 10) {
+                    graphicsHandler.drawFilledRectangle(87, 28, 30, 10, new Color(255, 59, 54));
+                }
+                if(player.getCurrentHP() >= 20) {
+                    graphicsHandler.drawFilledRectangle(117, 28, 30, 10, new Color(246, 27, 24));
+                }
+                if(player.getCurrentHP() >= 30) {
+                    graphicsHandler.drawFilledRectangle(147, 28, 30, 10, new Color(255, 17, 13, 200));
+                }
+                if(player.getCurrentHP() >= 40) {
+                    graphicsHandler.drawFilledRectangle(177, 28, 30, 10, new Color(241, 169, 15, 236));
+                }
+                if(player.getCurrentHP() >= 50) {
+                    graphicsHandler.drawFilledRectangle(207, 28, 30, 10, new Color(253, 154, 73));
+                }
+                if(player.getCurrentHP() >= 60) {
+                    graphicsHandler.drawFilledRectangle(237, 28, 30, 10, new Color(145, 248, 145, 158));
+                }
+                if(player.getCurrentHP() >= 70) {
+                    graphicsHandler.drawFilledRectangle(267, 28, 30, 10, new Color(66, 243, 66, 165));
+                }
+                if(player.getCurrentHP() >= 80) {
+                    graphicsHandler.drawFilledRectangle(297, 28, 30, 10, new Color(85, 246, 85, 152));
+                }
+                if(player.getCurrentHP() >= 90) {
+                    graphicsHandler.drawFilledRectangle(327, 28, 30, 10, new Color(48, 255, 48, 84));
+                }
+                if(player.getCurrentHP() >= 100) {
+                    graphicsHandler.drawFilledRectangle(357, 28, 30, 10, new Color(0, 255, 0, 71));
+                }
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
