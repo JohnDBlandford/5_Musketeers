@@ -45,6 +45,11 @@ public abstract class Player extends GameObject {
     protected Key MOVE_DOWN_KEY = Key.S;
     protected Key INTERACT_KEY = Key.ENTER;
 
+    protected Key ARROW_MOVE_LEFT_KEY = Key.LEFT;
+    protected Key ARROW_MOVE_RIGHT_KEY = Key.RIGHT;
+    protected Key ARROW_MOVE_UP_KEY = Key.UP;
+    protected Key ARROW_MOVE_DOWN_KEY = Key.DOWN;
+
     // Attack keys for combat testing
     protected Key ATTACK_MELEE_KEY = Key.G;
     protected Key ATTACK_RANGED_KEY = Key.H;
@@ -128,8 +133,8 @@ public abstract class Player extends GameObject {
             map.entityInteract(this);
         }
 
-        if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY) || Keyboard.isKeyDown(MOVE_UP_KEY)
-                || Keyboard.isKeyDown(MOVE_DOWN_KEY)) {
+        if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(ARROW_MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY) || Keyboard.isKeyDown(ARROW_MOVE_RIGHT_KEY)
+                || Keyboard.isKeyDown(MOVE_UP_KEY) || Keyboard.isKeyDown(ARROW_MOVE_UP_KEY) || Keyboard.isKeyDown(MOVE_DOWN_KEY) ||  Keyboard.isKeyDown(ARROW_MOVE_DOWN_KEY)) {
             playerState = PlayerState.WALKING;
         }
     }
@@ -145,7 +150,17 @@ public abstract class Player extends GameObject {
             facingDirection = Direction.LEFT;
             currentWalkingXDirection = Direction.LEFT;
             lastWalkingXDirection = Direction.LEFT;
+        }else if (Keyboard.isKeyDown(ARROW_MOVE_LEFT_KEY)){
+            moveAmountX -= walkSpeed;
+            facingDirection = Direction.LEFT;
+            currentWalkingXDirection = Direction.LEFT;
+            lastWalkingXDirection = Direction.LEFT;
         } else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
+            moveAmountX += walkSpeed;
+            facingDirection = Direction.RIGHT;
+            currentWalkingXDirection = Direction.RIGHT;
+            lastWalkingXDirection = Direction.RIGHT;
+        }else if (Keyboard.isKeyDown(ARROW_MOVE_RIGHT_KEY)){
             moveAmountX += walkSpeed;
             facingDirection = Direction.RIGHT;
             currentWalkingXDirection = Direction.RIGHT;
@@ -158,7 +173,15 @@ public abstract class Player extends GameObject {
             moveAmountY -= walkSpeed;
             currentWalkingYDirection = Direction.UP;
             lastWalkingYDirection = Direction.UP;
+        }else if (Keyboard.isKeyDown(ARROW_MOVE_UP_KEY)) {
+            moveAmountY -= walkSpeed;
+            currentWalkingYDirection = Direction.UP;
+            lastWalkingYDirection = Direction.UP;
         } else if (Keyboard.isKeyDown(MOVE_DOWN_KEY)) {
+            moveAmountY += walkSpeed;
+            currentWalkingYDirection = Direction.DOWN;
+            lastWalkingYDirection = Direction.DOWN;
+        }else if (Keyboard.isKeyDown(ARROW_MOVE_DOWN_KEY)) {
             moveAmountY += walkSpeed;
             currentWalkingYDirection = Direction.DOWN;
             lastWalkingYDirection = Direction.DOWN;
@@ -176,8 +199,8 @@ public abstract class Player extends GameObject {
             lastWalkingXDirection = Direction.NONE;
         }
 
-        if (Keyboard.isKeyUp(MOVE_LEFT_KEY) && Keyboard.isKeyUp(MOVE_RIGHT_KEY) && Keyboard.isKeyUp(MOVE_UP_KEY)
-                && Keyboard.isKeyUp(MOVE_DOWN_KEY)) {
+        if (Keyboard.isKeyUp(MOVE_LEFT_KEY) && Keyboard.isKeyUp(ARROW_MOVE_LEFT_KEY) && Keyboard.isKeyUp(MOVE_RIGHT_KEY) && Keyboard.isKeyUp(ARROW_MOVE_RIGHT_KEY) && Keyboard.isKeyUp(MOVE_UP_KEY)
+                && Keyboard.isKeyUp(ARROW_MOVE_UP_KEY) && Keyboard.isKeyUp(MOVE_DOWN_KEY) && Keyboard.isKeyUp(ARROW_MOVE_DOWN_KEY)) {
             playerState = PlayerState.STANDING;
         }
     }
