@@ -5,7 +5,14 @@ import BattleSystem.BattleMath;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
+import Item.Armor.World1.FamineEdgeVestmentsArmor;
+import Item.RangedWeapon.World1.CrackedHuntingBow;
 import Item.Registry.ItemRegistry;
+import Item.Shield.World1.PatchedWoodShield;
+import Item.Shield.World3.BeastbaneBarrier;
+import Item.Sword.World1.RustedShortSword;
+import Item.Sword.World1.WraithboneSaber;
+import Item.Sword.World2.BaronsBroadsword;
 import Game.PlayerData;
 import Level.*;
 import Maps.BlankMap;
@@ -28,6 +35,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -133,15 +141,15 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
-        // TEMPORARY test inventory, built through the registry
-        inventory.addItem(ItemRegistry.createItem("RustedShortSword"));
-        inventory.addItem(ItemRegistry.createItem("RustedShortSword"));   // duplicate, to test the identity swap
-        inventory.addItem(ItemRegistry.createItem("WraithboneSaber"));    // legendary, to test the color
-        inventory.addItem(ItemRegistry.createItem("CrackedHuntingBow"));
-        inventory.addItem(ItemRegistry.createItem("PatchedWoodShield"));
-        inventory.addItem(ItemRegistry.createItem("FamineEdgeVestmentsArmor"));
-        inventory.addItem(ItemRegistry.createItem("BaronsBroadsword"));   // world 2 item, to test the world 2 registrar
-        inventory.addItem(ItemRegistry.createItem("BeastbaneBarrier"));   // world 3 item, to test the world 3 registrar
+        // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables go through the registry
+        inventory.addItem(new RustedShortSword(null));
+        inventory.addItem(new RustedShortSword(null));   // duplicate, to test the identity swap
+        inventory.addItem(new WraithboneSaber(null));    // legendary, to test the color
+        inventory.addItem(new CrackedHuntingBow(null));
+        inventory.addItem(new PatchedWoodShield(null));
+        inventory.addItem(new FamineEdgeVestmentsArmor(null));
+        inventory.addItem(new BaronsBroadsword(null));   // world 2 item, to test the world 2 registrar
+        inventory.addItem(new BeastbaneBarrier(null));   // world 3 item, to test the world 3 registrar
         // consumables take inventory slots (one per stack) but are not shown on the inventory screen yet
         for (int i = 0; i < 3; i++) inventory.addConsumable(ItemRegistry.createConsumable("HardtackRation"));
         for (int i = 0; i < 2; i++) inventory.addConsumable(ItemRegistry.createConsumable("WaterBottle"));
@@ -167,7 +175,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 }
                 // waypoints: click a JUMP button on the right of the screen to travel to that place
                 if (click != null && !player.isLocked() && fadeIn == 0) {
-                    java.util.List<NamedLocations.Place> list = waypointList();
+                    List<NamedLocations.Place> list = waypointList();
                     for (int n = 0; n < list.size(); n++) {
                         if (waypointButton(n).contains(click) && list.get(n) != lastPlace) {
                             moveToPlace(list.get(n));
@@ -433,23 +441,23 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // the discovered places of the world the knight is in (each world has its own buttons; going back to a world shows
     // its buttons again)
-    private java.util.List<NamedLocations.Place> waypointList() {
-        java.util.List<NamedLocations.Place> out = new ArrayList<>();
+    private List<NamedLocations.Place> waypointList() {
+        List<NamedLocations.Place> out = new ArrayList<>();
         for (NamedLocations.Place p : NamedLocations.all())
             if (p.map.equals(currentMapName) && discovered.contains(p) && out.size() < MAX_WAYPOINTS) out.add(p);
         return out;
     }
 
     // where the i-th JUMP button is on the screen
-    private java.awt.Rectangle waypointButton(int i) {
+    private Rectangle waypointButton(int i) {
         int size = 34, gap = 8;
-        return new java.awt.Rectangle(800 - size - 14, 70 + i * (size + gap), size, size);
+        return new Rectangle(800 - size - 14, 70 + i * (size + gap), size, size);
     }
 
     // the JUMP buttons down the right side of the screen: click one to travel there.
     // A new button appears the first time the knight discovers a place; the one for the current place is lit green.
     private void drawWaypointButtons(GraphicsHandler gh) {
-        java.util.List<NamedLocations.Place> list = waypointList();
+        List<NamedLocations.Place> list = waypointList();
         if (list.size() < 2) return;   // nothing to jump to yet
         Graphics2D g = gh.getGraphics();
         Rectangle first = waypointButton(0);
