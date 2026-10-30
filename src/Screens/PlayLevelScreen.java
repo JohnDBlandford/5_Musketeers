@@ -5,7 +5,7 @@ import BattleSystem.BattleMath;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
-import Item.ItemTestFactory;
+import Item.Registry.ItemRegistry;
 import Game.PlayerData;
 import Level.*;
 import Maps.BlankMap;
@@ -27,6 +27,11 @@ import Utils.Direction;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 import inventory.Inventory;
 
 // This class is for when the RPG game is actually being played
@@ -63,7 +68,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private NamedLocations.Place lastPlace;     // the last named location the player was in (null until he enters one)
     private int bannerTimer;                    // frames left of the "place name" banner
     private boolean bannerNew;                 // the banner is for a newly discovered place
-    private final java.util.Set<NamedLocations.Place> discovered = new java.util.HashSet<>();
+    private final Set<NamedLocations.Place> discovered = new HashSet<>();
     private static final int MAX_WAYPOINTS = 9;   // buttons shown at once (per world)
     private final MonoSpriteFont hudFont = new MonoSpriteFont();
     private int fadeIn;                         // frames left of the black fade-in after a respawn
@@ -128,12 +133,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
-        inventory.addItem(ItemTestFactory.createRustedShortSword(null));
-        inventory.addItem(ItemTestFactory.createRustedShortSword(null));   // duplicate, to test the identity swap
-        inventory.addItem(ItemTestFactory.createWraithboneSaber(null));    // legendary, to test the color
-        inventory.addItem(ItemTestFactory.createCrackedHuntingBow(null));
-        inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
-        inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
+        // TEMPORARY test inventory, built through the registry
+        inventory.addItem(ItemRegistry.createItem("RustedShortSword"));
+        inventory.addItem(ItemRegistry.createItem("RustedShortSword"));   // duplicate, to test the identity swap
+        inventory.addItem(ItemRegistry.createItem("WraithboneSaber"));    // legendary, to test the color
+        inventory.addItem(ItemRegistry.createItem("CrackedHuntingBow"));
+        inventory.addItem(ItemRegistry.createItem("PatchedWoodShield"));
+        inventory.addItem(ItemRegistry.createItem("FamineEdgeVestmentsArmor"));
+        inventory.addItem(ItemRegistry.createItem("BaronsBroadsword"));   // world 2 item, to test the world 2 registrar
+        inventory.addItem(ItemRegistry.createItem("BeastbaneBarrier"));   // world 3 item, to test the world 3 registrar
+        // consumables take inventory slots (one per stack) but are not shown on the inventory screen yet
+        for (int i = 0; i < 3; i++) inventory.addConsumable(ItemRegistry.createConsumable("HardtackRation"));
+        for (int i = 0; i < 2; i++) inventory.addConsumable(ItemRegistry.createConsumable("WaterBottle"));
     }
 
     public void update() {
@@ -299,7 +310,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private static final double STEP_CHANCE = 0.90;     // chance per step after the grace period
     private float lastX, lastY, stepDist;
     private int stepsSinceBattle;
-    private final java.util.Random encRng = new java.util.Random();
+    private final Random encRng = new Random();
 
     private void checkRandomEncounter() {
         float dx = player.getX() - lastX, dy = player.getY() - lastY;
@@ -368,20 +379,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // This method creates a new map based on the provided map name. It returns a
     // new instance of the appropriate map class.
     private Map createMap(String mapName) {
-        switch (mapName) {
-            case "blank":
-                return new BlankMap();
-            case "test":
-                return new TestMap();
-            case "world1":
-                return new World1Map();
-            case "world2_map":
-                return new World2Map();
-            case "guild_hall_map":
-                return new GuildHallMap();
-            default:
-                return new TestMap();
-        }
+        return switch (mapName) {
+            case "blank" -> new BlankMap();
+            case "world1" -> new World1Map();
+            case "world2_map" -> new World2Map();
+            case "guild_hall_map" -> new GuildHallMap();
+            default -> new TestMap();
+        };
     }
 
     public void draw(GraphicsHandler graphicsHandler) {
@@ -430,7 +434,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // the discovered places of the world the knight is in (each world has its own buttons; going back to a world shows
     // its buttons again)
     private java.util.List<NamedLocations.Place> waypointList() {
-        java.util.List<NamedLocations.Place> out = new java.util.ArrayList<>();
+        java.util.List<NamedLocations.Place> out = new ArrayList<>();
         for (NamedLocations.Place p : NamedLocations.all())
             if (p.map.equals(currentMapName) && discovered.contains(p) && out.size() < MAX_WAYPOINTS) out.add(p);
         return out;
@@ -448,11 +452,11 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         java.util.List<NamedLocations.Place> list = waypointList();
         if (list.size() < 2) return;   // nothing to jump to yet
         Graphics2D g = gh.getGraphics();
-        java.awt.Rectangle first = waypointButton(0);
+        Rectangle first = waypointButton(0);
         hudFont.draw(gh, "JUMP", first.x + first.width / 2 - hudFont.getTextWidth("JUMP", 2, 1) / 2, first.y - 22, 2, 1, new Color(255, 240, 200));
         for (int i = 0; i < list.size(); i++) {
             NamedLocations.Place p = list.get(i);
-            java.awt.Rectangle r = waypointButton(i);
+            Rectangle r = waypointButton(i);
             boolean here = p == lastPlace;
             boolean hover = r.contains(MouseInput.getX(), MouseInput.getY());
             g.setColor(here ? new Color(70, 150, 80, 230) : (hover ? new Color(90, 72, 40, 235) : new Color(30, 26, 22, 220)));
