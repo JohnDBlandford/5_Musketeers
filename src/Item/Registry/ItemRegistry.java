@@ -22,6 +22,7 @@ public final class ItemRegistry {
         World1Items.registerAll();
         World2Items.registerAll();
         World3Items.registerAll();
+        World4Items.registerAll();
     }
 
     private ItemRegistry() {}
