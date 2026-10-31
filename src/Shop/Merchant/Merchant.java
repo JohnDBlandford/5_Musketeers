@@ -1,4 +1,5 @@
 package Shop.Merchant;
 
-public class Merchant {
+public class Merchant implements IMerchant{
+
 }
