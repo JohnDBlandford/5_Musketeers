@@ -17,6 +17,7 @@ public final class ItemRegistry {
     // LinkedHashMap so query results come back in a stable registration order
     private static final Map<String, ItemEntry> ENTRIES = new LinkedHashMap<>();
 
+    // registers all items with this class
     static {
         World1Items.registerAll();
         World2Items.registerAll();
@@ -44,6 +45,7 @@ public final class ItemRegistry {
         if (ENTRIES.putIfAbsent(entry.id(), entry) != null) throw new IllegalStateException("Duplicate item id: " + entry.id());
     }
 
+    // checks if the map contains the specified key
     public static boolean containsId(String id) { return ENTRIES.containsKey(id); }
 
     // gets an entry from the map via its id
@@ -95,6 +97,7 @@ public final class ItemRegistry {
         return Collections.unmodifiableList(result);
     }
 
+    // returns a copy of the list when called
     public static List<ItemEntry> getAllEntries() { return List.copyOf(ENTRIES.values()); }
 
     // builds every entry once and checks the entry agrees with what it builds. call this from a test or once at startup
