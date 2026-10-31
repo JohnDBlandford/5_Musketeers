@@ -6,8 +6,8 @@ import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
 import Item.Armor.World1.FamineEdgeVestmentsArmor;
+import Item.Consumable.Consumables;
 import Item.RangedWeapon.World1.CrackedHuntingBow;
-import Item.Registry.ItemRegistry;
 import Item.Shield.World1.PatchedWoodShield;
 import Item.Shield.World3.BeastbaneBarrier;
 import Item.Sword.World1.RustedShortSword;
@@ -141,7 +141,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
-        // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables go through the registry
+        // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables use the Consumables constants
         inventory.addItem(new RustedShortSword(null));
         inventory.addItem(new RustedShortSword(null));   // duplicate, to test the identity swap
         inventory.addItem(new WraithboneSaber(null));    // legendary, to test the color
@@ -151,8 +151,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         inventory.addItem(new BaronsBroadsword(null));   // world 2 item, to test the world 2 registrar
         inventory.addItem(new BeastbaneBarrier(null));   // world 3 item, to test the world 3 registrar
         // consumables take inventory slots (one per stack) but are not shown on the inventory screen yet
-        for (int i = 0; i < 3; i++) inventory.addConsumable(ItemRegistry.createConsumable("HardtackRation"));
-        for (int i = 0; i < 2; i++) inventory.addConsumable(ItemRegistry.createConsumable("WaterBottle"));
+        for (int i = 0; i < 3; i++) inventory.addConsumable(Consumables.HARDTACK_RATION);
+        for (int i = 0; i < 2; i++) inventory.addConsumable(Consumables.WATER_BOTTLE);
     }
 
     public void update() {

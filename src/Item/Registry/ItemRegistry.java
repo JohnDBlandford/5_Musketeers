@@ -1,12 +1,13 @@
 package Item.Registry;
 
+import GameObject.SpriteSheet;
 import Item.Item;
 import Item.ItemEntry;
 import Item.Stockable;
 import Item.Consumable.Consumable;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 // Single place that knows every item that can exist in the game, keyed by String id.
 // The merchant and the chests only ever call query...() and create...(). Weighting by rarity, the item shop size and the 30 min
@@ -24,18 +25,22 @@ public final class ItemRegistry {
 
     private ItemRegistry() {}
 
-    // registers a piece of gear
-    public static void register(String id, int world, Item.ItemRarity rarity, Supplier<Item> factory) {
-        add(new ItemEntry(id, world, rarity, ItemEntry.ItemKind.GEAR, factory::get));
+    // registers a piece of gear. the id and rarity are read from the item itself, so they can never disagree with it.
+    // one prototype is built here just to read them. sprites are passed as null because Item.getItemLook() loads lazily
+    public static void register(int world, Function<SpriteSheet, Item> constructor) {
+        Item prototype = constructor.apply(null);
+        addEntry(new ItemEntry(prototype.getItemName(), world, prototype.getItemRarity(), ItemEntry.ItemKind.GEAR,
+                () -> constructor.apply(null)));
     }
 
-    // registers a consumable item
-    public static void registerConsumable(String id, int world, Item.ItemRarity rarity, Supplier<Consumable> factory) {
-        add(new ItemEntry(id, world, rarity, ItemEntry.ItemKind.CONSUMABLE, factory::get));
+    // registers a consumable. they are immutable so every create() hands back the same shared instance
+    public static void registerConsumable(int world, Consumable consumable) {
+        addEntry(new ItemEntry(consumable.getItemName(), world, consumable.getItemRarity(), ItemEntry.ItemKind.CONSUMABLE,
+                () -> consumable));
     }
 
     // adds an entry into the map
-    private static void add(ItemEntry entry) {
+    private static void addEntry(ItemEntry entry) {
         if (ENTRIES.putIfAbsent(entry.id(), entry) != null) throw new IllegalStateException("Duplicate item id: " + entry.id());
     }
 
