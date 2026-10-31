@@ -2,7 +2,7 @@ package Item.Registry;
 
 import GameObject.SpriteSheet;
 import Item.Armor.World1.*;
-import Item.BasicConsumable;
+import Item.Consumable.BasicConsumable;
 import Item.Item;
 import Item.RangedWeapon.World1.*;
 import Item.Shield.World1.*;

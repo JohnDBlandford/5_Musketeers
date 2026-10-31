@@ -1,4 +1,6 @@
-package Item;
+package Item.Consumable;
+
+import Item.Stockable;
 
 // A single use item (food, a water bottle, ...). Consumables are stateless: no durability, level or xp, so the inventory
 // stacks them by name instead of tracking individual instances.

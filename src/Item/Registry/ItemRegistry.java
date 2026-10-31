@@ -3,7 +3,7 @@ package Item.Registry;
 import Item.Item;
 import Item.ItemEntry;
 import Item.Stockable;
-import Item.Consumable;
+import Item.Consumable.Consumable;
 
 import java.util.*;
 import java.util.function.Supplier;

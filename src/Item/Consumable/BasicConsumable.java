@@ -1,4 +1,6 @@
-package Item;
+package Item.Consumable;
+
+import Item.Item;
 
 // Data only implementation of Consumable. New foods and drinks are registered as values in a WorldNItems class
 // and do not need their own class file.
@@ -10,6 +12,7 @@ public final class BasicConsumable implements Consumable {
     private final int healthRestore;
 
     private BasicConsumable(String itemName, Item.ItemRarity itemRarity, int hungerRestore, int hydrationRestore, int healthRestore) {
+        // make sure as much can fail at compile time rather than runtime
         if (itemName == null || itemName.isBlank()) throw new IllegalArgumentException("Consumable name cannot be blank");
         if (itemRarity == null) throw new IllegalArgumentException("Rarity cannot be null for " + itemName);
         if (hungerRestore < 0 || hydrationRestore < 0 || healthRestore < 0) {

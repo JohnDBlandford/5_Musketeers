@@ -1,6 +1,6 @@
 package inventory;
 
-import Item.Consumable;
+import Item.Consumable.Consumable;
 import Item.Item;
 
 import java.util.*;

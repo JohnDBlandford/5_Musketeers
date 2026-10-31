@@ -6,7 +6,7 @@ import Item.Item;
 import Item.RangedWeapon.World2.*;
 import Item.Shield.World2.*;
 import Item.Sword.World2.*;
-import Item.BasicConsumable;
+import Item.Consumable.BasicConsumable;
 
 import java.util.function.Function;
 
