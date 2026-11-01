@@ -13,6 +13,7 @@ public class PlayerData {
     }
 
     public static void spendCurrency(int amount) {
+        if (amount < 0) throw new IllegalArgumentException("Cannot spend a negative amount: " + amount);
         if (currency >= amount) {
             currency -= amount;
         }
