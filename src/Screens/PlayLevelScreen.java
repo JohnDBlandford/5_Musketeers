@@ -250,12 +250,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     playLevelScreenState = PlayLevelScreenState.BATTLE;
                 }
                 break;
-
             // GAME_OVER: after ENTER the knight is put back at the last named location
             case GAME_OVER:
                 gameOverScreen.update();
-                soundManager.playSoundEffect(Sound.PLAYER_DIES); // Plays DIED sound
-                soundManager.stopMusic(); // Pause other music
                 if (gameOverScreen.isDone()) respawn();
                 break;
         }
@@ -316,6 +313,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // after a defeat: back to the last named location with full health
     private void respawn() {
+        soundManager.playSoundEffect(Sound.PLAYER_DIES); // Plays DIED sound
         syncGearHealth();
         player.setCurrentHP(player.getMaxHP());
         moveToPlace(lastPlace);
