@@ -39,9 +39,36 @@ public class Inventory {
         return items.add(item);
     }
 
+    // true if count more gear items would all fit. a shop checks this before taking gold
+    public boolean canAddItems(int count) {
+        if (count < 0) throw new IllegalArgumentException("Item count cannot be negative: " + count);
+        return getUsedSlots() + count <= MAX_INVENTORY_SLOTS;
+    }
+
     // true if addConsumable would succeed. a shop checks this before taking gold
     public boolean canAddConsumable(Consumable consumable) {
-        return findStackWithRoom(consumable.getItemName()) != null || !isFull();
+        return canAddConsumables(consumable, 1);
+    }
+
+    // true if qty of this consumable would ALL fit, so a shop never takes gold for a purchase that only partly fits.
+    // room in partial stacks of the same consumable is used first, then whatever is left needs new stacks of
+    // MAX_CONSUMABLE_STACK, and those new stacks must fit in the free slots. this does not change the inventory
+    public boolean canAddConsumables(Consumable consumable, int qty) {
+        Objects.requireNonNull(consumable, "consumable");
+        if (qty < 0) throw new IllegalArgumentException("Quantity cannot be negative: " + qty);
+
+        int remaining = qty;
+        for (Stack stack : consumables) {
+            // if the stacks consumable matches the method consumable, subtract qty from the MAX_CONSUMABLE_STACK minus
+            // the total stack count
+            if (stack.consumable.getItemName().equals(consumable.getItemName())) {
+                remaining -= MAX_CONSUMABLE_STACK - stack.count;
+            }
+        }
+        if (remaining <= 0) return true;
+
+        int newStacksNeeded = (remaining + MAX_CONSUMABLE_STACK - 1) / MAX_CONSUMABLE_STACK; // rounds up
+        return getUsedSlots() + newStacksNeeded <= MAX_INVENTORY_SLOTS;
     }
 
     // adds one to a stack of that consumable with room, otherwise starts a new stack. false if there is no room
