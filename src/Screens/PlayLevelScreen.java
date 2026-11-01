@@ -55,7 +55,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private SpriteFont currHealth;
 
     private SoundManager soundManager;
-    private Sound sound;
 
 
     // BATTLE: the running fight, and the name of the map the player is in (the battle uses it to pick its animated background)
@@ -144,21 +143,11 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
         inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
 
-        playMusic();
+        //Check to see current state of the game or what map to set the background music
+        soundManager.backgroundMusic(currentMapName,playLevelScreenState);
     }
 
-    //Check to see current state of the game or what map to set the background music
-    private void playMusic(){
-        if(playLevelScreenState == PlayLevelScreenState.BATTLE) {
-            soundManager.playMusic(Sound.BATTLE_MUSIC);
-        }else if(currentMapName == "world1") {
-            soundManager.playMusic(Sound.WORLD1_MUSIC);
-        }else if(currentMapName == "world2_map") {
-            soundManager.playMusic(Sound.WORLD2_MUSIC);
-        }else{
-            soundManager.stopMusic();
-        }
-    }
+
 
     public void update() {
         if (inventory != null) inventory.removeBrokenItem();
@@ -256,7 +245,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 if (gameOverScreen.isDone()) respawn();
                 break;
         }
-        playMusic();
+        //Check to see current state of the game or what map to set the background music
+        soundManager.backgroundMusic(currentMapName,playLevelScreenState);
     }
 
     // BATTLE: starts a fight against the given enemy. The background is picked from the map the player is standing in.
@@ -576,7 +566,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     public Inventory getInventory() { return inventory; }
 
     // This enum represents the different states this screen can be in
-    private enum PlayLevelScreenState {
+    public enum PlayLevelScreenState {
         RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW,INVENTORY, BATTLE, ENCOUNTER, GAME_OVER
     }
 }

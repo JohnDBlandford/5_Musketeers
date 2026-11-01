@@ -10,11 +10,9 @@ import Level.Map;
 import Scripts.World1.*;
 import Scripts.DoorScript;
 import Scripts.PortalScript;
-import Sound.SoundManager;
 import Tilesets.World1Tileset;
 
 public class World1Map extends Map {
-    private SoundManager soundManager;
 
     public World1Map() {
         super("world1_map.txt", new World1Tileset());
