@@ -7,10 +7,12 @@ import GameObject.Door;
 import GameObject.Portal;
 import Level.EnhancedMapTile;
 import Level.Map;
+import Level.Trigger;
 import Scripts.World1.*;
 import Scripts.DoorScript;
 import Scripts.PortalScript;
 import Tilesets.World1Tileset;
+import Utils.Point;
 
 public class World1Map extends Map {
 
@@ -18,6 +20,20 @@ public class World1Map extends Map {
         super("world1_map.txt", new World1Tileset());
         this.playerStartPosition = getMapTile(76, 87).getLocation(); // Brackenford plaza
     }
+
+    @Override
+    public ArrayList<Trigger> loadTriggers() {
+        ArrayList<Trigger> triggers = new ArrayList<>();
+
+        // INTRO MESSAGE SHOWS WHEN PRESS PLAY
+        Point location = getMapTile(75, 87).getLocation();
+        triggers.add(new Trigger(location.x, location.y, 3 * 48, 100, new IntroScript(), "sawIntro"));
+
+        return triggers;
+    }
+
+
+
 
     @Override
     public ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {

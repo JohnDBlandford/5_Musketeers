@@ -1,6 +1,6 @@
 package Sound;
 
-import Screens.PlayLevelScreen;
+
 import Screens.PlayLevelScreen.PlayLevelScreenState;
 
 public class SoundManager {
@@ -41,7 +41,6 @@ public class SoundManager {
         Sound effect = new Sound();
         effect.setFile(fileNumber);
         effect.playOnce();
-
     }
 
     //Check to see current state of the game or what map to set the background music

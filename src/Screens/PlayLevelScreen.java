@@ -41,7 +41,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     protected PlayLevelScreenState playLevelScreenState;
     protected WinScreen winScreen;
     protected FlagManager flagManager;
-    protected AttackWindow attackWindow;
     protected KeyLocker keyLocker = new KeyLocker();
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
@@ -129,7 +128,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         map.preloadScripts();
 
         winScreen = new WinScreen(this);
-        attackWindow = new AttackWindow(this);
 
         // initialize currency counter display
         coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 50, "Arial", 24, Color.YELLOW);
@@ -184,17 +182,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 checkRandomEncounter();
                 if (fadeIn > 0) fadeIn--;
                 if (bannerTimer > 0) bannerTimer--;
-                // Opens attack window at random
-                if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
-                    keyLocker.lockKey(Key.W);
-                    int randomNum = (int) Math.round(Math.random() * 100%5);
-                    if(randomNum == 0){
-                        playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
-                    }
-                }
-                if(Keyboard.isKeyUp(Key.W)){
-                    keyLocker.unlockKey(Key.W);
-                }
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
                 //XP Display
                 xp = player.getCurrentXP();
@@ -215,12 +202,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 map.update(player);
                 inventoryScreen.update();
                 break;
-
-            //If the game state was changed to attach window then the attack window should open
-            case ATTACK_WINDOW:
-                attackWindow.update();
-                break;
-
             // BATTLE: the map and player are frozen while the fight plays
             case BATTLE:
                 battleScreen.update();
@@ -455,10 +436,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
-                break;
-            case ATTACK_WINDOW:
-                map.draw(player, graphicsHandler);
-                attackWindow.draw(graphicsHandler);
                 break;
             case INVENTORY:
                 inventoryScreen.draw(graphicsHandler);

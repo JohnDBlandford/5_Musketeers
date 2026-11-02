@@ -11,7 +11,7 @@ public class IntroScript extends Script {
         ArrayList<ScriptAction> scriptActions = new ArrayList<>();
         scriptActions.add(new LockPlayerScriptAction());
         scriptActions.add(new TextboxScriptAction() {{
-            addText("Use WASD to move around and press ENTER to\ninteract with signs and to continue.");
+            addText("Use WASD or ARROW Keys to move around and\npress ENTER to interact with signs and to continue.");
         }});
         scriptActions.add(new ChangeFlagScriptAction("sawIntro", true)); // makes it play only once
         scriptActions.add(new UnlockPlayerScriptAction());
