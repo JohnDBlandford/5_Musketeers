@@ -61,7 +61,7 @@ public final class MerchantConfig {
 
     // loot weight (out of 100) of a rarity for a shop in the given world, from the design doc.
     // worlds 1-2 offer everything, world 3 and the Final world only Epic and Legendary.
-    // the player's LCK is deliberately not a parameter: it has no effect on the shop
+    // player's LCK is deliberately not a parameter: it has no effect on the shop
     public static int getRarityWeight(int world, ItemRarity rarity) {
         checkWorld(world);
         boolean lateGame = world >= 3;
