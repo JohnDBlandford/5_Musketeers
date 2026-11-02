@@ -55,7 +55,7 @@ public class Inventory {
     // MAX_CONSUMABLE_STACK, and those new stacks must fit in the free slots. this does not change the inventory
     public boolean canAddConsumables(Consumable consumable, int qty) {
         Objects.requireNonNull(consumable, "consumable");
-        if (qty < 0) throw new IllegalArgumentException("Quantity cannot be negative: " + qty);
+        if (qty < 0) throw new IllegalArgumentException("Consumable quantity cannot be negative: " + qty);
 
         int remaining = qty;
         for (Stack stack : consumables) {
