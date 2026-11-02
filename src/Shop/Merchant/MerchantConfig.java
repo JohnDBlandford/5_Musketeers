@@ -63,7 +63,7 @@ public final class MerchantConfig {
     // worlds 1-2 offer everything, world 3 and the Final world only Epic and Legendary.
     // player's LCK is deliberately not a parameter: it has no effect on the shop
     public static int getRarityWeight(int world, ItemRarity rarity) {
-        checkWorld(world);
+        ItemEntry.requireValidWorld(world);
         boolean lateGame = world >= 3;
         return switch (Objects.requireNonNull(rarity, "rarity")) {
             case COMMON -> lateGame ? 0 : 55;
@@ -83,7 +83,7 @@ public final class MerchantConfig {
     }
 
     public static double getWorldMultiplier(int world) {
-        checkWorld(world);
+        ItemEntry.requireValidWorld(world);
         return WORLD_MULTIPLIERS[world - ItemEntry.getMinWorld()];
     }
 
@@ -97,13 +97,5 @@ public final class MerchantConfig {
         Integer price = itemName == null ? null : CONSUMABLE_PRICES.get(itemName);
         if (price == null) throw new IllegalArgumentException("No price set for consumable: " + itemName);
         return price;
-    }
-
-    // makes sure that the world works with the items being displayed
-    private static void checkWorld(int world) {
-        if (world < ItemEntry.getMinWorld() || world > ItemEntry.getMaxWorld()) {
-            throw new IllegalArgumentException("World must be between " + ItemEntry.getMinWorld() + "-"
-                    + ItemEntry.getMaxWorld() + ", but got: " + world);
-        }
     }
 }

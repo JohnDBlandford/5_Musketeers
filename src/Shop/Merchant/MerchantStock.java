@@ -35,10 +35,7 @@ public final class MerchantStock {
         Objects.requireNonNull(gearPool, "gearPool");
         Objects.requireNonNull(consumablePool, "consumablePool");
         Objects.requireNonNull(random, "random");
-        if (shopWorld < ItemEntry.getMinWorld() || shopWorld > ItemEntry.getMaxWorld()) {
-            throw new IllegalArgumentException("World must be between " + ItemEntry.getMinWorld() + "-"
-                    + ItemEntry.getMaxWorld() + ", but got: " + shopWorld);
-        }
+        ItemEntry.requireValidWorld(shopWorld);
         for (ItemEntry entry : gearPool) {
             if (entry.itemKind() != ItemKind.GEAR) throw new IllegalArgumentException(entry.id() + " is not gear");
         }
