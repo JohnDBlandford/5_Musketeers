@@ -1,7 +1,7 @@
 package ScriptActions;
 
 import Level.ScriptState;
-import Shop.BlacksmithOpener;
+import Shop.Blacksmith.BlacksmithOpener;
 
 import java.util.List;
 import java.util.Objects;
