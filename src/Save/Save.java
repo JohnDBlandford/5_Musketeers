@@ -57,7 +57,7 @@ public final class Save {
     }
 
     private static File fileFor(int slot) {
-        return new File(Config.SAVE_FILES_PATH + "save" + slot + ".txt");
+        return new File(Config.SAVE_FILES_PATH + "save" + ".txt");
     }
 
     private static Properties toProperties(SaveData data) {
