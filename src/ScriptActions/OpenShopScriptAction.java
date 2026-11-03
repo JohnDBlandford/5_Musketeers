@@ -14,6 +14,8 @@ public class OpenShopScriptAction extends ScriptAction {
     public ScriptState execute() {
         if (notifyOpeners(map.getListeners()) == 0) {
             System.err.println("OpenShopScriptAction: no listener implements ShopOpener, so the shop was not opened.");
+            // ShopBuildingScript has no unlock of its own (the shop's onClosed does it), so free the player here or they stay locked forever
+            if (player != null) player.unlock();
         }
         return ScriptState.COMPLETED;
     }
