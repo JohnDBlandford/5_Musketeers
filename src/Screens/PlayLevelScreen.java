@@ -142,6 +142,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         inventory.addItem(ItemTestFactory.createCrackedHuntingBow(null));
         inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
         inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
+
+        // SAVE: if this level was started from the load screen, restore that save now
+        SaveData pending = screenCoordinator.takePendingLoad();
+        if (pending != null) applySaveData(pending);
     }
 
     public void update() {

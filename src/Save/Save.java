@@ -4,6 +4,8 @@ import Engine.Config;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public final class Save {
@@ -43,7 +45,40 @@ public final class Save {
 
     // returns null if the slot is empty or the file can't be read
     public static SaveData load(int slot) {
-        File file = fileFor(slot);
+        return load(fileFor(slot));
+    }
+
+    // a save file found on disk: its display name and when it was last written
+    public static final class SaveInfo {
+        public final String name;
+        public final File file;
+        public final long savedAt; // millis since epoch
+
+        SaveInfo(String name, File file, long savedAt) {
+            this.name = name;
+            this.file = file;
+            this.savedAt = savedAt;
+        }
+    }
+
+    // every readable save in the save folder, newest first
+    public static List<SaveInfo> listSaves() {
+        List<SaveInfo> saves = new ArrayList<>();
+        File[] files = new File(Config.SAVE_FILES_PATH).listFiles((dir, n) -> n.endsWith(".txt"));
+        if (files == null)
+            return saves;
+        for (File f : files) {
+            if (!f.isFile() || f.length() == 0 || load(f) == null)
+                continue; // skip empty / placeholder / broken files
+            String name = f.getName().substring(0, f.getName().length() - 4);
+            saves.add(new SaveInfo(name, f, f.lastModified()));
+        }
+        saves.sort((a, b) -> Long.compare(b.savedAt, a.savedAt));
+        return saves;
+    }
+
+    // returns null if the file is missing or can't be read
+    public static SaveData load(File file) {
         if (!file.isFile())
             return null;
         Properties props = new Properties();
@@ -51,7 +86,7 @@ public final class Save {
             props.load(reader);
             return fromProperties(props);
         } catch (IOException | RuntimeException e) {
-            System.err.println("Load failed for slot " + slot + ": " + e.getMessage());
+            System.err.println("Load failed for " + file + ": " + e.getMessage());
             return null;
         }
     }
