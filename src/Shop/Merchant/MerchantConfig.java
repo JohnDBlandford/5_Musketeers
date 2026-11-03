@@ -3,6 +3,7 @@ package Shop.Merchant;
 import Item.Consumable.Consumables;
 import Item.ItemEntry;
 import Item.Item.ItemRarity;
+import Item.Registry.LootRoller;
 
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +24,8 @@ public final class MerchantConfig {
     // in-game minutes between restocks (GameClock turns this into frames)
     public static final int RESTOCK_INTERVAL_MINUTES = 30;
     // how much more likely an item from the shop's own world is to be picked than an item from an older world
-    public static final int CURRENT_WORLD_WEIGHT = 4;
+    // (the number itself lives in LootRoller now, since chests use the same rule)
+    public static final int CURRENT_WORLD_WEIGHT = LootRoller.CURRENT_WORLD_WEIGHT;
 
     // prices
     // gear price = round(base price of the rarity * multiplier of the item's OWN world)
@@ -59,18 +61,10 @@ public final class MerchantConfig {
         };
     }
 
-    // loot weight (out of 100) of a rarity for a shop in the given world, from the design doc.
-    // worlds 1-2 offer everything, world 3 and the Final world only Epic and Legendary.
-    // player's LCK is deliberately not a parameter: it has no effect on the shop
+    // loot weight (out of 100) of a rarity for a shop in the given world, from the design doc. the table lives in LootRoller
+    // so the chests share it. player's LCK is deliberately not a parameter: it has no effect on the shop
     public static int getRarityWeight(int world, ItemRarity rarity) {
-        ItemEntry.requireValidWorld(world);
-        boolean lateGame = world >= 3;
-        return switch (Objects.requireNonNull(rarity, "rarity")) {
-            case COMMON -> lateGame ? 0 : 55;
-            case UNCOMMON -> lateGame ? 0 : 25;
-            case EPIC -> lateGame ? 60 : 17;
-            case LEGENDARY -> lateGame ? 40 : 3;
-        };
+        return LootRoller.getRarityWeight(world, rarity);
     }
 
     public static int getBasePrice(ItemRarity rarity) {

@@ -4,6 +4,7 @@ import Item.Consumable.Consumable;
 import Item.Item;
 import Item.ItemEntry;
 import Item.ItemEntry.ItemKind;
+import Item.Registry.LootRoller;
 
 import java.util.*;
 
@@ -73,53 +74,23 @@ public final class MerchantStock {
 
         List<ShopSlot> slots = new ArrayList<>();
         for (int i = 0; i < MerchantConfig.GEAR_SLOTS; i++) {
-            Item.ItemRarity rarity = rollRarity(shopWorld, buckets, random);
+            // the shop never uses luck, so it always rolls with 0
+            Item.ItemRarity rarity = LootRoller.rollRarity(shopWorld, availableRarities(buckets), 0, random);
             if (rarity == null) break; // every bucket is empty, the shop is just smaller
-            ItemEntry entry = pickWithinRarity(shopWorld, buckets.get(rarity), random);
+            ItemEntry entry = LootRoller.pickWithinRarity(shopWorld, buckets.get(rarity), random);
             slots.add(new ShopSlot(entry, MerchantConfig.getGearPrice(entry.rarity(), entry.world()),
                     MerchantConfig.getStockPerSlot(entry.rarity()), false));
         }
         return slots;
     }
 
-    // picks a rarity that still has items. rarities with no items left are skipped and the weights of the rest are
-    // re-normalised. if none of the rarities left has any weight (like only Commons left in world 3), they are picked evenly
-    // so the slot is still filled. returns null if nothing is left
-    private static Item.ItemRarity rollRarity(int shopWorld, Map<Item.ItemRarity, List<ItemEntry>> buckets, Random random) {
-        List<Item.ItemRarity> available = new ArrayList<>();
-        int totalWeight = 0;
-        for (Item.ItemRarity rarity : Item.ItemRarity.values()) {
-            if (buckets.get(rarity).isEmpty()) continue;
-            available.add(rarity);
-            totalWeight += MerchantConfig.getRarityWeight(shopWorld, rarity);
+    // the rarities that still have items left, which is what LootRoller is allowed to roll
+    private static Set<Item.ItemRarity> availableRarities(Map<Item.ItemRarity, List<ItemEntry>> buckets) {
+        Set<Item.ItemRarity> available = EnumSet.noneOf(Item.ItemRarity.class);
+        for (Map.Entry<Item.ItemRarity, List<ItemEntry>> bucket : buckets.entrySet()) {
+            if (!bucket.getValue().isEmpty()) available.add(bucket.getKey());
         }
-        if (available.isEmpty()) return null;
-        if (totalWeight == 0) return available.get(random.nextInt(available.size()));
-
-        int roll = random.nextInt(totalWeight);
-        for (Item.ItemRarity rarity : available) {
-            roll -= MerchantConfig.getRarityWeight(shopWorld, rarity);
-            if (roll < 0) return rarity;
-        }
-        throw new IllegalStateException("Rarity roll fell off the end"); // cannot happen, the weights add up to totalWeight. here just
-        // because its a catch in case something weird happens
-    }
-
-    // removes and returns one entry. items from the shop's own world are CURRENT_WORLD_WEIGHT times as likely to be shown
-    private static ItemEntry pickWithinRarity(int shopWorld, List<ItemEntry> bucket, Random random) {
-        int totalWeight = 0;
-        for (ItemEntry entry : bucket) totalWeight += weightOf(shopWorld, entry);
-        int roll = random.nextInt(totalWeight);
-        for (int i = 0; i < bucket.size(); i++) {
-            roll -= weightOf(shopWorld, bucket.get(i));
-            if (roll < 0) return bucket.remove(i);
-        }
-        throw new IllegalStateException("Item roll fell off the end"); // cannot happen but here just in case
-    }
-
-    // returns the weight of the item in the current world
-    private static int weightOf(int shopWorld, ItemEntry entry) {
-        return entry.world() == shopWorld ? MerchantConfig.CURRENT_WORLD_WEIGHT : 1;
+        return available;
     }
 
     // one thing on sale. gear has a limited stock, food and water are unlimited
