@@ -41,17 +41,21 @@ import java.util.Random;
 import java.util.Set;
 
 import inventory.Inventory;
+import Shop.Blacksmith.BlacksmithOpener;
 import Shop.GameClock;
 import Shop.ShopController;
 import Shop.ShopOpener;
 import Shop.Merchant.Merchant;
 import Shop.Merchant.MerchantScreen;
 import Shop.Merchant.MerchantViewModel;
+import Shop.Blacksmith.Blacksmith;
+import Shop.Blacksmith.BlacksmithScreen;
+import Shop.Blacksmith.BlacksmithViewModel;
 
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
 // initialize()/onMapChange(), startBattle()/onBattleEnd(), the waypoint list (M) and place discovery.
-public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener {
+public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
@@ -152,12 +156,15 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
-        // SHOP: the merchant and its clock live here (not on the map) because onMapChange() rebuilds the map and the player
+        // SHOP: the merchant, the blacksmith and the clock live here (not on the map) because onMapChange() rebuilds the map and the player
         GameClock shopClock = new GameClock(Config.TARGET_FPS);
         Merchant merchant = new Merchant(shopClock, new Random());
         MerchantViewModel shopModel = new MerchantViewModel(merchant, () -> inventory);
+        BlacksmithViewModel blacksmithModel = new BlacksmithViewModel(new Blacksmith(), () -> inventory);
         shopController = new ShopController(shopClock, merchant,
-                new MerchantScreen(shopModel, () -> shopController.close()), () -> player.unlock());
+                new MerchantScreen(shopModel, () -> shopController.close()),
+                new BlacksmithScreen(blacksmithModel, () -> inventory, () -> shopController.close()),
+                () -> player.unlock());
         // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables use the Consumables constants
         inventory.addItem(new RustedShortSword(null));
         inventory.addItem(new RustedShortSword(null));   // duplicate, to test the identity swap
@@ -543,6 +550,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     @Override
     public void onOpenShop() {
         shopController.open(BattleWorld.fromMapName(shopWorldMapName).ordinal() + 1);
+    }
+
+    // SHOP: called by OpenBlacksmithScriptAction (through the map's listeners) once the blacksmith's greeting is done.
+    // the blacksmith needs no world: an item's price comes from its own world in the registry
+    @Override
+    public void onOpenBlacksmith() {
+        shopController.openBlacksmith();
     }
 
     public void closeInventory() {
