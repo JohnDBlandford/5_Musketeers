@@ -65,6 +65,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private Inventory inventory;
     // SHOP: owns the shop's open/closed state and the game clock the merchant restocks by
     private ShopController shopController;
+    // SHOP: the shop sells the stock of the last OUTDOOR map the player was in; the shared guild hall interior must not count (it would always be World 1)
+    private String shopWorldMapName = "world1";
     //XP DISPLAY TESTING
     private SpriteFont xpDisplay;
     private int xp;
@@ -108,6 +110,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         // define/setup map
         map = new World1Map();
         currentMapName = "world1";   // BATTLE
+        shopWorldMapName = "world1";   // SHOP
         map.setFlagManager(flagManager);
 
         // setup player
@@ -385,6 +388,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     public void onMapChange(String mapName, float playerX, float playerY) {
         map = createMap(mapName);
         currentMapName = mapName;   // BATTLE
+        if (!"guild_hall_map".equals(mapName)) shopWorldMapName = mapName;   // SHOP
         map.setFlagManager(flagManager);
         player = new Knight(playerX, playerY);
         player.setMap(map);
@@ -538,7 +542,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // SHOP: called by OpenShopScriptAction (through the map's listeners) once the shopkeeper's greeting is done
     @Override
     public void onOpenShop() {
-        shopController.open(BattleWorld.fromMapName(currentMapName).ordinal() + 1);
+        shopController.open(BattleWorld.fromMapName(shopWorldMapName).ordinal() + 1);
     }
 
     public void closeInventory() {

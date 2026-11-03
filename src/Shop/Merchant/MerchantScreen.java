@@ -103,7 +103,7 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         int gridW = COLS * PITCH_X - GAP;
         int detailX = gridX + gridW + 30;
         int detailW = panelX + panelW - 30 - detailX;
-        int detailH = panelY + panelH - 120 - gridY;
+        int detailH = panelY + panelH - 130 - gridY;
 
         g.drawFilledRectangle(0, 0, screenW, screenH, DIM);
         g.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, PANEL_FILL, Color.black, 3);
@@ -212,7 +212,7 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
 
     private void drawPurchaseBar(GraphicsHandler g, int panelX, int panelY, int panelW, int panelH) {
         int x = panelX + 30;
-        int y = panelY + panelH - 108;
+        int y = panelY + panelH - 118;
         SlotView selected = viewModel.getSelected();
         if (selected != null) {
             int qty = viewModel.getQuantity();
@@ -226,8 +226,9 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         if (!message.isEmpty()) {
             BattleUI.text(g, message, x, y + 34, 2, lastResult == PurchaseResult.SUCCESS ? GOOD : BAD);
         }
-        BattleUI.shadowText(g, "LEFT/RIGHT: ITEM   UP/DOWN: QUANTITY   ENTER: BUY   ESC: CLOSE", x, panelY +
-                panelH - 36, 1, BattleUI.WHITE);
+        // key hints, two lines at scale 2 so they are easy to read (one line at this size would be wider than the panel)
+        BattleUI.shadowText(g, "LEFT/RIGHT: ITEM   UP/DOWN: QUANTITY", x, panelY + panelH - 56, 2, BattleUI.WHITE);
+        BattleUI.shadowText(g, "ENTER: BUY   ESC: CLOSE", x, panelY + panelH - 34, 2, BattleUI.WHITE);
     }
 
     // helpers

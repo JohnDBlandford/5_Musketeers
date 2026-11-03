@@ -10,9 +10,11 @@ import ScriptActions.*;
 // Attach it with  mapTile.setInteractScript(new ShopBuildingScript())  (or on an entity / portal-style tile).
 public class ShopBuildingScript extends Script {
     // PLACEHOLDER greeting, to be replaced with the merchant's real lines
+    // each string is one textbox page; the engine Textbox is 30pt Arial in a 750px box, so keep a page under about 52 characters
     public static final String[] DEFAULT_GREETING = {
             "Hm. A customer. Don't see many of those anymore.",
-            "Take a look. Everything here is honestly priced... mostly."
+            "Take a look. Everything here is honestly priced...",
+            "...mostly."
     };
 
     private final String[] greeting;
