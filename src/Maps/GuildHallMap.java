@@ -18,11 +18,25 @@ public class GuildHallMap extends Map {
 
     }
 
+    // where the front door drops the player. These are methods (not fields) because
+    // loadEnhancedMapTiles runs inside the Map constructor, before fields are set.
+    protected String exitMap() {
+        return "world1";
+    }
+
+    protected float exitX() {
+        return 76 * 48 + 24;
+    }
+
+    protected float exitY() {
+        return 80 * 48;
+    }
+
     @Override
     public ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {
         ArrayList<EnhancedMapTile> enhancedMapTiles = new ArrayList<>();
         Door hallDoor = new Door(getMapTile(9, 14).getX(), getMapTile(9, 14).getY(),
-                "world1", 3648, 3792, 96, 48);
+                exitMap(), exitX(), exitY(), 96, 48);
         hallDoor.setInteractScript(new DoorScript());
         enhancedMapTiles.add(hallDoor);
         return enhancedMapTiles;

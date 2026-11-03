@@ -10,6 +10,7 @@ import Game.PlayerData;
 import Level.*;
 import Maps.BlankMap;
 import Maps.GuildHallMap;
+import Maps.World2GuildHallMap;
 import Maps.TestMap;
 import Maps.World1Map;
 import Maps.World2Map;
@@ -398,6 +399,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 return new World2Map();
             case "guild_hall_map":
                 return new GuildHallMap();
+            case "guild_hall_map_world2":
+                return new World2GuildHallMap();
             default:
                 return new TestMap();
         }
