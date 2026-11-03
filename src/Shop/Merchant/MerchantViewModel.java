@@ -52,11 +52,11 @@ public final class MerchantViewModel {
         return slots.isEmpty() ? null : slots.get(getSelectedIndex());
     }
 
-    public void moveUp() { moveTo(getSelectedIndex() - 1); }
+    public void selectPrevious() { selectIndex(getSelectedIndex() - 1); }
 
-    public void moveDown() { moveTo(getSelectedIndex() + 1); }
+    public void selectNext() { selectIndex(getSelectedIndex() + 1); }
 
-    private void moveTo(int target) {
+    private void selectIndex(int target) {
         int size = getSlots().size();
         int current = getSelectedIndex();
         int next = Math.clamp(target, 0, Math.max(0, size - 1));
