@@ -14,6 +14,7 @@ import Item.Registry.ItemRegistry;
 import Shop.Merchant.IMerchant.SlotView;
 import Shop.PurchaseResult;
 import Shop.ShopController;
+import Shop.ShopUI;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -22,6 +23,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
+import static Shop.ShopUI.BAD;
+import static Shop.ShopUI.DIM;
+import static Shop.ShopUI.GOOD;
+import static Shop.ShopUI.PANEL_FILL;
+import static Shop.ShopUI.SLOT_BORDER;
+import static Shop.ShopUI.SLOT_FILL;
+import static Shop.ShopUI.rarityColor;
 
 // The merchant's shop window. UI only: every decision (selection, quantity stepper, buying, the status message) lives in
 // MerchantViewModel; this class maps keys to it and draws what it reports. Shown by ShopController, which restocks and
@@ -35,13 +44,7 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     private static final int PITCH_X = SLOT + GAP;
     private static final int PITCH_Y = SLOT + 30;   // room for the price line under each slot
 
-    private static final Color DIM = new Color(0, 0, 0, 140);
-    private static final Color PANEL_FILL = new Color(60, 60, 60);
-    private static final Color SLOT_FILL = new Color(35, 35, 35);
-    private static final Color SLOT_BORDER = new Color(90, 90, 90);
     private static final Color SOLD_OUT_SHADE = new Color(0, 0, 0, 170);
-    private static final Color GOOD = new Color(110, 220, 120);
-    private static final Color BAD = new Color(235, 90, 80);
 
     private static final Key[] INPUT_KEYS = {Key.ESC, Key.ENTER, Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN};
 
@@ -201,13 +204,9 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         }
     }
 
-    // draws "LABEL  value" (scale 2, dropping to scale 1 if it is too wide) and returns the y of the next line; stops drawing past `bottom`
+    // draws "LABEL  value" (or just the label when value is empty) with ShopUI.line and returns the y of the next line
     private static int line(GraphicsHandler g, String label, String value, int x, int y, int width, Color color, int bottom) {
-        String text = value.isEmpty() ? label : label + "  " + value;
-        int scale = BattleUI.textW(text, 2) <= width ? 2 : 1;
-        int next = y + BattleUI.font().getCapHeight(2) + 8;
-        if (y + BattleUI.font().getCapHeight(scale) <= bottom) BattleUI.text(g, text, x, y, scale, color);
-        return next;
+        return ShopUI.line(g, value.isEmpty() ? label : label + "  " + value, x, y, width, color, bottom);
     }
 
     private void drawPurchaseBar(GraphicsHandler g, int panelX, int panelY, int panelW, int panelH) {
@@ -243,15 +242,6 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     // PLACEHOLDER rule: hydration means water, anything else is food (same split MerchantStock uses for its two guaranteed slots)
     static String consumableLetter(Consumable c) {
         return c != null && c.getHydrationRestore() > 0 ? "W" : "F";
-    }
-
-    private static Color rarityColor(Item.ItemRarity rarity) {
-        return switch (rarity) {
-            case UNCOMMON -> new Color(80, 170, 80);
-            case EPIC -> new Color(150, 80, 200);
-            case LEGENDARY -> new Color(230, 150, 40);
-            default -> new Color(130, 130, 130);
-        };
     }
 
     // flat buffs are stored as value / 100, everything else is a fraction shown as a percentage (same rule as InventoryScreen)
