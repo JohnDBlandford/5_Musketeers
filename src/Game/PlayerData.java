@@ -12,6 +12,10 @@ public class PlayerData {
         currency += amount;
     }
 
+    public static void setCurrency(int amount) {
+        currency = Math.max(0, amount);
+    }
+
     public static void spendCurrency(int amount) {
         if (currency >= amount) {
             currency -= amount;

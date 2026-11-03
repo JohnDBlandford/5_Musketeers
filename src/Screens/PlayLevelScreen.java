@@ -15,6 +15,9 @@ import Maps.World1Map;
 import Maps.World2Map;
 import NPCs.Enemy;
 import Players.Knight;
+import Item.Item;
+import Save.Save;
+import Save.SaveData;
 import BattleSystem.BattleListener;
 import Encounters.EnemyFactory;
 import Locations.NamedLocations;
@@ -68,6 +71,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private final MonoSpriteFont hudFont = new MonoSpriteFont();
     private int fadeIn;                         // frames left of the black fade-in after a respawn
     private final MonoSpriteFont bannerFont = new MonoSpriteFont();
+
+    // SAVE: K saves to the default slot, L loads it. saveMessage is shown for saveMessageTimer frames
+    private String saveMessage;
+    private int saveMessageTimer;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -165,6 +172,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     }
                 }
                 if (playLevelScreenState != PlayLevelScreenState.RUNNING) break;
+                // SAVE: quick save / quick load
+                if (Keyboard.isKeyDown(Key.K) && !keyLocker.isKeyLocked(Key.K) && !player.isLocked()) {
+                    keyLocker.lockKey(Key.K);
+                    showSaveMessage(saveGame(Save.DEFAULT_SLOT) ? "GAME SAVED" : "SAVE FAILED");
+                }
+                if (Keyboard.isKeyUp(Key.K)) keyLocker.unlockKey(Key.K);
+                if (Keyboard.isKeyDown(Key.L) && !keyLocker.isKeyLocked(Key.L) && !player.isLocked()) {
+                    keyLocker.lockKey(Key.L);
+                    showSaveMessage(loadGame(Save.DEFAULT_SLOT) ? "GAME LOADED" : "NO SAVE TO LOAD");
+                }
+                if (Keyboard.isKeyUp(Key.L)) keyLocker.unlockKey(Key.L);
+                if (saveMessageTimer > 0) saveMessageTimer--;
                 player.update();
                 map.update(player);
                 trackPlace();
@@ -404,6 +423,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 graphicsHandler.drawFilledRectangle(320,10,30,20,new Color(24, 243, 24, 163));
                 graphicsHandler.drawFilledRectangle(350,10,30,20,new Color(0, 255, 0, 115));
                 graphicsHandler.drawFilledRectangle(80 + (xp * 3), 10, 300 - (xp * 3), 20, Color.LIGHT_GRAY);
+                drawSaveMessage(graphicsHandler);
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
@@ -485,6 +505,108 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             String tag = "NEW WAYPOINT UNLOCKED";
             bannerFont.draw(gh, tag, 400 - bannerFont.getTextWidth(tag, 1, 1) / 2, 100, 1, 1, new Color(150, 220, 150, a));
         }
+    }
+
+    // SAVE: writes the current game to the given slot. Returns true if it was written
+    public boolean saveGame(int slot) {
+        return Save.save(slot, createSaveData());
+    }
+
+    // SAVE: replaces the current game with the one in the given slot. Returns false (and changes nothing) if the
+    // slot is empty or unreadable
+    public boolean loadGame(int slot) {
+        SaveData data = Save.load(slot);
+        if (data == null) return false;
+        applySaveData(data);
+        return true;
+    }
+
+    // SAVE: a snapshot of the game as it is right now
+    private SaveData createSaveData() {
+        SaveData data = new SaveData();
+        data.mapName = currentMapName;
+        data.playerX = player.getX();
+        data.playerY = player.getY();
+        data.facingDirection = player.getFacingDirection().name();
+        data.level = player.getLevel();
+        data.currentXP = player.getCurrentXP();
+        data.xpToNextLevel = player.getXpToNextLevel();
+        data.maxHP = player.getMaxHP() - player.getBonusMaxHP();
+        data.currentHP = player.getCurrentHP();
+        data.baseATK = player.getBaseATK() / player.getAtkModifier();
+        data.baseDEF = player.getBaseDEF() / player.getDefModifier();
+        data.baseSPD = player.getBaseSPD() / player.getSpdModifier();
+        data.gold = PlayerData.getCurrency();
+        for (NamedLocations.Place p : NamedLocations.all()) if (discovered.contains(p)) data.discoveredPlaces.add(p.name);
+        data.lastPlace = lastPlace != null ? lastPlace.name : null;
+        for (Item item : inventory.getAllItems()) {
+            data.items.add(new SaveData.ItemSave(item.getClass().getName(), item.getItemStats().getLvl(),
+                    item.getItemStats().getXp(), item.getItemStats().getDurability(), inventory.isItemEquipped(item)));
+        }
+        return data;
+    }
+
+    // SAVE: puts the game back the way the snapshot describes
+    private void applySaveData(SaveData data) {
+        PlayerData.setCurrency(data.gold);
+
+        // inventory first, so the gear's max HP bonus is in place before the player's HP is restored
+        inventory.clear();
+        for (SaveData.ItemSave saved : data.items) {
+            Item item = createItem(saved.className);
+            if (item == null) continue;
+            item.getItemStats().restore(saved.level, saved.xp, saved.durability);
+            inventory.addItem(item);
+            if (saved.equipped) inventory.toggleItemEquip(inventory.getAllItems().size() - 1);
+        }
+
+        onMapChange(data.mapName, data.playerX, data.playerY);   // builds a fresh knight on the saved map
+        try {
+            player.setFacingDirection(Direction.valueOf(data.facingDirection));
+        } catch (IllegalArgumentException e) {
+            player.setFacingDirection(Direction.LEFT);
+        }
+        syncGearHealth();
+        player.restoreStats(data.level, data.currentXP, data.xpToNextLevel, data.maxHP, data.currentHP,
+                data.baseATK, data.baseDEF, data.baseSPD);
+
+        discovered.clear();
+        lastPlace = null;
+        for (NamedLocations.Place p : NamedLocations.all()) {
+            if (data.discoveredPlaces.contains(p.name)) discovered.add(p);
+            if (p.name.equals(data.lastPlace)) lastPlace = p;
+        }
+
+        stepsSinceBattle = 0;
+        bannerTimer = 0;
+        fadeIn = 60;
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
+    // SAVE: rebuilds an item from its class name. Every item has a public constructor that takes its sprite sheet
+    // (null makes it load its own). Returns null if the class no longer exists, so an old save still loads
+    private static Item createItem(String className) {
+        try {
+            return Class.forName(className).asSubclass(Item.class)
+                    .getConstructor(GameObject.SpriteSheet.class).newInstance((Object) null);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            System.err.println("Skipping saved item " + className + ": " + e);
+            return null;
+        }
+    }
+
+    private void showSaveMessage(String message) {
+        saveMessage = message;
+        saveMessageTimer = 90;
+    }
+
+    private void drawSaveMessage(GraphicsHandler gh) {
+        if (saveMessageTimer <= 0 || saveMessage == null) return;
+        int w = hudFont.getTextWidth(saveMessage, 2, 1);
+        Graphics2D g = gh.getGraphics();
+        g.setColor(new Color(0, 0, 0, 160));
+        g.fillRect(400 - w / 2 - 12, 540, w + 24, 30);
+        hudFont.draw(gh, saveMessage, 400 - w / 2, 548, 2, 1, new Color(255, 240, 200));
     }
 
     public PlayLevelScreenState getPlayLevelScreenState() {
