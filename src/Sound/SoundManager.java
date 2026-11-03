@@ -43,13 +43,25 @@ public class SoundManager {
         effect.playOnce();
     }
 
+    //Changes how loud the volume is. Adding a negative will make it softer. Max is 6f.
+    public static void changeVolume(float volumeLevel){
+        music.lowerVolume(volumeLevel);
+    }
+
+
     //Check to see current state of the game or what map to set the background music
     public static void backgroundMusic(String map, PlayLevelScreenState state) {
-        if (state == PlayLevelScreenState.BATTLE) {
+        if (state == PlayLevelScreenState.BATTLE) { //In a Battle
+            changeVolume(3f);
             playMusic(Sound.BATTLE_MUSIC);
-        } else if (map == "world1") {
+        }else if(map == "guild_hall_map"){ //Inside Guild Hall
+            changeVolume(-10f); //Lowers volume when inside
             playMusic(Sound.WORLD1_MUSIC);
-        } else if (map == "world2_map") {
+        } else if (map == "world1") {      //World 1
+            changeVolume(3f);
+            playMusic(Sound.WORLD1_MUSIC);
+        } else if (map == "world2_map") {  //World 2
+            changeVolume(3f);
             playMusic(Sound.WORLD2_MUSIC);
         } else {
             stopMusic();

@@ -31,6 +31,7 @@ import java.awt.Graphics2D;
 import java.awt.*;
 import inventory.Inventory;
 
+
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
 // initialize()/onMapChange(), startBattle()/onBattleEnd(), the waypoint list (M) and place discovery.
@@ -52,7 +53,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     //HEALTH BAR
     private SpriteFont healthDisplay;
     private SpriteFont currHealth;
-
+    protected AttackWindow attackWindow;
     private SoundManager soundManager;
 
 
@@ -123,11 +124,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         // game has been won by calling its "onWin" method
         map.addListener(this);
 
+
         // preloads all scripts ahead of time rather than loading them dynamically
         // both are supported, however preloading is recommended
         map.preloadScripts();
 
         winScreen = new WinScreen(this);
+        attackWindow = new AttackWindow(this);
 
         // initialize currency counter display
         coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 50, "Arial", 24, Color.YELLOW);
@@ -183,6 +186,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 if (fadeIn > 0) fadeIn--;
                 if (bannerTimer > 0) bannerTimer--;
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
+                // Opens attack window at random
+                if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
+                    keyLocker.lockKey(Key.W);
+                    int randomNum = (int) Math.round(Math.random() * 100%5);
+                    if(randomNum == 0){
+                        playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
+                    }
+                }
+                if(Keyboard.isKeyUp(Key.W)){
+                    keyLocker.unlockKey(Key.W);
+                }
+
                 //XP Display
                 xp = player.getCurrentXP();
                 xpDisplay = new SpriteFont("Player XP:" ,10,6,"Arial",16,Color.WHITE);
@@ -201,6 +216,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 player.update();
                 map.update(player);
                 inventoryScreen.update();
+                break;
+            //If the game state was changed to attach window then the attack window should open
+            case ATTACK_WINDOW:
+                attackWindow.update();
                 break;
             // BATTLE: the map and player are frozen while the fight plays
             case BATTLE:
@@ -439,6 +458,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 break;
             case INVENTORY:
                 inventoryScreen.draw(graphicsHandler);
+                break;
+            case ATTACK_WINDOW:
+                map.draw(player, graphicsHandler);
+                attackWindow.draw(graphicsHandler);
                 break;
             case BATTLE:   // BATTLE
                 battleScreen.draw(graphicsHandler);
