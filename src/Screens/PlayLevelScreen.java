@@ -154,8 +154,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         Merchant merchant = new Merchant(shopClock, new Random());
         MerchantViewModel shopModel = new MerchantViewModel(merchant, () -> inventory);
         shopController = new ShopController(shopClock, merchant,
-                new MerchantScreen(shopModel, () -> shopController.close()),
-                () -> player.unlock());
+                new MerchantScreen(shopModel, () -> shopController.close()), () -> player.unlock());
         // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables use the Consumables constants
         inventory.addItem(new RustedShortSword(null));
         inventory.addItem(new RustedShortSword(null));   // duplicate, to test the identity swap
@@ -209,7 +208,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 if (fadeIn > 0) fadeIn--;
                 if (bannerTimer > 0) bannerTimer--;
                 // Opens attack window at random
-                if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
+                if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)) {
                     keyLocker.lockKey(Key.W);
                     int randomNum = (int) Math.round(Math.random() * 100%5);
                     if(randomNum == 0){
