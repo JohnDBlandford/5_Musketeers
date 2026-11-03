@@ -41,11 +41,17 @@ import java.util.Random;
 import java.util.Set;
 
 import inventory.Inventory;
+import Shop.GameClock;
+import Shop.ShopController;
+import Shop.ShopOpener;
+import Shop.Merchant.Merchant;
+import Shop.Merchant.MerchantScreen;
+import Shop.Merchant.MerchantViewModel;
 
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
 // initialize()/onMapChange(), startBattle()/onBattleEnd(), the waypoint list (M) and place discovery.
-public class PlayLevelScreen extends Screen implements GameListener, BattleListener {
+public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
@@ -57,6 +63,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
     private Inventory inventory;
+    // SHOP: owns the shop's open/closed state and the game clock the merchant restocks by
+    private ShopController shopController;
     //XP DISPLAY TESTING
     private SpriteFont xpDisplay;
     private int xp;
@@ -141,6 +149,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
+        // SHOP: the merchant and its clock live here (not on the map) because onMapChange() rebuilds the map and the player
+        GameClock shopClock = new GameClock(Config.TARGET_FPS);
+        Merchant merchant = new Merchant(shopClock, new Random());
+        MerchantViewModel shopModel = new MerchantViewModel(merchant, () -> inventory);
+        shopController = new ShopController(shopClock, merchant,
+                new MerchantScreen(shopModel, () -> shopController.close()),
+                () -> player.unlock());
         // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables use the Consumables constants
         inventory.addItem(new RustedShortSword(null));
         inventory.addItem(new RustedShortSword(null));   // duplicate, to test the identity swap
@@ -159,7 +174,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         if (inventory != null) inventory.removeBrokenItem();
         if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         MouseInput.update();
-        java.awt.Point click = MouseInput.pollClick();   // a mouse click this frame, if any
+        Point click = MouseInput.pollClick();   // a mouse click this frame, if any
+        // SHOP: while the shop is open nothing else updates (no encounters, no clock ticks)
+        if (shopController.isOpen()) { shopController.update(); return; }
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the
@@ -186,6 +203,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 if (playLevelScreenState != PlayLevelScreenState.RUNNING) break;
                 player.update();
                 map.update(player);
+                shopController.tick();   // SHOP: game time only passes while exploring
                 trackPlace();
                 checkRandomEncounter();
                 if (fadeIn > 0) fadeIn--;
@@ -397,6 +415,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public void draw(GraphicsHandler graphicsHandler) {
+        // SHOP: the shop window is drawn over the map
+        if (shopController.isOpen()) { map.draw(player, graphicsHandler); shopController.draw(graphicsHandler); return; }
         // based on screen state, draw appropriate graphics
         switch (playLevelScreenState) {
             case RUNNING:
@@ -514,6 +534,12 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     //Closes Attack Window
     public void closeAttackWindow(){
         playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
+    // SHOP: called by OpenShopScriptAction (through the map's listeners) once the shopkeeper's greeting is done
+    @Override
+    public void onOpenShop() {
+        shopController.open(BattleWorld.fromMapName(currentMapName).ordinal() + 1);
     }
 
     public void closeInventory() {
