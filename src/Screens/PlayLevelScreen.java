@@ -143,13 +143,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         inventory.addItem(ItemTestFactory.createCrackedHuntingBow(null));
         inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
         inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
-
-        // SAVE: if this level was started from the load screen, restore that save now
-        SaveData pending = screenCoordinator.takePendingLoad();
-        if (pending != null) applySaveData(pending);
     }
 
     public void update() {
+        // SAVE: if this level was started from the load screen, restore that save on the first update
+        // (takePendingLoad returns null after the first call, so this only happens once)
+        SaveData pending = screenCoordinator.takePendingLoad();
+        if (pending != null) applySaveData(pending);
         if (inventory != null) inventory.removeBrokenItem();
         if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         MouseInput.update();
@@ -294,7 +294,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         if (p == null) {
             player.setLocation(map.getPlayerStartPosition().x, map.getPlayerStartPosition().y);
         } else if (!p.map.equals(currentMapName)) {
-            float[] sp = NamedLocations.spawnPixels(p, createMap(p.map));
+            float[] sp = NamedLocations.spawnPixels(p, buildMap(p.map));
             onMapChange(p.map, sp[0], sp[1]);
         } else {
             float[] sp = NamedLocations.spawnPixels(p, map);
@@ -372,7 +372,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // Called when the player changes maps. The mapName is the name of the new map
     // and playerX and playerY are the player's new coordinates in that map.
     public void onMapChange(String mapName, float playerX, float playerY) {
-        map = createMap(mapName);
+        map = buildMap(mapName);
         currentMapName = mapName;   // BATTLE
         map.setFlagManager(flagManager);
         player = new Knight(playerX, playerY);
@@ -390,6 +390,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         trackPlace();
     }
 
+    // creates the maps added for world 3 and the world 2 guild hall, and hands every other name to createMap
+    private Map buildMap(String mapName) {
+        switch (mapName) {
+            case "world3_map":
+                return new World3Map();
+            case "guild_hall_map_world2":
+                return new World2GuildHallMap();
+            default:
+                return createMap(mapName);
+        }
+    }
+
     // This method creates a new map based on the provided map name. It returns a
     // new instance of the appropriate map class.
     private Map createMap(String mapName) {
@@ -402,12 +414,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 return new World1Map();
             case "world2_map":
                 return new World2Map();
-            case "world3_map":
-                return new World3Map();
             case "guild_hall_map":
                 return new GuildHallMap();
-            case "guild_hall_map_world2":
-                return new World2GuildHallMap();
             default:
                 return new TestMap();
         }
