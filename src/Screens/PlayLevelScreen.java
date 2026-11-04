@@ -14,6 +14,7 @@ import Maps.World2GuildHallMap;
 import Maps.TestMap;
 import Maps.World1Map;
 import Maps.World2Map;
+import Maps.World3Map;
 import NPCs.Enemy;
 import Players.Knight;
 import Item.Item;
@@ -401,6 +402,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 return new World1Map();
             case "world2_map":
                 return new World2Map();
+            case "world3_map":
+                return new World3Map();
             case "guild_hall_map":
                 return new GuildHallMap();
             case "guild_hall_map_world2":

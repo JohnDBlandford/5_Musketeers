@@ -67,6 +67,14 @@ public final class NamedLocations {
         place("Minster & Scriptorium", "world2_map", 98, 50, 14, false); // the white paved cloister with the crosses
         place("Marsh & Drainage", "world2_map", 90, 72, 30, false); // the flooded lake and the wheat channels
         place("The Fracture", "world2_map", 72, 110, 16, false); // the scorched ruin at the bottom
+        // ---- World 3 ---- (world3_map.txt 132x124)
+        place("Harvest Fair", "world3_map", 66, 66, 16, false); // the straw fairground in the middle (where you arrive)
+        place("Fen's Village", "world3_map", 66, 31, 16, false); // sealed: the spawn is outside the nailed gate
+        place("Wedding Green", "world3_map", 25, 45, 15, false);
+        place("War Road", "world3_map", 103, 44, 15, false); // the witch-hunters' palisade camp
+        place("Fen's Pasture", "world3_map", 25, 83, 12, false);
+        place("Plague Village", "world3_map", 103, 85, 15, false);
+        place("Hatching Hollow", "world3_map", 66, 104, 14, false);
     }
 
     // ---- no-encounter zones: tile rectangles {x1, y1, x2, y2}. Everything else

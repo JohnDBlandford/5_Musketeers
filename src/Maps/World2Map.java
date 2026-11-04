@@ -31,6 +31,12 @@ public class World2Map extends Map {
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
 
+        // the ember grate in the middle of The Fracture leads on to World 3 (the Harvest Fair)
+        Portal world3portal = new Portal(getMapTile(68, 109).getX(), getMapTile(68, 109).getY(),
+                "world3_map", 66 * 48, 66 * 48, 48, 48);
+        world3portal.setInteractScript(new PortalScript());
+        enhancedMapTiles.add(world3portal);
+
         // red tavern on the top-left of the Eldermere plaza; the trigger sits on the step in front of its double door
         Door hallDoor = new Door(getMapTile(64, 36).getX(), getMapTile(64, 36).getY(),
                 "guild_hall_map_world2", 456, 600, 96, 48);
