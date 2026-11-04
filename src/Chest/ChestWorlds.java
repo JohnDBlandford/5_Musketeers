@@ -13,11 +13,24 @@ public final class ChestWorlds {
     private ChestWorlds() {}
 
     public static int worldOf(String worldName) {
-        Objects.requireNonNull(worldName, "worldName");
-        String name = worldName.toLowerCase(Locale.ROOT);
+        int world = find(worldName);
+        if (world == NO_WORLD) throw new IllegalArgumentException("No world in the map name: '" + worldName + "'");
+        return world;
+    }
+
+    // true if worldOf would succeed. lets callers skip maps with no chests (the Guild Hall, test and blank maps) without catching
+    public static boolean hasWorld(String mapName) {
+        return find(mapName) != NO_WORLD;
+    }
+
+    private static final int NO_WORLD = 0;
+
+    private static int find(String mapName) {
+        Objects.requireNonNull(mapName, "mapName");
+        String name = mapName.toLowerCase(Locale.ROOT);
         for (int world = ItemEntry.getMinWorld(); world <= ItemEntry.getMaxWorld(); world++) {
-            if (name.contains("world" + world)) return world;
+            if (name.contains("world " + world)) return world;
         }
-        throw new IllegalArgumentException("No world in the map name: '" + worldName + "'");
+        return NO_WORLD;
     }
 }
