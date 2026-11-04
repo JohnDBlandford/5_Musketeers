@@ -41,6 +41,13 @@ import java.util.Random;
 import java.util.Set;
 
 import inventory.Inventory;
+import Chest.ChestController;
+import Chest.ChestId;
+import Chest.ChestOpener;
+import Chest.ChestRegistry;
+import Chest.ChestResult;
+import Chest.ChestWorlds;
+import Chest.MapChests;
 import Shop.Blacksmith.BlacksmithOpener;
 import Shop.GameClock;
 import Shop.ShopController;
@@ -55,7 +62,8 @@ import Shop.Blacksmith.BlacksmithViewModel;
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
 // initialize()/onMapChange(), startBattle()/onBattleEnd(), the waypoint list (M) and place discovery.
-public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener {
+public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener,
+        ChestOpener {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
@@ -67,10 +75,16 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
     private Inventory inventory;
+
     // SHOP: owns the shop's open/closed state and the game clock the merchant restocks by
     private ShopController shopController;
     // SHOP: the shop sells the stock of the last OUTDOOR map the player was in; the shared guild hall interior must not count (it would always be World 1)
     private String shopWorldMapName = "world1";
+    // CHEST: where the chests are and which are opened live here (not on the map) for the same reason as the shop: onMapChange()
+    // rebuilds the map. initialize() makes new ones, so a new game starts with every chest closed and in new places
+    private ChestRegistry chestRegistry;
+    private ChestController chestController;
+    private Random chestRandom;
     //XP DISPLAY TESTING
     private SpriteFont xpDisplay;
     private int xp;
@@ -111,6 +125,11 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
         inventory = new Inventory();
 
+        // CHEST: new registry and random for a new game. the controller gets the inventory with each open() call
+        chestRegistry = new ChestRegistry();
+        chestRandom = new Random();
+        chestController = new ChestController(chestRegistry, chestRandom);
+
         // define/setup map
         map = new World1Map();
         currentMapName = "world1";   // BATTLE
@@ -143,6 +162,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         // this is used in the "onWin" method -- a script signals to this class that the
         // game has been won by calling its "onWin" method
         map.addListener(this);
+
+        // CHEST: add this map's chests before the scripts are preloaded, so their scripts get initialised too
+        MapChests.install(map, currentMapName, chestRegistry, chestRandom);
 
         // preloads all scripts ahead of time rather than loading them dynamically
         // both are supported, however preloading is recommended
@@ -408,6 +430,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         map.setPlayer(player);
         map.getTextbox().setInteractKey(player.getInteractKey());
         map.addListener(this);
+        MapChests.install(map, currentMapName, chestRegistry, chestRandom);   // CHEST: before preloadScripts
         map.preloadScripts();
         trackPlace();
     }
@@ -557,6 +580,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     @Override
     public void onOpenBlacksmith() {
         shopController.openBlacksmith();
+    }
+
+    // CHEST: called by OpenChestScriptAction (through the map's listeners). pays the gold, puts the item in the pack and tells
+    // the script what to show. the chest's world comes from the name of the map it is on
+    @Override
+    public ChestResult onOpenChest(ChestId id) {
+        return chestController.open(id, ChestWorlds.worldOf(id.mapName()), inventory);
     }
 
     public void closeInventory() {
