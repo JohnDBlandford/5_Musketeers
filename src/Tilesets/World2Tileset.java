@@ -4,6 +4,7 @@ import Builders.FrameBuilder;
 import Builders.MapTileBuilder;
 import Engine.ImageLoader;
 import GameObject.Frame;
+import GameObject.SpriteSheet;
 import Level.TileType;
 import Level.Tileset;
 
@@ -226,6 +227,18 @@ public class World2Tileset extends Tileset {
 
         // 66: palisade_side
         mapTiles.add(tile(6, 6, TileType.NOT_PASSABLE));
+
+        // 67-150: red tavern / guild hall (14x6), borrowed from the World 1 sheet so
+        // ID = 67 + y * 14 + x
+        SpriteSheet world1Sheet = new SpriteSheet(ImageLoader.load("World1_ground_tileset.png"), 16, 16);
+        for (int y = 0; y < 6; y++) {
+            for (int x = 0; x < 14; x++) {
+                Frame frame = new FrameBuilder(world1Sheet.getSubImage(22 + y, x))
+                        .withScale(tileScale)
+                        .build();
+                mapTiles.add(new MapTileBuilder(frame).withTileType(TileType.NOT_PASSABLE));
+            }
+        }
 
         return mapTiles;
     }

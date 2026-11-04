@@ -3,11 +3,13 @@ package Maps;
 import java.util.ArrayList;
 
 import EnhancedMapTiles.Sign;
+import GameObject.Door;
 import GameObject.Portal;
 import Level.EnhancedMapTile;
 import Level.Map;
 import Level.NPC;
 import NPCs.Dummy;
+import Scripts.DoorScript;
 import Scripts.PortalScript;
 import Scripts.World1.KeptGroveScript;
 import Scripts.World2.*;
@@ -28,6 +30,18 @@ public class World2Map extends Map {
                 "world1", 3888, 4320, 48, 48);
         portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(portal);
+
+        // the ember grate in the middle of The Fracture leads on to World 3 (the Harvest Fair)
+        Portal world3portal = new Portal(getMapTile(68, 109).getX(), getMapTile(68, 109).getY(),
+                "world3_map", 66 * 48, 66 * 48, 48, 48);
+        world3portal.setInteractScript(new PortalScript());
+        enhancedMapTiles.add(world3portal);
+
+        // red tavern on the top-left of the Eldermere plaza; the trigger sits on the step in front of its double door
+        Door hallDoor = new Door(getMapTile(64, 36).getX(), getMapTile(64, 36).getY(),
+                "guild_hall_map_world2", 456, 600, 96, 48);
+        hallDoor.setInteractScript(new DoorScript());
+        enhancedMapTiles.add(hallDoor);
 
         //Signs with storys that are placed around the map, press enter to interact with them
         //Eldermere
