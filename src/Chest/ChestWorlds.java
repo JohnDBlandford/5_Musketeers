@@ -29,7 +29,7 @@ public final class ChestWorlds {
         Objects.requireNonNull(mapName, "mapName");
         String name = mapName.toLowerCase(Locale.ROOT);
         for (int world = ItemEntry.getMinWorld(); world <= ItemEntry.getMaxWorld(); world++) {
-            if (name.contains("world " + world)) return world;
+            if (name.contains("world" + world)) return world;
         }
         return NO_WORLD;
     }
