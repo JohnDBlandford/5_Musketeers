@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+//For sound
+import Sound.Sound;
+import Sound.SoundManager;
+
 // The whole battle, laid out like the Pokemon HeartGold/SoulSilver battle screen:
 // the enemy stands on a platform in the upper right with its name plate at the top left, the knight is big in the lower left
 // with his plate (level, HP, XP, stats) on the right, a text box is at the bottom left and the buttons at the bottom right.
@@ -310,6 +314,9 @@ public class PlayBattleScreen extends Screen {
                 stance ? TurnHistoryScreen.N_TRGT : enemy.getCurrentHP());
         List<Step> steps = new ArrayList<>();
         steps.add(new Step(playerName + " used " + a.getName() + "!", null));
+            if(a.getCategory() == MoveCategory.MELEE){ //if player picks MELEE
+                SoundManager.playSoundEffect(Sound.SWORD); // SWORD sound plays
+            }
 
         // moves that don't hit: GUARD and COUNTER just set a stance
         if (a.getEffect() == Effect.GUARD) {
