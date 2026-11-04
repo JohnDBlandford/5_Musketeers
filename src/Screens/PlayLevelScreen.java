@@ -58,6 +58,8 @@ import Shop.Merchant.MerchantViewModel;
 import Shop.Blacksmith.Blacksmith;
 import Shop.Blacksmith.BlacksmithScreen;
 import Shop.Blacksmith.BlacksmithViewModel;
+import Survival.SurvivalController;
+import Survival.SurvivalResult;
 
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
@@ -85,6 +87,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private ChestRegistry chestRegistry;
     private ChestController chestController;
     private Random chestRandom;
+    // SURVIVAL: hunger and hydration. recreated in initialize(), so a new game (and resetLevel) refills them
+    private SurvivalController survivalController;
     //XP DISPLAY TESTING
     private SpriteFont xpDisplay;
     private int xp;
@@ -129,6 +133,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         chestRegistry = new ChestRegistry();
         chestRandom = new Random();
         chestController = new ChestController(chestRegistry, chestRandom);
+
+        // SURVIVAL: ticked once per frame while RUNNING, so it only drains while exploring
+        survivalController = new SurvivalController(Config.TARGET_FPS);
 
         // define/setup map
         map = new World1Map();
@@ -235,6 +242,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 player.update();
                 map.update(player);
                 shopController.tick();   // SHOP: game time only passes while exploring
+                survivalTick();          // SURVIVAL
                 trackPlace();
                 checkRandomEncounter();
                 if (fadeIn > 0) fadeIn--;
@@ -401,7 +409,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             gameOverScreen.initialize();
             playLevelScreenState = PlayLevelScreenState.GAME_OVER;
         }
-        // VICTORY: XP and gold were already given by the battle.  FLED: nothing to do.
+        // VICTORY: XP and g    old were already given by the battle.  FLED: nothing to do.
     }
 
     @Override
@@ -469,6 +477,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 graphicsHandler.drawFilledRectangle(320,10,30,20,new Color(24, 243, 24, 163));
                 graphicsHandler.drawFilledRectangle(350,10,30,20,new Color(0, 255, 0, 115));
                 graphicsHandler.drawFilledRectangle(80 + (xp * 3), 10, 300 - (xp * 3), 20, Color.LIGHT_GRAY);
+                drawSurvivalBars(graphicsHandler);   // SURVIVAL
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
@@ -601,6 +610,49 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public Inventory getInventory() { return inventory; }
+
+    // SURVIVAL: one frame of hunger/hydration. an empty meter costs HP, but never below 1 HP (the controller decides how much)
+    private void survivalTick() {
+        int loss = survivalController.tick();
+        if (loss == 0) return;
+        float hp = player.getCurrentHP();
+        player.applyDamage(hp - SurvivalController.hpAfterLoss(hp, loss));   // applyDamage: raw HP, no DEF
+    }
+
+    // SURVIVAL: called by the inventory screen (ENTER on a consumable). uses one from the pack and heals the player
+    public SurvivalResult useConsumable(String itemName) {
+        SurvivalResult result = survivalController.use(inventory, itemName, player.getCurrentHP(), player.getMaxHP());
+        // the result's health is already clamped to the missing HP. setCurrentHP clamps to the base max HP and would cut off
+        // any gear bonus, so the heal goes through applyDamage (a negative amount adds HP)
+        if (result.health() > 0) player.applyDamage(-result.health());
+        return result;
+    }
+
+    // SURVIVAL: the hunger and hydration bars, bottom left. hidden while the player is locked (textboxes and scripts use that area)
+    private static final int SURVIVAL_BAR_W = 140, SURVIVAL_BAR_H = 14, SURVIVAL_LABEL_W = 70;
+    private static final int SURVIVAL_LOW = 25;   // at or below this the bar turns red
+    private static final Color SURVIVAL_BACK = new Color(20, 20, 20);
+    private static final Color SURVIVAL_LOW_COLOR = new Color(200, 60, 60);
+    private static final Color HUNGER_COLOR = new Color(210, 150, 60);
+    private static final Color HYDRATION_COLOR = new Color(70, 140, 220);
+
+    private void drawSurvivalBars(GraphicsHandler gh) {
+        if (player.isLocked()) return;
+        int x = 10;
+        int hydrationY = ScreenManager.getScreenHeight() - 12 - SURVIVAL_BAR_H;
+        int hungerY = hydrationY - SURVIVAL_BAR_H - 8;
+        drawSurvivalBar(gh, "FOOD", survivalController.getHunger(), HUNGER_COLOR, x, hungerY);
+        drawSurvivalBar(gh, "WATER", survivalController.getHydration(), HYDRATION_COLOR, x, hydrationY);
+    }
+
+    private void drawSurvivalBar(GraphicsHandler gh, String label, int value, Color color, int x, int y) {
+        hudFont.draw(gh, label, x + 1, y + (SURVIVAL_BAR_H - hudFont.getCapHeight(2)) / 2 + 1, 2, 1, Color.BLACK);
+        hudFont.draw(gh, label, x, y + (SURVIVAL_BAR_H - hudFont.getCapHeight(2)) / 2, 2, 1, Color.WHITE);
+        int barX = x + SURVIVAL_LABEL_W;
+        gh.drawFilledRectangleWithBorder(barX, y, SURVIVAL_BAR_W, SURVIVAL_BAR_H, SURVIVAL_BACK, Color.BLACK, 2);
+        int fill = (SURVIVAL_BAR_W - 4) * value / 100;
+        if (fill > 0) gh.drawFilledRectangle(barX + 2, y + 2, fill, SURVIVAL_BAR_H - 4, value <= SURVIVAL_LOW ? SURVIVAL_LOW_COLOR : color);
+    }
 
     // This enum represents the different states this screen can be in
     private enum PlayLevelScreenState {
