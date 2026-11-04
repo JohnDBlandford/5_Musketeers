@@ -17,7 +17,7 @@ public class Sound {
 
     //When adding in a sound found file add the name to the list below
     private static final String[] FILES = {
-            "ElevatorMusic", // WORLD1 MUSIC = 0
+            "World1Music", // WORLD1 MUSIC = 0
             "Clunk",         // BATTLE SOUND = 1
             "Player_Die",    // PLAYER DIES = 2
             "Battle_Music",  // MUSIC FOR BATTLES = 3

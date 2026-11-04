@@ -186,12 +186,17 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 if (fadeIn > 0) fadeIn--;
                 if (bannerTimer > 0) bannerTimer--;
                 coinCountDisplay.setText("Gold: " + PlayerData.getCurrency());
-                // Opens attack window at random
+                // Opens attack window at random - I WAS TOLD I AM NOT ALLOWED TO REMOVE THIS!
                 if(Keyboard.isKeyDown(Key.W) && !keyLocker.isKeyLocked(Key.W)){
                     keyLocker.lockKey(Key.W);
-                    int randomNum = (int) Math.round(Math.random() * 100%5);
-                    if(randomNum == 0){
-                        playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
+                    int randomNum = (int) Math.round(Math.random() * 100/5);
+                    //System.out.println(randomNum);
+                    if(randomNum == 20){ //REMOVE LATER
+                        int randomNum2 = (int) Math.round(Math.random() * 100/5);
+                        if(randomNum2 == 20){
+                            //System.out.println(randomNum); // REMOVE LATER
+                            playLevelScreenState = PlayLevelScreenState.ATTACK_WINDOW;
+                        }
                     }
                 }
                 if(Keyboard.isKeyUp(Key.W)){

@@ -9,6 +9,7 @@ import java.awt.*;
 
 public class AttackWindow extends Screen {
     protected SpriteFont testMessage;
+    protected SpriteFont god;
     protected SpriteFont closeWindowText;
     protected KeyLocker keyLocker = new KeyLocker();
     protected PlayLevelScreen playLevelScreen;
@@ -22,8 +23,9 @@ public class AttackWindow extends Screen {
 
 
     public void initialize() {
-        testMessage =  new SpriteFont("Place Holder: UNDER ATTACK ", 300, 200, "Arial", 20, Color.white);
-        closeWindowText =  new SpriteFont("Press ENTER to close window", 300, 250, "Arial", 20, Color.white);
+        testMessage =  new SpriteFont("You found the window I was TOLD I MUST KEEP", 300, 200, "Arial", 20, Color.white);
+        god =  new SpriteFont("PEER PRESSURE", 300, 240, "Arial", 20, Color.white);
+        closeWindowText =  new SpriteFont("Press ENTER to close window", 300, 280, "Arial", 20, Color.white);
 
     }
 
@@ -44,8 +46,9 @@ public class AttackWindow extends Screen {
 
     public void draw(GraphicsHandler graphicsHandler) {
 
-        graphicsHandler.drawFilledRectangle(300,150,300,300,Color.RED);
+        graphicsHandler.drawFilledRectangle(300,150,400,300,Color.RED);
         testMessage.draw(graphicsHandler);
+        god.draw(graphicsHandler);
         closeWindowText.draw(graphicsHandler);
 
 
