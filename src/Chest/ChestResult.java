@@ -1,6 +1,9 @@
 package Chest;
 
 import Item.Item.ItemRarity;
+import Item.ItemNames;
+
+import java.util.List;
 
 // What opening a chest did, for the textbox (chest spec, section 1).
 //  - GOLD_ONLY: the chest held no item
@@ -26,13 +29,18 @@ public record ChestResult(Outcome outcome, int gold, String itemName, ItemRarity
         }
     }
 
-    // the text for the textbox. PLACEHOLDER wording
-    public String message() {
+    // the text for the textbox, one string per page (the engine Textbox is 30pt Arial in a 750px box, so keep a page under about
+    // 52 characters). PLACEHOLDER wording. the item's name is spaced out ("WraithboneSaber" -> "Wraithbone Saber")
+    public List<String> pages() {
+        String goldPage = "You found " + gold + " gold.";
         return switch (outcome) {
-            case ALREADY_OPENED -> "The chest is empty.";
-            case GOLD_ONLY -> "You found " + gold + " gold.";
-            case ITEM_ADDED -> "You found " + gold + " gold and a " + itemName + ".";
-            case ITEM_LOST -> "You found " + gold + " gold. Your pack is full, so the " + itemName + " was lost.";
+            case ALREADY_OPENED -> List.of("The chest is empty.");
+            case GOLD_ONLY -> List.of(goldPage);
+            case ITEM_ADDED -> List.of(goldPage, "You also found: " + ItemNames.prettyName(itemName) + ".");
+            case ITEM_LOST -> List.of(goldPage, "Pack full! " + ItemNames.prettyName(itemName) + " was lost.");
         };
     }
+
+    // all the pages as one line
+    public String message() { return String.join(" ", pages()); }
 }
