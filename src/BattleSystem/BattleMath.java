@@ -92,8 +92,8 @@ public final class BattleMath {
 
     // base damage printed on the weapon (0 if there is none)
     public static int weaponBase(Item weapon) {
-        if (weapon instanceof Sword) return ((Sword) weapon).getPhysicalAtkDmg();
-        if (weapon instanceof RangedWeapon) return ((RangedWeapon) weapon).getRangedDmg();
+        if (weapon instanceof Sword) return ((Sword) weapon).getBaseAttack();
+        if (weapon instanceof RangedWeapon) return ((RangedWeapon) weapon).getBaseAttack();
         return 0;
     }
 

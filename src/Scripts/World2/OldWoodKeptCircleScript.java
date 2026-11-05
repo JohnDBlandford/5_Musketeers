@@ -14,10 +14,10 @@ public class OldWoodKeptCircleScript extends Script {
         ArrayList<ScriptAction> scriptActions = new ArrayList<>();
         scriptActions.add(new LockPlayerScriptAction());
         scriptActions.add(new TextboxScriptAction() {{
-            addText("Welcome to Old Wood & Kept Circle!");
-            addText("The valley’s oldest forest, and a ring of druid huts\nwithin it.");
-            addText("Here the old gods and the First Beasts once kept the\ncompact with humankind.");
-            addText("As their neighbors forget the compact, the druids begin\ncalling themselves the Kept.");
+            addText("When the rest of the valley forgot the compact, the\ndruids kept it.");
+            addText("Since then they have called themselves\nthe Kept.");
+            addText("The valley has since forgotten the compact. Only the\ndruids still honor it, and so");
+            addText("they call themselves the Kept.");
         }});
         scriptActions.add(new UnlockPlayerScriptAction());
         return scriptActions;

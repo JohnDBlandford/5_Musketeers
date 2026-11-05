@@ -7,17 +7,33 @@ import GameObject.Door;
 import GameObject.Portal;
 import Level.EnhancedMapTile;
 import Level.Map;
+import Level.Trigger;
 import Scripts.World1.*;
 import Scripts.DoorScript;
 import Scripts.PortalScript;
 import Tilesets.World1Tileset;
+import Utils.Point;
 
 public class World1Map extends Map {
+
     public World1Map() {
         super("world1_map.txt", new World1Tileset());
         this.playerStartPosition = getMapTile(76, 87).getLocation(); // Brackenford plaza
-
     }
+
+    @Override
+    public ArrayList<Trigger> loadTriggers() {
+        ArrayList<Trigger> triggers = new ArrayList<>();
+
+        // INTRO MESSAGE SHOWS WHEN PRESS PLAY
+        Point location = getMapTile(75, 87).getLocation();
+        triggers.add(new Trigger(location.x, location.y, 3 * 48, 100, new IntroScript(), "sawIntro"));
+
+        return triggers;
+    }
+
+
+
 
     @Override
     public ArrayList<EnhancedMapTile> loadEnhancedMapTiles() {
@@ -31,8 +47,8 @@ public class World1Map extends Map {
         world2portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(world2portal);
 
-        Door hallDoor = new Door(getMapTile(77, 79).getX(), getMapTile(77, 79).getY(),
-                "guild_hall_map", 408, 624, 48, 48);
+        Door hallDoor = new Door(getMapTile(76, 79).getX(), getMapTile(76, 79).getY(),
+                "guild_hall_map", 456, 600, 96, 48);
         hallDoor.setInteractScript(new DoorScript());
         enhancedMapTiles.add(hallDoor);
 

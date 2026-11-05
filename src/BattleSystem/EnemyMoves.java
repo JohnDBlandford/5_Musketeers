@@ -1,8 +1,6 @@
 package BattleSystem;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 // The moves each enemy can use, picked at random every turn (never the same move twice in a row).
 // Every move is one of three kinds:
@@ -47,7 +45,7 @@ public final class EnemyMoves {
         int hits = 1;
         float effectChance = 1f;            // chance the knight-effects happen after a damaging hit
         float accuracy = 1f;                // chance the move hits at all (1 = never misses)
-        final java.util.List<Fx> effects = new java.util.ArrayList<>();
+        final List<Fx> effects = new ArrayList<>();
 
         private Move(String name, boolean damages, boolean flees) { this.name = name; this.damages = damages; this.flees = flees; }
 
@@ -66,7 +64,7 @@ public final class EnemyMoves {
         public int hits() { return hits; }
         public float accuracy() { return accuracy; }
         public float effectChance() { return effectChance; }
-        public java.util.List<Fx> effects() { return effects; }
+        public List<Fx> effects() { return effects; }
         public boolean hasEffect() { return !effects.isEmpty(); }
     }
 

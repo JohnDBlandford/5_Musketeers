@@ -23,9 +23,7 @@ public class GamePanel extends JPanel {
 	// Pause menu labels
 	private SpriteFont pauseLabel;
 	private SpriteFont controlLable;
-	private SpriteFont wKeyLabel, sKeyLabel, aKeyLabel, dKeyLabel, enterKeyLabel;
-	private SpriteFont wLabel, sLabel, aLabel, dLabel, arrowUpLable, arrowDownLable, enterLabel;
-	private SpriteFont arrowKeyLineLabel, arrowKeyCarrotLable;
+	private SpriteFont inventory,inventoryOpen,moveInventory,closeInventory,lineInventory,wasdLable, arrowLable,arrowUpLable, arrowDownLable, enterLabel,linePlayer,player;
 
 	private KeyLocker keyLocker = new KeyLocker();
 	private final Key pauseKey = Key.P;
@@ -49,27 +47,26 @@ public class GamePanel extends JPanel {
 
 		screenManager = new ScreenManager();
 
-		pauseLabel = new SpriteFont("PAUSE (Press \"P\" to unpause)", 365, 50, "Arial", 24, Color.white);
+		pauseLabel = new SpriteFont("PAUSE (Press \"P\" to unpause)", 280, 400, "Arial", 18, Color.white);
 		pauseLabel.setOutlineColor(Color.black);
 		pauseLabel.setOutlineThickness(2.0f);
 
-		controlLable = new SpriteFont("GAME CONTROLS", 50, 100, "Arial", 30, Color.white);
+		controlLable = new SpriteFont("GAME CONTROLS", 280, 100, "Arial", 30, Color.white);
 
-		wKeyLabel = new SpriteFont("W", 118, 155, "Arial", 24, Color.white);
-		aKeyLabel = new SpriteFont("A", 66, 214, "Arial", 24, Color.white);
-		sKeyLabel = new SpriteFont("S", 122, 214, "Arial", 24, Color.white);
-		dKeyLabel = new SpriteFont("D", 178, 214, "Arial", 24, Color.white);
-		arrowKeyLineLabel = new SpriteFont("--", 310, 199, "Arial", 24, Color.white);
-		arrowKeyCarrotLable = new SpriteFont(">", 325, 201, "Arial", 24, Color.white);
+		player = new SpriteFont("Player Controls",185,150,"Arial", 14, Color.white);
+		linePlayer = new SpriteFont("-----------------------------------------", 185, 160, "Arial", 14, Color.white);
+		wasdLable = new SpriteFont("WASD            Move", 185, 180, "Arial", 14, Color.white);
+		arrowLable = new SpriteFont("Arrows           Move", 185, 200, "Arial", 14, Color.white);
+		enterLabel = new SpriteFont("Enter             Select/Continue", 185, 220, "Arial", 14, Color.white);
+		arrowUpLable = new SpriteFont("Up Arrow        Dialogue Up", 185, 240, "Arial", 14, Color.white);
+		arrowDownLable = new SpriteFont("Down Arrow   Dialogue Down", 185, 260, "Arial", 14, Color.white);
 
-		wLabel = new SpriteFont("W = Move Forward", 50, 260, "Arial", 14, Color.white);
-		aLabel = new SpriteFont("A = Move Left", 50, 280, "Arial", 14, Color.white);
-		sLabel = new SpriteFont("S = Move Down", 50, 300, "Arial", 14, Color.white);
-		dLabel = new SpriteFont("D = Move Right", 50, 320, "Arial", 14, Color.white);
-		enterLabel = new SpriteFont("Enter = Select", 260, 300, "Arial", 14, Color.white);
 
-		arrowUpLable = new SpriteFont("Up Arrow = Dialogue Up", 260, 260, "Arial", 14, Color.white);
-		arrowDownLable = new SpriteFont("Down Arrow = Dialogue Down", 260, 280, "Arial", 14, Color.white);
+		inventory = new SpriteFont("Inventory Controls", 185, 310, "Arial", 14, Color.white);
+		lineInventory = new SpriteFont("-----------------------------------------", 185, 320, "Arial", 14, Color.white);
+		inventoryOpen = new SpriteFont("I Key                   Open", 185, 340, "Arial", 14, Color.white);
+		moveInventory =  new SpriteFont("Move Selection   Arrows", 185, 360, "Arial", 14, Color.white);
+		closeInventory = new SpriteFont("ESC Key			             Close",  185, 380, "Arial", 14, Color.white);
 
 		fpsDisplayLabel = new SpriteFont("FPS", 4, 3, "Arial", 12, Color.black);
 
@@ -144,39 +141,23 @@ public class GamePanel extends JPanel {
 
 		// if game is paused, draw pause gfx over Screen gfx
 		if (isGamePaused) {
-			graphicsHandler.drawFilledRectangle(40, 135, 450, 300, Color.white);
-			graphicsHandler.drawFilledRectangle(0, 0, ScreenManager.getScreenWidth(), ScreenManager.getScreenHeight(),
-					new Color(0, 19, 0, 100));
+			graphicsHandler.drawFilledRectangle(180, 135, 450, 300, Color.white);
+			graphicsHandler.drawFilledRectangle(0, 0, ScreenManager.getScreenWidth(), ScreenManager.getScreenHeight(), new Color(0, 19, 0, 100));
 			pauseLabel.draw(graphicsHandler);
 			controlLable.draw(graphicsHandler);
-			graphicsHandler.drawFilledRectangle(105, 145, 50, 50, Color.darkGray); // w Key
-			graphicsHandler.drawFilledRectangle(50, 200, 50, 50, Color.darkGray); // a key
-			graphicsHandler.drawFilledRectangle(105, 200, 50, 50, Color.darkGray); // s Key
-			graphicsHandler.drawFilledRectangle(160, 200, 50, 50, Color.darkGray); // d key
-			graphicsHandler.drawFilledRectangleWithBorder(260, 190, 50, 30, Color.darkGray, Color.lightGray, 1); // up
-																													// Key
-			graphicsHandler.drawFilledRectangleWithBorder(260, 220, 50, 30, Color.darkGray, Color.lightGray, 1); // down
-																													// Key
-			wKeyLabel.draw(graphicsHandler);
-			aKeyLabel.draw(graphicsHandler);
-			sKeyLabel.draw(graphicsHandler);
-			dKeyLabel.draw(graphicsHandler);
-			wLabel.draw(graphicsHandler);
-			aLabel.draw(graphicsHandler);
-			sLabel.draw(graphicsHandler);
-			dLabel.draw(graphicsHandler);
+
+			wasdLable.draw(graphicsHandler);
+			arrowLable.draw(graphicsHandler);
 			enterLabel.draw(graphicsHandler);
 			arrowUpLable.draw(graphicsHandler);
 			arrowDownLable.draw(graphicsHandler);
-
-			// Rotates text
-			graphicsHandler.getGraphics().rotate(Math.toRadians(-90), 300, 230);
-			arrowKeyLineLabel.draw(graphicsHandler);
-			arrowKeyCarrotLable.draw(graphicsHandler);
-			graphicsHandler.getGraphics().rotate(Math.toRadians(-180), 310, 220 - 5.5);
-			arrowKeyLineLabel.draw(graphicsHandler);
-			arrowKeyCarrotLable.draw(graphicsHandler);
-
+			inventory.draw(graphicsHandler);
+			moveInventory.draw(graphicsHandler);
+			linePlayer.draw(graphicsHandler);
+			player.draw(graphicsHandler);
+			lineInventory.draw(graphicsHandler);
+			inventoryOpen.draw(graphicsHandler);
+			closeInventory.draw(graphicsHandler);
 		}
 
 		if (showFPS) {

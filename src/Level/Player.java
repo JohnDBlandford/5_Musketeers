@@ -54,6 +54,12 @@ public abstract class Player extends GameObject {
     protected Key INTERACT_KEY = Key.ENTER;
 
 
+    protected Key ARROW_MOVE_LEFT_KEY = Key.LEFT;
+    protected Key ARROW_MOVE_RIGHT_KEY = Key.RIGHT;
+    protected Key ARROW_MOVE_UP_KEY = Key.UP;
+    protected Key ARROW_MOVE_DOWN_KEY = Key.DOWN;
+
+
     // Attack keys for combat testing
     protected Key ATTACK_MELEE_KEY = Key.G;
     protected Key ATTACK_RANGED_KEY = Key.H;
@@ -155,16 +161,16 @@ public abstract class Player extends GameObject {
             map.entityInteract(this);
         }
 
-        if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY) || Keyboard.isKeyDown(MOVE_UP_KEY)
-                || Keyboard.isKeyDown(MOVE_DOWN_KEY)) {
+        if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(ARROW_MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY) || Keyboard.isKeyDown(ARROW_MOVE_RIGHT_KEY)
+                || Keyboard.isKeyDown(MOVE_UP_KEY) || Keyboard.isKeyDown(ARROW_MOVE_UP_KEY) || Keyboard.isKeyDown(MOVE_DOWN_KEY) ||  Keyboard.isKeyDown(ARROW_MOVE_DOWN_KEY)) {
             playerState = PlayerState.WALKING;
-
+                }
         if (Keyboard.isKeyDown(MOVE_UP_KEY) || Keyboard.isKeyDown(MOVE_DOWN_KEY)) {
             playerState = PlayerState.WALKING_VERTICAL;
         }
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
             playerState = PlayerState.WALKING_HORIZONTAL;
-        }
+        } 
     }
 
 
@@ -222,6 +228,7 @@ public abstract class Player extends GameObject {
             playerState = PlayerState.STANDING;
         }
     }
+
 
 
     protected void handleCombatInputs() {
@@ -335,10 +342,22 @@ public abstract class Player extends GameObject {
         baseSPD += 1.5f;
     }
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
+    // puts the level and stats back to saved values, used when loading a save. Call this after the gear bonus has
+    // been set (setBonusMaxHP) so current HP is clamped against the real max
+    public void restoreStats(int level, int currentXP, int xpToNextLevel, float maxHP, float currentHP,
+                             float baseATK, float baseDEF, float baseSPD) {
+        this.level = level;
+        this.currentXP = currentXP;
+        this.xpToNextLevel = xpToNextLevel;
+        this.maxHP = maxHP;
+        this.baseATK = baseATK;
+        this.baseDEF = baseDEF;
+        this.baseSPD = baseSPD;
+        this.currentHP = Math.max(0.0f, Math.min(currentHP, getMaxHP()));
+    }
+
+
     public void takeDamage(float damageAmount) {
         float finalDamage = CombatResolver.calculateDamage(damageAmount, getBaseDEF());
         applyDamage(finalDamage);
@@ -577,4 +596,4 @@ public abstract class Player extends GameObject {
             moveX(speed);
         }
     }
-}}
+}
