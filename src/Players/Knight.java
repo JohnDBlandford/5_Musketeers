@@ -67,7 +67,7 @@ public class Knight extends Player {
                                 .build(),
                         new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 0), 10).withScale(2).withBounds(6, 12, 12, 7)
                                 .build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 1), 10).withScale(2).withBounds(6, 12, 12, 7)
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 3, 0), 10).withScale(2).withBounds(6, 12, 12, 7)
                                 .build()
                 });
 
@@ -100,26 +100,46 @@ public class Knight extends Player {
 
                 // Walking right: The remaining sprites (Row 2 Col 2, and all of Row 3)
                 put("WALK_RIGHT", new Frame[] {
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 2), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 2), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
                         new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 2), 14).withScale(2).withBounds(6, 12, 12, 7)
                                 .build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
-                                .build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
-                                .build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 2), 14).withScale(2).withBounds(6, 12, 12, 7)
                                 .build()
                 });
 
                 // Walking left: Same remaining sprites, flipped horizontally
                 put("WALK_LEFT", new Frame[] {
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 2), 14).withScale(2)
+                                .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 2), 14).withScale(2)
+                                .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
                         new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 2), 14).withScale(2)
                                 .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 3), 14).withScale(2)
-                                .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 3), 14).withScale(2)
-                                .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
-                        new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 3), 14).withScale(2)
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 2), 14).withScale(2)
                                 .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build()
+                });
+                put("WALK_DOWN", new Frame[] {
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 3, 2), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 3, 2), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 0, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
+                });
+                put("WALK_UP", new Frame[] {
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 1, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .build(),
+                        new FrameBuilder(getSpriteAtCell(spriteSheet, 2, 3), 14).withScale(2).withBounds(6, 12, 12, 7)
+                                .withImageEffect(ImageEffect.FLIP_HORIZONTAL).withBounds(6, 12, 12, 7).build(),
                 });
 
             }
