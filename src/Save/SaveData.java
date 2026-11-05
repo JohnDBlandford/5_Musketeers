@@ -29,6 +29,10 @@ public class SaveData {
 
     public List<ItemSave> items = new ArrayList<>();
 
+    // STORY: quests, choices, faction standing and tablet pieces, as one line (Story.StoryState.serialize). Empty in saves
+    // made before the story existed; those load as a fresh story.
+    public String story = "";
+
     public static class ItemSave {
         public String className;
         public int level;

@@ -119,6 +119,7 @@ public final class Save {
         if (data.lastPlace != null)
             p.setProperty("places.last", data.lastPlace);
 
+        p.setProperty("story", data.story == null ? "" : data.story);   // STORY
         p.setProperty("items.count", String.valueOf(data.items.size()));
         for (int i = 0; i < data.items.size(); i++) {
             SaveData.ItemSave item = data.items.get(i);
@@ -159,6 +160,7 @@ public final class Save {
             data.discoveredPlaces.add(required(p, "places." + i));
         data.lastPlace = p.getProperty("places.last");
 
+        data.story = p.getProperty("story", "");   // STORY: optional, so older saves still load
         int itemCount = Integer.parseInt(p.getProperty("items.count", "0"));
         for (int i = 0; i < itemCount; i++) {
             String key = "items." + i + ".";

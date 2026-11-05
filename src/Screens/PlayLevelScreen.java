@@ -58,6 +58,9 @@ import Shop.Merchant.MerchantViewModel;
 import Shop.Blacksmith.Blacksmith;
 import Shop.Blacksmith.BlacksmithScreen;
 import Shop.Blacksmith.BlacksmithViewModel;
+import Story.StoryDirector;
+import Story.StoryHost;
+import Story.StoryState;
 
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
@@ -71,7 +74,11 @@ import Shop.Blacksmith.BlacksmithViewModel;
 // FINAL BOSS CHANGES (search for "FINAL BOSS:"): the Dabbah fight skips the encounter cut-scene (startBattle).
 // CINEMATIC CHANGES (search for "CINEMATIC:"): the Dabbah test key is now G (was P). Test mode holds Dabbah at 1 HP, so every
 // hit ends a form and plays its cinematic (the K key is gone).
-public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener {
+// STORY CHANGES (search for "STORY:"): the World 1 story (package Story). StoryDirector runs the conversations with the story
+// characters (World1Map places them), the quests, choices and faction standing, the quest journal (Q) and the hieroglyph
+// tablets; while one of those is open the world waits. Battles report wins (kill quests) and story fights back to it,
+// entering a named place can move a quest on, and the story is saved with the game (SaveData.story).
+public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener, StoryHost {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
@@ -115,6 +122,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private int fadeIn;                         // frames left of the black fade-in after a respawn
     private final MonoSpriteFont bannerFont = new MonoSpriteFont();
 
+    // STORY: the World 1 story, and what the last battle was (for kill quests and the fights the story starts)
+    private StoryDirector story;
+    private String storyBattleTag, battleEnemyName, battlePlace;
+
     // SAVE: K saves to the default slot, L loads it. saveMessage is shown for saveMessageTimer frames
     private String saveMessage;
     private int saveMessageTimer;
@@ -124,6 +135,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public void initialize() {
+        StoryState.reset();   // STORY: a new game starts a new story
         // setup state
         flagManager = new FlagManager();
         flagManager.addFlag("hasLostBall", false);
@@ -181,6 +193,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
         worldMapScreen = new WorldMapScreen(this);   // WORLD MAP
+        story = new StoryDirector(this);              // STORY
         // SHOP: the merchant, the blacksmith and the clock live here (not on the map) because onMapChange() rebuilds the map and the player
         GameClock shopClock = new GameClock(Config.TARGET_FPS);
         Merchant merchant = new Merchant(shopClock, new Random());
@@ -218,6 +231,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         Point click = MouseInput.pollClick();   // a mouse click this frame, if any
         // SHOP: while the shop is open nothing else updates (no encounters, no clock ticks)
         if (shopController.isOpen()) { shopController.update(); return; }
+        // STORY: a conversation, the journal (Q) or a tablet is open: the world waits. Q opens the journal while walking.
+        if (story.updateOverlays(playLevelScreenState == PlayLevelScreenState.RUNNING && !player.isLocked() && fadeIn == 0)) return;
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the
@@ -372,6 +387,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // GLITCH: same, with a second enemy (a double battle); companion null = a normal 1-vs-1 fight
     public void startBattle(Enemy enemy, int enemyLevel, boolean boss, BattleWorld world, Enemy companion) {
         player.lock();
+        storyBattleTag = null;   // STORY: startStoryBattle sets it again after this call
+        battleEnemyName = enemy.getEnemyName();
+        NamedLocations.Place fightPlace = placeHere();
+        battlePlace = fightPlace != null ? fightPlace.name : null;
         CodexOfBeastsScreen.markSeen(enemy.getEnemyName());   // WORLD MAP: the bestiary unlocks an enemy once it is fought
         if (companion != null) CodexOfBeastsScreen.markSeen(companion.getEnemyName());
         pendingCompanion = companion;
@@ -401,6 +420,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             lastPlace = p;
             bannerNew = discovered.add(p);   // first time here: the place becomes a waypoint
             bannerTimer = 150;
+            if (story != null) story.onPlaceEntered(p.name);   // STORY: "search the Barren Fields" and the like
         }
     }
 
@@ -482,6 +502,29 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             playLevelScreenState = PlayLevelScreenState.GAME_OVER;
         }
         // VICTORY: XP and gold were already given by the battle.  FLED: nothing to do.
+        // STORY: kill counts for quests, and what happens after a fight the story started
+        String tag = storyBattleTag;
+        storyBattleTag = null;
+        if (result == Battle.BattleResult.VICTORY) story.onVictory(battleEnemyName, battlePlace);
+        story.onStoryBattleEnd(tag, result == Battle.BattleResult.VICTORY);
+    }
+
+    // ---- STORY: what the story asks of this screen (StoryHost) ----
+    @Override
+    public void openStoryDialogue(String storyId) {
+        story.openStoryDialogue(storyId);
+    }
+
+    @Override
+    public void startStoryBattle(Enemy enemy, boolean boss, String tag) {
+        if (enemy == null) { player.unlock(); return; }
+        startBattle(enemy, 1, boss, BattleWorld.fromMapName(currentMapName));
+        storyBattleTag = tag;
+    }
+
+    @Override
+    public Player getStoryPlayer() {
+        return player;
     }
 
     @Override
@@ -565,6 +608,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 drawWaypointButtons(graphicsHandler);   // JUMP buttons on the right
                 drawPlaceBanner(graphicsHandler);       // place name when entering a location
                 drawSaveMessage(graphicsHandler);       // SAVE
+                story.drawToasts(graphicsHandler);      // STORY: "NEW QUEST", "+1 KEPT GROVE", ...
+                story.drawOverlays(graphicsHandler);    // STORY: the conversation, the journal, a tablet
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
@@ -686,6 +731,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         data.gold = PlayerData.getCurrency();
         for (NamedLocations.Place p : NamedLocations.all()) if (discovered.contains(p)) data.discoveredPlaces.add(p.name);
         data.lastPlace = lastPlace != null ? lastPlace.name : null;
+        data.story = StoryState.serialize();   // STORY
         for (Item item : inventory.getAllItems()) {
             data.items.add(new SaveData.ItemSave(item.getClass().getName(), item.getItemStats().getLvl(),
                     item.getItemStats().getXp(), item.getItemStats().getDurability(), inventory.isItemEquipped(item)));
@@ -696,6 +742,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // SAVE: puts the game back the way the snapshot describes
     private void applySaveData(SaveData data) {
         PlayerData.setCurrency(data.gold);
+        StoryState.load(data.story);   // STORY: before the map is rebuilt, so its story characters appear as saved
 
         // inventory first, so the gear's max HP bonus is in place before the player's HP is restored
         inventory.clear();

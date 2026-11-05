@@ -7,11 +7,18 @@ import GameObject.Door;
 import GameObject.Portal;
 import Level.EnhancedMapTile;
 import Level.Map;
+import Level.NPC;
 import Scripts.World1.*;
 import Scripts.DoorScript;
-import Scripts.PortalScript;
+import Story.KeptPortalScript;
+import Story.NPCArt.Look;
+import Story.StoryNPC;
+import Story.StoryState;
 import Tilesets.World1Tileset;
 
+// STORY CHANGES (search for "STORY:"): the World 1 story characters and objects (loadNPCs), and the portal west of
+// Brackenford is now the Kept's standing stone (KeptPortalScript): it wakes once Old Maud has spoken.
+// Each story NPC stands on the nearest walkable tile to the tile given below, so if one looks off, change its two numbers.
 public class World1Map extends Map {
     public World1Map() {
         super("world1_map.txt", new World1Tileset());
@@ -28,7 +35,7 @@ public class World1Map extends Map {
         // and teleports to (48, 48) in the map
         Portal world2portal = new Portal(getMapTile(55, 87).getX(), getMapTile(55, 87).getY(),
                 "world2_map", 3360, 2340, 48, 48);
-        world2portal.setInteractScript(new PortalScript());
+        world2portal.setInteractScript(new KeptPortalScript());   // STORY: was PortalScript; asleep until Old Maud has spoken
         enhancedMapTiles.add(world2portal);
 
         Door hallDoor = new Door(getMapTile(76, 79).getX(), getMapTile(76, 79).getY(),
@@ -76,4 +83,39 @@ public class World1Map extends Map {
 
     }
 
+    // STORY: the World 1 story characters and objects. Each one shows up only while the story says it is there
+    // (Wren until she dies, her grave after; the wounded Reckoner once you have fought at the Barrows; the Warden until he falls).
+    //   new StoryNPC(id, storyId, look, map, tileX, tileY, visibleWhen)
+    @Override
+    public ArrayList<NPC> loadNPCs() {
+        ArrayList<NPC> storyNPCs = new ArrayList<>();
+        // Brackenford (the plaza is around tile 76, 87)
+        storyNPCs.add(new StoryNPC(101, "wren", Look.WREN, this, 73, 89, () -> !StoryState.flag("wren_dead")));
+        storyNPCs.add(new StoryNPC(102, "grave", Look.GRAVE, this, 73, 89,
+                () -> StoryState.flag("wren_dead") && !StoryState.flag("w1_wren_bread")));
+        storyNPCs.add(new StoryNPC(103, "grave", Look.GRAVE_BREAD, this, 73, 89,
+                () -> StoryState.flag("wren_dead") && StoryState.flag("w1_wren_bread")));
+        storyNPCs.add(new StoryNPC(104, "hester", Look.HESTER, this, 71, 86, null));
+        storyNPCs.add(new StoryNPC(105, "ida", Look.IDA, this, 83, 86, null));
+        storyNPCs.add(new StoryNPC(106, "mirel", Look.MIREL, this, 79, 84, null));
+        storyNPCs.add(new StoryNPC(107, "joss", Look.JOSS, this, 85, 91, null));
+        storyNPCs.add(new StoryNPC(108, "vale", Look.VALE, this, 80, 92, null));
+        storyNPCs.add(new StoryNPC(109, "bess", Look.BESS, this, 70, 91, null));
+        storyNPCs.add(new StoryNPC(110, "wall", Look.WALL, this, 72, 93, null));
+        // Barren Fields
+        storyNPCs.add(new StoryNPC(111, "elsa", Look.ELSA, this, 74, 122, null));
+        // Granary Cloister
+        storyNPCs.add(new StoryNPC(112, "ansel", Look.ANSEL, this, 133, 86, null));
+        // Dry River
+        storyNPCs.add(new StoryNPC(113, "mark", Look.MARK, this, 140, 121, null));
+        // Barrows
+        storyNPCs.add(new StoryNPC(114, "hale", Look.HALE, this, 133, 27, () -> StoryState.stage("w1_graves") >= 2));
+        storyNPCs.add(new StoryNPC(115, "mound", Look.MOUND, this, 139, 23, null));
+        // Ashwood
+        storyNPCs.add(new StoryNPC(116, "warden", Look.WARDEN, this, 25, 41, () -> !StoryState.done("w1_warden")));
+        // Kept Grove
+        storyNPCs.add(new StoryNPC(117, "maud", Look.MAUD, this, 18, 82, null));
+        storyNPCs.add(new StoryNPC(118, "cache", Look.CACHE, this, 16, 87, null));
+        return storyNPCs;
+    }
 }
