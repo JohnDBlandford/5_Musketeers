@@ -11,6 +11,9 @@ import Utils.Point;
 
 import java.util.HashMap;
 
+// BALANCE CHANGES (search for "BALANCE:"): one new field (scaledLevel) and two new methods (applyScaling, getScaledLevel).
+// Nothing else in this class changed. Enemy classes still pick their own moves, passives and phases; Balance now picks
+// their numbers (HP / ATK / DEF / SPD / XP / gold) for the level they spawn at.
 public abstract class Enemy extends NPC {
 
     protected String enemyName;
@@ -29,6 +32,9 @@ public abstract class Enemy extends NPC {
     protected int goldReward;
     protected float spawnRate;
 
+    // BALANCE: the level Balance scaled this enemy to (0 = never scaled: its class's own level and numbers are used)
+    protected int scaledLevel = 0;
+
     protected boolean isHurt = false;
     protected int hurtTimer = 0;
     protected final int HURT_DURATION = 30;
@@ -45,6 +51,22 @@ public abstract class Enemy extends NPC {
         this.goldReward = goldReward;
         this.spawnRate = spawnRate;
     }
+
+    // BALANCE: NEW. Called by Balance.scale (through EnemyFactory) right after the enemy is built. Replaces the numbers the
+    // class wrote in its constructor with the ones for this level, and heals it to full.
+    public void applyScaling(int level, float hp, float atk, float def, float spd, int xp, int gold) {
+        this.scaledLevel = level;
+        this.maxHP = hp;
+        this.currentHP = hp;
+        this.baseATK = atk;
+        this.baseDEF = def;
+        this.baseSPD = Math.max(1.0f, spd);
+        this.xpReward = xp;
+        this.goldReward = gold;
+    }
+
+    // BALANCE: NEW. The battle shows this level when it is above 0 (instead of the class's own battleLevel()).
+    public int getScaledLevel() { return scaledLevel; }
 
     @Override
     public HashMap<String, Frame[]> loadAnimations(SpriteSheet spriteSheet) {

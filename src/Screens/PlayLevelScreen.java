@@ -23,6 +23,7 @@ import Maps.World1Map;
 import Maps.World2Map;
 import Maps.World3Map;
 import NPCs.Enemy;
+import NPCs.World1.Dabbah;
 import Players.Knight;
 import Item.Item;
 import Save.Save;
@@ -31,6 +32,7 @@ import BattleSystem.BattleListener;
 import Encounters.EnemyFactory;
 import Locations.NamedLocations;
 import BattleSystem.BattleWorld;
+import BattleSystem.Balance;
 import Screens.Battle.EncounterScreen;
 import Screens.Battle.PlayBattleScreen;
 import Sound.Sound;
@@ -67,13 +69,29 @@ import Shop.Blacksmith.BlacksmithScreen;
 import Shop.Blacksmith.BlacksmithViewModel;
 import Survival.SurvivalController;
 import Survival.SurvivalResult;
+import Story.StoryDirector;
+import Story.StoryHost;
+import Story.StoryState;
 
 
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
 // initialize()/onMapChange(), startBattle()/onBattleEnd(), the waypoint list (M) and place discovery.
+// BALANCE CHANGES (search for "BALANCE:"): FIX the knight being rebuilt at level 1 on every map change (onMapChange),
+// full HP after every battle (onBattleEnd), random enemies spawning near the knight's level (checkRandomEncounter), and
+// World 4 fights inside Dabbah's Hollow (Balance.WORLD4_ZONE of the World 1 map).
+// GLITCH CHANGES (search for "GLITCH:"): double battles (startBattle with a companion), and the T test key.
+// WORLD MAP CHANGES (search for "WORLD MAP"): the M key opens WorldMapScreen; the WORLD_MAP state; travelTo()/closeWorldMap()
+// and the getters the map screen reads.
+// FINAL BOSS CHANGES (search for "FINAL BOSS:"): the Dabbah fight skips the encounter cut-scene (startBattle).
+// CINEMATIC CHANGES (search for "CINEMATIC:"): the Dabbah test key is now G (was P). Test mode holds Dabbah at 1 HP, so every
+// hit ends a form and plays its cinematic (the K key is gone).
+// STORY CHANGES (search for "STORY:"): the World 1 story (package Story). StoryDirector runs the conversations with the story
+// characters (World1Map places them), the quests, choices and faction standing, the quest journal (Q) and the hieroglyph
+// tablets; while one of those is open the world waits. Battles report wins (kill quests) and story fights back to it,
+// entering a named place can move a quest on, and the story is saved with the game (SaveData.story).
 public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener,
-        ChestOpener {
+        ChestOpener, StoryHost {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
@@ -84,6 +102,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     protected KeyLocker keyLocker = new KeyLocker();
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
+    private WorldMapScreen worldMapScreen;   // WORLD MAP
     private Inventory inventory;
     //XP DISPLAY
 
@@ -119,6 +138,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private int pendingLevel;
     private boolean pendingBoss;
     private BattleWorld pendingWorld;
+    private Enemy pendingCompanion;   // GLITCH: the second enemy of a double battle (null = 1-vs-1)
+    private boolean pendingTest;      // GLITCH: TEST ONLY. The T key's battle: the knight takes no damage, every move unlocked
     private NamedLocations.Place lastPlace;     // the last named location the player was in (null until he enters one)
     private int bannerTimer;                    // frames left of the "place name" banner
     private boolean bannerNew;                 // the banner is for a newly discovered place
@@ -127,6 +148,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private final MonoSpriteFont hudFont = new MonoSpriteFont();
     private int fadeIn;                         // frames left of the black fade-in after a respawn
     private final MonoSpriteFont bannerFont = new MonoSpriteFont();
+
+    // STORY: the World 1 story, and what the last battle was (for kill quests and the fights the story starts)
+    private StoryDirector story;
+    private String storyBattleTag, battleEnemyName, battlePlace;
 
     // SAVE: K saves to the default slot, L loads it. saveMessage is shown for saveMessageTimer frames
     private String saveMessage;
@@ -137,6 +162,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public void initialize() {
+        StoryState.reset();   // STORY: a new game starts a new story
         // setup state
         flagManager = new FlagManager();
         flagManager.addFlag("hasLostBall", false);
@@ -168,6 +194,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         player.setFacingDirection(Direction.LEFT);
         lastPlace = null;
         discovered.clear();
+        CodexOfBeastsScreen.resetSeen();   // WORLD MAP: a new game starts with an empty bestiary
         stepDist = 0;
         stepsSinceBattle = 0;
         lastX = player.getX();
@@ -203,6 +230,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
+        worldMapScreen = new WorldMapScreen(this);   // WORLD MAP
+        story = new StoryDirector(this);              // STORY
         // SHOP: the merchant, the blacksmith and the clock live here (not on the map) because onMapChange() rebuilds the map and the player
         GameClock shopClock = new GameClock(Config.TARGET_FPS);
         Merchant merchant = new Merchant(shopClock, new Random());
@@ -235,10 +264,15 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         if (pending != null) applySaveData(pending);
         if (inventory != null) inventory.removeBrokenItem();
         if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
+        if (Keyboard.isKeyUp(Key.M)) keyLocker.unlockKey(Key.M);   // WORLD MAP
+        if (Keyboard.isKeyUp(Key.T)) keyLocker.unlockKey(Key.T);   // GLITCH: test key
+        if (Keyboard.isKeyUp(Key.G)) keyLocker.unlockKey(Key.G);   // CINEMATIC: Dabbah test key (was P)
         MouseInput.update();
         Point click = MouseInput.pollClick();   // a mouse click this frame, if any
         // SHOP: while the shop is open nothing else updates (no encounters, no clock ticks)
         if (shopController.isOpen()) { shopController.update(); return; }
+        // STORY: a conversation, the journal (Q) or a tablet is open: the world waits. Q opens the journal while walking.
+        if (story.updateOverlays(playLevelScreenState == PlayLevelScreenState.RUNNING && !player.isLocked() && fadeIn == 0)) return;
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the
@@ -252,11 +286,37 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     playLevelScreenState = PlayLevelScreenState.INVENTORY;
                     break;
                 }
+                // GLITCH: TEST KEY. T starts a World 4 double battle with the glitch entity, at the knight's level, anywhere.
+                // Remove this block (and the T unlock above) before release.
+                if (Keyboard.isKeyDown(Key.T) && !keyLocker.isKeyLocked(Key.T) && !player.isLocked() && fadeIn == 0) {
+                    keyLocker.lockKey(Key.T);
+                    EnemyFactory.Encounter test = EnemyFactory.testDoubleBattle(player.getLevel(), encRng);
+                    startBattle(test.enemy, 1, test.boss, BattleWorld.WORLD_4, test.companion);
+                    pendingTest = true;   // no damage to the knight, all moves unlocked
+                    break;
+                }
+                // CINEMATIC: TEST KEY (was P). G starts the Dabbah fight anywhere, in test mode: the knight takes no damage and has
+                // every move; Dabbah is held at 1 HP, so every hit ends a form and its cinematic plays.
+                // Remove this block (and the G unlock above) before release.
+                if (Keyboard.isKeyDown(Key.G) && !keyLocker.isKeyLocked(Key.G) && !player.isLocked() && fadeIn == 0) {
+                    keyLocker.lockKey(Key.G);
+                    startBattle(new Dabbah(0, new Utils.Point(0, 0)), 20, true, BattleWorld.WORLD_4, null);
+                    battleScreen.setTestMode(true);
+                    break;
+                }
+                // WORLD MAP: M opens the world map (not during a textbox / cut-scene, and not while fading in after a jump)
+                if (Keyboard.isKeyDown(Key.M) && !keyLocker.isKeyLocked(Key.M) && !player.isLocked() && fadeIn == 0) {
+                    player.lock();
+                    keyLocker.lockKey(Key.M);
+                    worldMapScreen.initialize();
+                    playLevelScreenState = PlayLevelScreenState.WORLD_MAP;
+                    break;
+                }
                 // waypoints: click a JUMP button on the right of the screen to travel to that place
                 if (click != null && !player.isLocked() && fadeIn == 0) {
                     List<NamedLocations.Place> list = waypointList();
                     for (int n = 0; n < list.size(); n++) {
-                        if (waypointButton(n).contains(click) && list.get(n) != lastPlace) {
+                        if (waypointButton(n).contains(click) && list.get(n) != placeHere()) {
                             moveToPlace(list.get(n));
                             break;
                         }
@@ -320,6 +380,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 map.update(player);
                 inventoryScreen.update();
                 break;
+            // WORLD MAP: the world is frozen behind the map; the map screen gets this frame's click
+            case WORLD_MAP:
+                worldMapScreen.update(click);
+                break;
             //If the game state was changed to attach window then the attack window should open
             case ATTACK_WINDOW:
                 attackWindow.update();
@@ -336,6 +400,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     syncGearHealth();
                     battleScreen = new PlayBattleScreen(player, inventory, pendingEnemy, pendingLevel, pendingWorld, this);
                     battleScreen.setBoss(pendingBoss);
+                    battleScreen.setCompanion(pendingCompanion);   // GLITCH
+                    battleScreen.setTestMode(pendingTest);         // GLITCH: TEST ONLY (T key)
                     battleScreen.initialize();
                     soundManager.playSoundEffect(Sound.CLUNK); // Plays Clunk Music
                     soundManager.stopMusic(); // Pause other music
@@ -360,7 +426,29 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // same, but with the battle background chosen by the caller
     public void startBattle(Enemy enemy, int enemyLevel, boolean boss, BattleWorld world) {
+        startBattle(enemy, enemyLevel, boss, world, null);
+    }
+
+    // GLITCH: same, with a second enemy (a double battle); companion null = a normal 1-vs-1 fight
+    public void startBattle(Enemy enemy, int enemyLevel, boolean boss, BattleWorld world, Enemy companion) {
         player.lock();
+        storyBattleTag = null;   // STORY: startStoryBattle sets it again after this call
+        battleEnemyName = enemy.getEnemyName();
+        NamedLocations.Place fightPlace = placeHere();
+        battlePlace = fightPlace != null ? fightPlace.name : null;
+        CodexOfBeastsScreen.markSeen(enemy.getEnemyName());   // WORLD MAP: the bestiary unlocks an enemy once it is fought
+        if (companion != null) CodexOfBeastsScreen.markSeen(companion.getEnemyName());
+        pendingCompanion = companion;
+        pendingTest = false;   // only the T key turns test mode on (after this call)
+        // FINAL BOSS: Dabbah skips the clash cut-scene; the battle opens with Dabbah rising out of the earth, always in World 4
+        if (enemy instanceof Dabbah && companion == null) {
+            syncGearHealth();
+            battleScreen = new PlayBattleScreen(player, inventory, enemy, enemyLevel, BattleWorld.WORLD_4, this);
+            battleScreen.setBoss(true);
+            battleScreen.initialize();
+            playLevelScreenState = PlayLevelScreenState.BATTLE;
+            return;
+        }
         pendingEnemy = enemy;
         pendingLevel = enemyLevel;
         pendingBoss = boss;
@@ -377,6 +465,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             lastPlace = p;
             bannerNew = discovered.add(p);   // first time here: the place becomes a waypoint
             bannerTimer = 150;
+            if (story != null) story.onPlaceEntered(p.name);   // STORY: "search the Barren Fields" and the like
         }
     }
 
@@ -433,10 +522,14 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         if (encRng.nextDouble() >= STEP_CHANCE) return;
         stepsSinceBattle = 0;
         // a real enemy for this world, picked by spawn rate; the enemy class supplies its own level, stats and moves
-        EnemyFactory.Encounter enc = EnemyFactory.randomEncounter(currentMapName, encRng);
+        // BALANCE: the knight's level is passed in so the enemy spawns near it (clamped to the world's level band)
+        // BALANCE: inside Dabbah's Hollow (part of the World 1 map, Balance.WORLD4_ZONE) the fights are World 4's
+        boolean hollow = Balance.inWorld4(currentMapName, player.getX(), player.getY(), NamedLocations.TILE_PX);
+        BattleWorld fightWorld = hollow ? BattleWorld.WORLD_4 : BattleWorld.fromMapName(currentMapName);
+        EnemyFactory.Encounter enc = EnemyFactory.randomEncounter(fightWorld, encRng, player.getLevel());
         if (enc == null) return;   // this world has no random encounters yet
         stepsSinceBattle = 0;
-        startBattle(enc.enemy, 1, enc.boss);
+        startBattle(enc.enemy, 1, enc.boss, fightWorld, enc.companion);   // BALANCE: World 4's backdrop; GLITCH: maybe a second enemy
     }
 
     // BATTLE: the battle calls this when it has finished fading out
@@ -444,6 +537,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     public void onBattleEnd(Battle.BattleResult result) {
         player.unlock();
         playLevelScreenState = PlayLevelScreenState.RUNNING;
+        // BALANCE: HP goes back to full after EVERY battle (PP refills on its own: each battle starts with full PP)
+        syncGearHealth();
+        player.setCurrentHP(player.getMaxHP());
         if (result == Battle.BattleResult.DEFEAT) {
             // the knight fell: show the game-over screen, which then sends him back to the last named location
             player.lock();
@@ -451,7 +547,30 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             gameOverScreen.initialize();
             playLevelScreenState = PlayLevelScreenState.GAME_OVER;
         }
-        // VICTORY: XP and g    old were already given by the battle.  FLED: nothing to do.
+        // VICTORY: XP and gold were already given by the battle.  FLED: nothing to do.
+        // STORY: kill counts for quests, and what happens after a fight the story started
+        String tag = storyBattleTag;
+        storyBattleTag = null;
+        if (result == Battle.BattleResult.VICTORY) story.onVictory(battleEnemyName, battlePlace);
+        story.onStoryBattleEnd(tag, result == Battle.BattleResult.VICTORY);
+    }
+
+    // ---- STORY: what the story asks of this screen (StoryHost) ----
+    @Override
+    public void openStoryDialogue(String storyId) {
+        story.openStoryDialogue(storyId);
+    }
+
+    @Override
+    public void startStoryBattle(Enemy enemy, boolean boss, String tag) {
+        if (enemy == null) { player.unlock(); return; }
+        startBattle(enemy, 1, boss, BattleWorld.fromMapName(currentMapName));
+        storyBattleTag = tag;
+    }
+
+    @Override
+    public Player getStoryPlayer() {
+        return player;
     }
 
     @Override
@@ -469,7 +588,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         currentMapName = mapName;   // BATTLE
         if (!"guild_hall_map".equals(mapName)) shopWorldMapName = mapName;   // SHOP
         map.setFlagManager(flagManager);
+        Player previous = player;
         player = new Knight(playerX, playerY);
+        player.copyProgressFrom(previous);   // BALANCE: FIX. Was a brand-new level 1 knight (100 HP) after every map change
         player.setMap(map);
         player.setLocation(playerX, playerY);
         player.unlock();
@@ -565,7 +686,11 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     graphicsHandler.drawFilledRectangle(357, 28, 30, 10, new Color(0, 255, 0, 71));
                 }
                 drawSurvivalBars(graphicsHandler);   // SURVIVAL
-                drawSaveMessage(graphicsHandler);
+                drawWaypointButtons(graphicsHandler);   // JUMP buttons on the right
+                drawPlaceBanner(graphicsHandler);       // place name when entering a location
+                drawSaveMessage(graphicsHandler);       // SAVE
+                story.drawToasts(graphicsHandler);      // STORY: "NEW QUEST", "+1 KEPT GROVE", ...
+                story.drawOverlays(graphicsHandler);    // STORY: the conversation, the journal, a tablet
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
@@ -576,6 +701,10 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 break;
             case INVENTORY:
                 inventoryScreen.draw(graphicsHandler);
+                break;
+            case WORLD_MAP:   // WORLD MAP: the frozen world shows dimmed behind the map
+                map.draw(player, graphicsHandler);
+                worldMapScreen.draw(graphicsHandler);
                 break;
             case BATTLE:   // BATTLE
                 battleScreen.draw(graphicsHandler);
@@ -601,21 +730,21 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // where the i-th JUMP button is on the screen
     private Rectangle waypointButton(int i) {
         int size = 34, gap = 8;
-        return new Rectangle(800 - size - 14, 70 + i * (size + gap), size, size);
+        return new Rectangle(ScreenManager.getScreenWidth() - size - 14, 70 + i * (size + gap), size, size);
     }
 
     // the JUMP buttons down the right side of the screen: click one to travel there.
     // A new button appears the first time the knight discovers a place; the one for the current place is lit green.
     private void drawWaypointButtons(GraphicsHandler gh) {
         List<NamedLocations.Place> list = waypointList();
-        if (list.size() < 2) return;   // nothing to jump to yet
+        if (list.size() < 1) return;   // shown from the first discovered place
         Graphics2D g = gh.getGraphics();
         Rectangle first = waypointButton(0);
         hudFont.draw(gh, "JUMP", first.x + first.width / 2 - hudFont.getTextWidth("JUMP", 2, 1) / 2, first.y - 22, 2, 1, new Color(255, 240, 200));
         for (int i = 0; i < list.size(); i++) {
             NamedLocations.Place p = list.get(i);
             Rectangle r = waypointButton(i);
-            boolean here = p == lastPlace;
+            boolean here = p == placeHere();
             boolean hover = r.contains(MouseInput.getX(), MouseInput.getY());
             g.setColor(here ? new Color(70, 150, 80, 230) : (hover ? new Color(90, 72, 40, 235) : new Color(30, 26, 22, 220)));
             g.fillRect(r.x, r.y, r.width, r.height);
@@ -638,14 +767,16 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         if (bannerTimer <= 0 || lastPlace == null) return;
         int a = Math.min(255, Math.min(bannerTimer * 8, (150 - bannerTimer) * 8));
         if (a <= 0) return;
-        int w = bannerFont.getTextWidth(lastPlace.name, 3, 2);
+        String name = lastPlace.name.toUpperCase();
+        int w = bannerFont.getTextWidth(name, 3, 2);
+        int cx = ScreenManager.getScreenWidth() / 2;
         Graphics2D g = gh.getGraphics();
         g.setColor(new Color(0, 0, 0, a * 140 / 255));
-        g.fillRect(400 - w / 2 - 24, 56, w + 48, bannerNew ? 64 : 44);
-        bannerFont.draw(gh, lastPlace.name, 400 - w / 2, 68, 3, 2, new Color(255, 235, 190, a));
+        g.fillRect(cx - w / 2 - 24, 56, w + 48, bannerNew ? 64 : 44);
+        bannerFont.draw(gh, name, cx - w / 2, 68, 3, 2, new Color(255, 235, 190, a));
         if (bannerNew) {
             String tag = "NEW WAYPOINT UNLOCKED";
-            bannerFont.draw(gh, tag, 400 - bannerFont.getTextWidth(tag, 1, 1) / 2, 100, 1, 1, new Color(150, 220, 150, a));
+            bannerFont.draw(gh, tag, cx - bannerFont.getTextWidth(tag, 1, 1) / 2, 100, 1, 1, new Color(150, 220, 150, a));
         }
     }
 
@@ -681,6 +812,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         data.gold = PlayerData.getCurrency();
         for (NamedLocations.Place p : NamedLocations.all()) if (discovered.contains(p)) data.discoveredPlaces.add(p.name);
         data.lastPlace = lastPlace != null ? lastPlace.name : null;
+        data.story = StoryState.serialize();   // STORY
         for (Item item : inventory.getAllItems()) {
             data.items.add(new SaveData.ItemSave(item.getClass().getName(), item.getItemStats().getLvl(),
                     item.getItemStats().getXp(), item.getItemStats().getDurability(), inventory.isItemEquipped(item)));
@@ -691,6 +823,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // SAVE: puts the game back the way the snapshot describes
     private void applySaveData(SaveData data) {
         PlayerData.setCurrency(data.gold);
+        StoryState.load(data.story);   // STORY: before the map is rebuilt, so its story characters appear as saved
 
         // inventory first, so the gear's max HP bonus is in place before the player's HP is restored
         inventory.clear();
@@ -794,6 +927,44 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         playLevelScreenState = PlayLevelScreenState.RUNNING;
     }
 
+    // ---- WORLD MAP: what WorldMapScreen reads, and how it travels / closes ----
+    public java.util.Set<NamedLocations.Place> getDiscoveredPlaces() {
+        return java.util.Collections.unmodifiableSet(discovered);
+    }
+
+    // the place the knight is standing in right now (null on the open road between places)
+    public NamedLocations.Place getCurrentPlace() {
+        return placeHere();
+    }
+
+    private NamedLocations.Place placeHere() {
+        return NamedLocations.find(currentMapName, player.getX(), player.getY());
+    }
+
+    public String getCurrentMapName() {
+        return currentMapName;
+    }
+
+    // the world map reads a world's real tiles from this (the live map for the world the knight is in, a fresh copy otherwise)
+    public Map getMapForOverview(String mapName) {
+        return mapName.equals(currentMapName) ? map : buildMap(mapName);
+    }
+
+    // travels to a discovered place (same move as the JUMP buttons); anything else just closes the map
+    public void travelTo(NamedLocations.Place p) {
+        if (p == null || p == placeHere() || !discovered.contains(p)) {
+            closeWorldMap();
+            return;
+        }
+        moveToPlace(p);
+    }
+
+    public void closeWorldMap() {
+        keyLocker.lockKey(Key.M);   // the M that closed the map must not open it again
+        player.unlock();
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
     // pushes the max HP bonus of the equipped gear into the player
     private void syncGearHealth() {
         if (player != null && inventory != null) player.setBonusMaxHP(BattleMath.bonusMaxHp(inventory));
@@ -846,6 +1017,6 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // This enum represents the different states this screen can be in
     public enum PlayLevelScreenState {
-        RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW,INVENTORY, BATTLE, ENCOUNTER, GAME_OVER
+        RUNNING, LEVEL_COMPLETED, ATTACK_WINDOW,INVENTORY, BATTLE, ENCOUNTER, GAME_OVER, WORLD_MAP
     }
 }
