@@ -14,18 +14,28 @@ import java.util.Random;
 // All the battle formulas in one place so they are easy to tune.
 //
 // What comes straight from your existing Java:
-//   - damage = rawAttack * (1 - DEF / (DEF + 50)), minimum 1      (CombatResolver.calculateDamage, called directly)
 //   - Player / Enemy stats, modifiers, XP, leveling                 (Player.java, Enemy.java, used as they are)
 //   - item numbers: weapon damage, armor baseDef, shield blockChance / blockAmount, and every ItemBuffs value
 // What the items do not define on their own (the few judgment calls, all in this file):
-//   - WEAPON_WEIGHT: how much of a weapon's printed damage is added to your ATK
+//   - WEAPON_WEIGHT / ARMOR_WEIGHT: how much of a weapon's printed damage / an armour's printed DEF is added to your stats
 //   - the 5% base crit chance / 1.5x base crit multiplier, the dodge chance, the turn order (SPD + 1..10), and the run formula
+//
+// BALANCE CHANGES (search for "BALANCE:"): the damage itself is now Pokemon's formula in Balance.damage. The only change
+// here is ARMOR_WEIGHT: armour DEF now counts at 15%, like weapons already counted at 25% (see effectiveDef).
+// BALANCE: DODGE FIX. The old dodge was SPD/(SPD+SPD) x 50%, so two EQUALLY fast fighters dodged each other 25% of the
+// time, rolled on top of the move's own accuracy (a 100% move landed only ~75% of the time). Now, like Pokemon:
+//   - a 100% accuracy move can't be dodged at all
+//   - other moves can be dodged only by a FASTER target: (its SPD - your SPD) / (both) x 30%, at most 10%
 public final class BattleMath {
     private BattleMath() {}
 
-    // Weapons print big damage numbers (a Rusted Short Sword is 30, a Wraithbone Saber is 80) while the knight's ATK starts at 15.
+    // Weapons print big damage numbers (a Rusted Short Sword is 30, a Wraithbone Saber is 80) while the knight's ATK starts at 12.
     // Adding the full number would make weapons the only thing that matters, so only this fraction of it is added.
     public static final double WEAPON_WEIGHT = 0.25;
+
+    // BALANCE: NEW. Same idea for armour: printed DEF goes up to 225, so adding all of it (as before) would more than double
+    // the knight's DEF in Pokemon's A/D damage formula and make every enemy harmless. 15% of it is added.
+    public static final double ARMOR_WEIGHT = 0.15;
 
     // total of one buff over every equipped item (ATK_BOOST, CRIT_CHANCE, ...)
     public static double sumBuff(Inventory inv, Item.ItemBuffs buff) {
@@ -66,11 +76,12 @@ public final class BattleMath {
         return (p.getBaseATK() + (float) (weaponBase(weapon) * WEAPON_WEIGHT)) * (float) (1 + sumBuff(inv, Item.ItemBuffs.ATK_BOOST));
     }
 
-    // DEF = (your DEF + armor baseDef) * (1 + BONUS_DEF + DEF_BOOST + IRON_STANCE).
+    // DEF = (your DEF + ARMOR_WEIGHT x armor baseDef) * (1 + BONUS_DEF + DEF_BOOST + IRON_STANCE).
     // BONUS_DEF is stored as a fraction (0.22 on the Wraithbone shield) so it is treated as a percentage like DEF_BOOST.
     public static float effectiveDef(Player p, Inventory inv) {
         Item armor = inv.getEquippedItem(Inventory.EquipSlot.ARMOR);
-        float flat = p.getBaseDEF() + (armor instanceof Armor ? ((Armor) armor).getBaseDef() : 0);
+        // BALANCE: armour baseDef x ARMOR_WEIGHT (was the full baseDef)
+        float flat = p.getBaseDEF() + (armor instanceof Armor ? (float) (((Armor) armor).getBaseDef() * ARMOR_WEIGHT) : 0);
         double pct = sumBuff(inv, Item.ItemBuffs.BONUS_DEF) + sumBuff(inv, Item.ItemBuffs.DEF_BOOST) + abilityValue(inv, Item.ItemAbilities.IRON_STANCE);
         return flat * (float) (1 + pct);
     }
@@ -133,10 +144,18 @@ public final class BattleMath {
         return s instanceof Shield ? Math.min(0.95, ((Shield) s).getBlockAmount()) : 0;
     }
 
-    // speed-based dodge, capped at 40%
+    // BALANCE: speed-based dodge. Only a target FASTER than the attacker can dodge, at most 10%.
+    // (was: defender / (defender + attacker) x 50%, capped at 40%: 25% even at equal speed)
+    //   equal speed 0%   target 1.5x faster 6%   target 2x faster 10%
     public static float dodgeChance(float defenderSpd, float attackerSpd) {
-        float c = defenderSpd / (defenderSpd + attackerSpd) * 0.5f;
-        return Math.max(0f, Math.min(0.4f, c));
+        float sum = Math.max(1f, defenderSpd + attackerSpd);
+        float c = (defenderSpd - attackerSpd) / sum * 0.3f;
+        return Math.max(0f, Math.min(0.10f, c));
+    }
+
+    // BALANCE: same, but a 100% accuracy move can never be dodged (a "sure hit", like Pokemon)
+    public static float dodgeChance(float defenderSpd, float attackerSpd, double moveAccuracy) {
+        return moveAccuracy >= 1.0 ? 0f : dodgeChance(defenderSpd, attackerSpd);
     }
 
     // turn order: SPD + 1..10

@@ -80,6 +80,17 @@ public final class BattleBackgroundScreen extends PlayBattleScreen {
     @Override
     public void draw(GraphicsHandler gh) {
         Graphics2D g = gh.getGraphics();
+        drawSmall();
+        Object oldHint = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        g.drawImage(lowRes, 0, 0, w, h, null);
+        if (oldHint != null) g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldHint);
+        g.drawImage(vignette, 0, 0, null);
+    }
+
+    // the current frame at half size, without the vignette. draw() scales it up; the final boss fight (FinalBossPresentation)
+    // takes it as it is and zooms, pans and filters it itself.
+    BufferedImage drawSmall() {
         for (Scene s : scenes) renderScene(s, frame);
         lg.setComposite(AlphaComposite.Src);
         lg.drawImage(scenes[0].out, 0, 0, null);
@@ -88,12 +99,7 @@ public final class BattleBackgroundScreen extends PlayBattleScreen {
             lg.drawImage(scenes[1].out, 0, 0, null);
         }
         lg.setComposite(AlphaComposite.SrcOver);
-
-        Object oldHint = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g.drawImage(lowRes, 0, 0, w, h, null);
-        if (oldHint != null) g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldHint);
-        g.drawImage(vignette, 0, 0, null);
+        return lowRes;
     }
 
     // world 3 only: 0 = festival, 1 = plague. Holds each for a while, fades slowly between them.

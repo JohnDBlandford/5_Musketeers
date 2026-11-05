@@ -2,6 +2,7 @@ package Level;
 
 import java.awt.Color;
 
+import BattleSystem.Balance;
 import Engine.CombatResolver;
 import Engine.GraphicsHandler;
 import Engine.Key;
@@ -18,6 +19,14 @@ import java.util.ArrayList;
 
 import Lighting.BackgroundOpacity;
 
+// BALANCE CHANGES (search for "BALANCE:"):
+//   - max level comes from Balance.MAX_LEVEL (still 100)
+//   - stats use Pokemon's stat formula on the knight's base stats (Balance.playerMaxHp / playerAtk / ...), at level 1 and
+//     on every level-up, instead of fixed +15 HP / +3.5 ATK / +2 DEF / +1.5 SPD
+//   - the XP needed per level is Pokemon's Medium Fast curve, Balance.xpToNextLevel (was level x 100)
+//   - FIX: setCurrentHP now clamps to getMaxHP() (base + gear HP). It used to clamp to the base maxHP field, so a heal or a
+//     respawn never filled the HP your armour adds
+//   - NEW: copyProgressFrom(), used when the game builds a new Knight on a map change so level / XP / stats carry over
 public abstract class Player extends GameObject {
     // values that affect player movement
     protected float walkSpeed = 0;
@@ -54,15 +63,15 @@ public abstract class Player extends GameObject {
     // Player Level & Stats (Currency is now handled globally via PlayerData)
     protected int level = 1;
     protected int currentXP = 0;
-    protected int xpToNextLevel = 100;
+    protected int xpToNextLevel = (int) Balance.xpToNextLevel(1);   // BALANCE: Medium Fast, 7 at level 1 (was 100)
 
-    // Player Combat Stats
-    protected float maxHP = 100.0f;
-    protected float currentHP = 100.0f;
+    // Player Combat Stats. BALANCE: level 1 values from Pokemon's stat formula (120 HP, 12 ATK / DEF / SPD; was 100 / 15 / 10 / 25)
+    protected float maxHP = Balance.playerMaxHp(1);
+    protected float currentHP = Balance.playerMaxHp(1);
     protected float bonusMaxHP = 0.0f;
-    protected float baseATK = 15.0f;
-    protected float baseDEF = 10.0f;
-    protected float baseSPD = 25.0f;
+    protected float baseATK = Balance.playerAtk(1);
+    protected float baseDEF = Balance.playerDef(1);
+    protected float baseSPD = Balance.playerSpd(1);
 
     // Stat Modifiers
     protected float atkModifier = 1.0f;
@@ -242,41 +251,58 @@ public abstract class Player extends GameObject {
         PlayerData.addCurrency(amount);
     }
 
+    // BALANCE: the cap is read from Balance.MAX_LEVEL (100, same as before)
     public void addXP(int amount) {
-        if (level >= 100) {
+        if (level >= Balance.MAX_LEVEL) {
             this.currentXP = 0;
             return;
         }
 
         this.currentXP += amount;
-        while (currentXP >= xpToNextLevel && level < 100) {
+        while (currentXP >= xpToNextLevel && level < Balance.MAX_LEVEL) {
             levelUp();
         }
 
-        if (level >= 100) {
+        if (level >= Balance.MAX_LEVEL) {
             this.currentXP = 0;
         }
     }
 
     private void levelUp() {
-        if (level >= 100)
+        if (level >= Balance.MAX_LEVEL)
             return;
 
         currentXP -= xpToNextLevel;
         level++;
 
-        if (level >= 100) {
+        if (level >= Balance.MAX_LEVEL) {
             xpToNextLevel = 0;
             currentXP = 0;
         } else {
-            xpToNextLevel = level * 100;
+            xpToNextLevel = (int) Balance.xpToNextLevel(level);   // BALANCE: Medium Fast, (L+1)^3 - L^3 (was level * 100)
         }
 
-        maxHP += 15.0f;
+        // BALANCE: Pokemon's stat formula on the knight's base stats (was maxHP += 15, ATK += 3.5, DEF += 2, SPD += 1.5)
+        maxHP = Balance.playerMaxHp(level);
+        baseATK = Balance.playerAtk(level);
+        baseDEF = Balance.playerDef(level);
+        baseSPD = Balance.playerSpd(level);
         currentHP = getMaxHP();
-        baseATK += 3.5f;
-        baseDEF += 2.0f;
-        baseSPD += 1.5f;
+    }
+
+    // BALANCE: NEW. Copies level, XP, stats and HP from another knight. PlayLevelScreen.onMapChange builds a new Knight for
+    // every new map; without this the knight silently went back to level 1 with 100 HP after every portal or door.
+    public void copyProgressFrom(Player other) {
+        if (other == null) return;
+        this.level = other.level;
+        this.currentXP = other.currentXP;
+        this.xpToNextLevel = other.xpToNextLevel;
+        this.maxHP = other.maxHP;
+        this.bonusMaxHP = other.bonusMaxHP;
+        this.baseATK = other.baseATK;
+        this.baseDEF = other.baseDEF;
+        this.baseSPD = other.baseSPD;
+        this.currentHP = other.currentHP;
     }
 
     public void takeDamage(float damageAmount) {
@@ -429,8 +455,9 @@ public abstract class Player extends GameObject {
         return spdModifier;
     }
 
+    // BALANCE: FIX. Clamped to maxHP (base only) before, so HP from gear could never be refilled. Now getMaxHP() (base + gear).
     public void setCurrentHP(float health) {
-        this.currentHP = Math.max(0.0f, Math.min(health, maxHP));
+        this.currentHP = Math.max(0.0f, Math.min(health, getMaxHP()));
     }
 
     public void lock() {

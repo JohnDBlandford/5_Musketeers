@@ -6,6 +6,10 @@ import java.util.*;
 
 // Per-item level, XP and durability, plus the scaling rules that turn an item's level 1 values into its
 // current values. Every Item owns exactly one of these, so two copies of the same sword track their own state.
+//
+// BALANCE CHANGES (search for "BALANCE:"): only the two growth numbers below (attack and defense, 0.03 -> 0.05).
+// Items now also gain XP from battles (PlayBattleScreen gives every equipped item a share of the battle's XP), so these
+// growth rates finally matter in play.
 public final class ItemStats {
     public static final int MAX_LVL = 100;
 
@@ -27,8 +31,9 @@ public final class ItemStats {
     private static final double XP_EXPO = 1.5;
 
     // growth rate formula -> scaled value = level 1 value * (1 + growth * (level - 1))
-    private static final double DEFAULT_ATTACK_GROWTH = 0.03;
-    private static final double DEFAULT_DEFENSE_GROWTH = 0.03;
+    // BALANCE: attack and defense growth 0.03 -> 0.05 (a level 30 sword now hits 2.45x its level 1 damage, was 1.87x)
+    private static final double DEFAULT_ATTACK_GROWTH = 0.05;
+    private static final double DEFAULT_DEFENSE_GROWTH = 0.05;
     private static final double DEFAULT_BUFF_GROWTH = 0.02;
     private static final double DEFAULT_ABILITY_GROWTH = 0.02;
     private static final double DEFAULT_DURABILITY_GROWTH = 0.02;
