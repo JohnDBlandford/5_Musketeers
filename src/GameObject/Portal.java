@@ -21,6 +21,7 @@ public class Portal extends EnhancedMapTile {
         this.setIsUncollidable(true);
         this.getBottomLayer().setWidth(width);
         this.getBottomLayer().setHeight(height);
+        this.getBottomLayer().setBounds(new Rectangle(0, 0, width, height)); // hitbox covers the whole door, not just its 1px corner
     }
 
     public Portal(float x, float y, SpriteSheet spriteSheet, String startingAnimation, String targetMap,
