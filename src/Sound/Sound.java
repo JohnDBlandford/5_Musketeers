@@ -21,7 +21,7 @@ public class Sound {
             "Clunk",         // BATTLE SOUND = 1
             "Player_Die",    // PLAYER DIES = 2
             "Battle_Music",  // MUSIC FOR BATTLES = 3
-            "MoreElevator",   // WORLD 2 MUSIC = 4
+            "World2Music",   // WORLD 2 MUSIC = 4
             "Sword"           // SWORD = 5
     };
 
