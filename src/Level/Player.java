@@ -279,6 +279,20 @@ public abstract class Player extends GameObject {
         baseSPD += 1.5f;
     }
 
+    // puts the level and stats back to saved values, used when loading a save. Call this after the gear bonus has
+    // been set (setBonusMaxHP) so current HP is clamped against the real max
+    public void restoreStats(int level, int currentXP, int xpToNextLevel, float maxHP, float currentHP,
+                             float baseATK, float baseDEF, float baseSPD) {
+        this.level = level;
+        this.currentXP = currentXP;
+        this.xpToNextLevel = xpToNextLevel;
+        this.maxHP = maxHP;
+        this.baseATK = baseATK;
+        this.baseDEF = baseDEF;
+        this.baseSPD = baseSPD;
+        this.currentHP = Math.max(0.0f, Math.min(currentHP, getMaxHP()));
+    }
+
     public void takeDamage(float damageAmount) {
         float finalDamage = CombatResolver.calculateDamage(damageAmount, getBaseDEF());
         applyDamage(finalDamage);

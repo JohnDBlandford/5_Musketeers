@@ -33,14 +33,14 @@ public class TavernTileset extends Tileset {
         t.add(ground(0, 1));
         t.add(ground(0, 2));
         t.add(ground(0, 3));
-        t.add(ground(0, 4));
+        t.add(ground(0, 4).withTileType(TileType.NOT_PASSABLE)); // back/bottom wall
         t.add(ground(0, 5).withTileType(TileType.NOT_PASSABLE));
         t.add(ground(0, 6).withTileType(TileType.NOT_PASSABLE));
         t.add(ground(0, 7).withTileType(TileType.NOT_PASSABLE));
 
         // row 2
-        t.add(ground(1, 0));
-        t.add(ground(1, 1));
+        t.add(ground(1, 0).withTileType(TileType.NOT_PASSABLE)); // left wall
+        t.add(ground(1, 1).withTileType(TileType.NOT_PASSABLE)); // right wall
         t.add(ground(1, 2));
         t.add(ground(1, 3));
         t.add(ground(1, 4).withTileType(TileType.NOT_PASSABLE));
