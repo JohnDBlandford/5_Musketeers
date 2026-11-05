@@ -2,8 +2,11 @@ package Screens;
 
 import BattleSystem.BattleUI;
 import Engine.*;
+import Item.Consumable.Consumable;
 import Item.Item;
+import Item.ItemNames;
 import SpriteFont.SpriteFont;
+import Survival.SurvivalResult;
 import inventory.Inventory;
 import Item.ItemStats;
 
@@ -34,12 +37,13 @@ public final class InventoryScreen extends Screen {
     private static final Color DURABILITY_LOW = new Color(200, 60, 60);
     private static final Font NAME_FONT = new Font("Arial", Font.BOLD, 18);
     private static final Font BODY_FONT = new Font("Arial", Font.PLAIN, 14);;
-    private static final String INSTRUCTIONS = "ARROWS: MOVE   ENTER: EQUIP / UNEQUIP   ESC: CLOSE";
+    private static final String INSTRUCTIONS = "ARROWS: MOVE   ENTER: EQUIP / USE   ESC: CLOSE";
     private static final int NAME_SCALE = 2;   // item name
     private static final int BODY_SCALE = 2;   // rarity + stats (a line that is too wide for the panel drops to scale 1 by itself)
     private static final int HELP_SCALE = 2;   // instructions line
     private static final int BODY_BASELINE_OFFSET = 12; // top-to-baseline gap between the pixel-font name and the body text
     private int row, col;
+    private String resultMessage = "";   // what the last consumable did, shown at the bottom of the panel until the next use or until the screen reopens
     private int panelX, panelY, panelW, panelH, slotsY, equipX, gridX, detailX, detailW, detailH;
     private final int screenWidth = ScreenManager.getScreenWidth();
     private final int screenHeight = ScreenManager.getScreenHeight();
@@ -55,8 +59,9 @@ public final class InventoryScreen extends Screen {
 
     @Override
     public void initialize() {
-        instructions = new SpriteFont("Arrows: move   ENTER: equip / unequip   ESC: close", 80, 70, "Arial", 25, Color.white);
+        instructions = new SpriteFont("Arrows: move   ENTER: equip / use   ESC: close", 80, 70, "Arial", 25, Color.white);
         instructions.setOutlineColor(Color.black);
+        resultMessage = "";
         keyLocker.lockKey(Key.ESC);
         keyLocker.lockKey(Key.I);
         keyLocker.lockKey(Key.W);
@@ -91,12 +96,34 @@ public final class InventoryScreen extends Screen {
                 case DOWN -> row = Math.min(ROWS - 1, row + 1);
                 case LEFT -> col = Math.max(0, col - 1);
                 case RIGHT -> col = Math.min(COLS - 1, col + 1);
-                case ENTER -> playLevelScreen.getInventory().toggleItemEquip(row * COLS + col);
+                case ENTER -> activateSelected();
                 case W -> debugDmgSelected();
                 case I -> debugAddXpToSelected();
                 default -> {}
             }
         }
+    }
+
+    // ENTER: gear is equipped / unequipped, a consumable is used (one of the stack)
+    private void activateSelected() {
+        Inventory inv = playLevelScreen.getInventory();
+        int idx = row * COLS + col;
+        if (idx < inv.getAllItems().size()) {
+            inv.toggleItemEquip(idx);
+            return;
+        }
+        Inventory.ConsumableStack stack = selectedConsumable();
+        if (stack == null) return;
+        SurvivalResult result = playLevelScreen.useConsumable(stack.consumable().getItemName());
+        resultMessage = result.message();
+    }
+
+    // consumable stacks fill the pack grid after the gear, in the order the inventory lists them (they share the same slots)
+    private Inventory.ConsumableStack selectedConsumable() {
+        Inventory inv = playLevelScreen.getInventory();
+        int idx = row * COLS + col - inv.getAllItems().size();
+        List<Inventory.ConsumableStack> stacks = inv.getAllConsumables();
+        return idx >= 0 && idx < stacks.size() ? stacks.get(idx) : null;
     }
 
     private Item selectedItem() {
@@ -126,15 +153,23 @@ public final class InventoryScreen extends Screen {
         for (int i = 0; i < Inventory.EquipSlot.values().length; i++)
             drawEquipSlot(graphicsHandler, inv, equipX, slotsY + i * PITCH, Inventory.EquipSlot.values()[i]);
         List<Item> pack = inv.getAllItems();
+        List<Inventory.ConsumableStack> stacks = inv.getAllConsumables();
         for (int r = 0; r < ROWS; r++)
             for (int c = 0; c < COLS; c++) {
                 int idx = r * COLS + c;
-                drawSlot(graphicsHandler, inv, gridX + c * PITCH, slotsY + r * PITCH, idx < pack.size() ? pack.get(idx) : null);
+                int x = gridX + c * PITCH, y = slotsY + r * PITCH;
+                if (idx < pack.size()) drawSlot(graphicsHandler, inv, x, y, pack.get(idx));
+                else if (idx - pack.size() < stacks.size()) drawConsumableSlot(graphicsHandler, x, y, stacks.get(idx - pack.size()));
+                else drawSlot(graphicsHandler, inv, x, y, null);
             }
 
         graphicsHandler.drawRectangle(gridX + col * PITCH - 3, slotsY + row * PITCH - 3,
                 SLOT + 6, SLOT + 6, Color.white, 3);   // last, so nothing covers it
-        drawDetails(graphicsHandler, selectedItem());
+        Inventory.ConsumableStack stack = selectedConsumable();
+        if (stack != null) drawConsumableDetails(graphicsHandler, stack);
+        else drawDetails(graphicsHandler, selectedItem());
+        if (!resultMessage.isEmpty())
+            BattleUI.shadowText(graphicsHandler, resultMessage, panelX + 30, panelY + panelH - 36, HELP_SCALE, BattleUI.WHITE);
     }
 
     private static final float DETAIL_ZOOM = 1.5f;   // size of every line of text under the item name (1 = small, 2 = big); the longest line only fits up to about 1.55
@@ -212,6 +247,41 @@ public final class InventoryScreen extends Screen {
                 item.isBuffCapped(Item.ItemBuffs.BONUS_MAX_HP) ? GOLD : Color.white);
     }
 
+    // the name, rarity, how many are owned and what one restores
+    private void drawConsumableDetails(GraphicsHandler g, Inventory.ConsumableStack stack) {
+        g.drawFilledRectangleWithBorder(detailX, slotsY, detailW, detailH, SLOT_FILL, SLOT_BORDER, 2);
+        Consumable consumable = stack.consumable();
+        int x = detailX + 12;
+        int y = slotsY + 12;
+        int width = detailW - 24;
+        int nameLineH = BattleUI.font().getCapHeight(NAME_SCALE) + 8;
+        int nameChars = Math.max(1, width / (6 * NAME_SCALE));
+        for (String line : BattleUI.wrap(ItemNames.prettyName(consumable.getItemName()), nameChars)) {
+            BattleUI.text(g, line, x, y, NAME_SCALE, rarityColor(consumable.getItemRarity()));
+            y += nameLineH;
+        }
+        y += 4;
+        bodyText(g, consumable.getItemRarity().name(), x, y, width, Color.lightGray);
+        y += lineH();
+        y = statLine(g, "Owned", String.valueOf(stack.count()), x, y, width, Color.white);
+        y += 2;
+        g.drawFilledRectangle(x, y, width, 2, SLOT_BORDER);
+        y += 10;
+        if (consumable.getHungerRestore() > 0) y = statLine(g, "Hunger", "+" + consumable.getHungerRestore(), x, y, width, Color.white);
+        if (consumable.getHydrationRestore() > 0) y = statLine(g, "Hydration", "+" + consumable.getHydrationRestore(), x, y, width, Color.white);
+        if (consumable.getHealthRestore() > 0) statLine(g, "Health", "+" + consumable.getHealthRestore(), x, y, width, Color.white);
+    }
+
+    // a consumable has no sprite, so it is a rarity colored box with the item's first letter and how many are in the stack
+    private void drawConsumableSlot(GraphicsHandler g, int x, int y, Inventory.ConsumableStack stack) {
+        g.drawFilledRectangleWithBorder(x, y, SLOT, SLOT, SLOT_FILL, SLOT_BORDER, 2);
+        g.drawFilledRectangle(x + 4, y + 4, SLOT - 8, SLOT - 8, rarityColor(stack.consumable().getItemRarity()));
+        int scale = 3;
+        BattleUI.textCenter(g, stack.consumable().getItemName().substring(0, 1), x + SLOT / 2,
+                y + (SLOT - BattleUI.font().getCapHeight(scale)) / 2 - 4, scale, Color.white);
+        BattleUI.textRight(g, "x" + stack.count(), x + SLOT - 6, y + SLOT - 6 - BattleUI.font().getCapHeight(1) - 2, 1, Color.white);
+    }
+
     // draws the bar  for the lvl and xp for each item
     private static void drawBar(GraphicsHandler g, int x, int y, int width, int height, double fraction, Color fill) {
         g.drawFilledRectangleWithBorder(x, y, width, height, BAR_BACK, SLOT_BORDER, 1);
@@ -261,8 +331,10 @@ public final class InventoryScreen extends Screen {
     }
 
     // rarity color assigner
-    public static Color rarityColor(Item item) {
-        return switch (item.getItemRarity()) {
+    public static Color rarityColor(Item item) { return rarityColor(item.getItemRarity()); }
+
+    public static Color rarityColor(Item.ItemRarity rarity) {
+        return switch (rarity) {
             case UNCOMMON -> new Color(80, 170, 80);
             case EPIC -> new Color(150, 80, 200);
             case LEGENDARY -> new Color(230, 150, 40);

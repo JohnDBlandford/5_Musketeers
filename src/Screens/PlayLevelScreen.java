@@ -5,16 +5,28 @@ import BattleSystem.BattleMath;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
-import Item.ItemTestFactory;
+import Item.Armor.World1.FamineEdgeVestmentsArmor;
+import Item.Consumable.Consumables;
+import Item.RangedWeapon.World1.CrackedHuntingBow;
+import Item.Shield.World1.PatchedWoodShield;
+import Item.Shield.World3.BeastbaneBarrier;
+import Item.Sword.World1.RustedShortSword;
+import Item.Sword.World1.WraithboneSaber;
+import Item.Sword.World2.BaronsBroadsword;
 import Game.PlayerData;
 import Level.*;
 import Maps.BlankMap;
 import Maps.GuildHallMap;
+import Maps.World2GuildHallMap;
 import Maps.TestMap;
 import Maps.World1Map;
 import Maps.World2Map;
+import Maps.World3Map;
 import NPCs.Enemy;
 import Players.Knight;
+import Item.Item;
+import Save.Save;
+import Save.SaveData;
 import BattleSystem.BattleListener;
 import Encounters.EnemyFactory;
 import Locations.NamedLocations;
@@ -29,31 +41,70 @@ import Utils.Direction;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 import inventory.Inventory;
+import Chest.ChestController;
+import Chest.ChestId;
+import Chest.ChestOpener;
+import Chest.ChestRegistry;
+import Chest.ChestResult;
+import Chest.ChestWorlds;
+import Chest.MapChests;
+import Shop.Blacksmith.BlacksmithOpener;
+import Shop.GameClock;
+import Shop.ShopController;
+import Shop.ShopOpener;
+import Shop.Merchant.Merchant;
+import Shop.Merchant.MerchantScreen;
+import Shop.Merchant.MerchantViewModel;
+import Shop.Blacksmith.Blacksmith;
+import Shop.Blacksmith.BlacksmithScreen;
+import Shop.Blacksmith.BlacksmithViewModel;
+import Survival.SurvivalController;
+import Survival.SurvivalResult;
 
 
 // This class is for when the RPG game is actually being played
 // BATTLE CHANGES (search for "BATTLE"): the battle fields, the BATTLE case in update()/draw(), currentMapName tracking in
 // initialize()/onMapChange(), startBattle()/onBattleEnd(), the waypoint list (M) and place discovery.
-public class PlayLevelScreen extends Screen implements GameListener, BattleListener {
+public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener,
+        ChestOpener {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
     protected PlayLevelScreenState playLevelScreenState;
     protected WinScreen winScreen;
     protected FlagManager flagManager;
+    protected AttackWindow attackWindow;
     protected KeyLocker keyLocker = new KeyLocker();
     protected SpriteFont coinCountDisplay;
     private InventoryScreen inventoryScreen;
     private Inventory inventory;
     //XP DISPLAY
+
+    // SHOP: owns the shop's open/closed state and the game clock the merchant restocks by
+    private ShopController shopController;
+    // SHOP: the shop sells the stock of the last OUTDOOR map the player was in; the shared guild hall interior must not count (it would always be World 1)
+    private String shopWorldMapName = "world1";
+    // CHEST: where the chests are and which are opened live here (not on the map) for the same reason as the shop: onMapChange()
+    // rebuilds the map. initialize() makes new ones, so a new game starts with every chest closed and in new places
+    private ChestRegistry chestRegistry;
+    private ChestController chestController;
+    private Random chestRandom;
+    // SURVIVAL: hunger and hydration. recreated in initialize(), so a new game (and resetLevel) refills them
+    private SurvivalController survivalController;
+    //XP DISPLAY TESTING
     private SpriteFont xpDisplay;
     private SpriteFont xpTillNextLevel;
     private int xp;
     //HEALTH BAR
     private SpriteFont healthDisplay;
     private SpriteFont currHealth;
-    protected AttackWindow attackWindow;
     private SoundManager soundManager;
 
 
@@ -71,11 +122,15 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private NamedLocations.Place lastPlace;     // the last named location the player was in (null until he enters one)
     private int bannerTimer;                    // frames left of the "place name" banner
     private boolean bannerNew;                 // the banner is for a newly discovered place
-    private final java.util.Set<NamedLocations.Place> discovered = new java.util.HashSet<>();
+    private final Set<NamedLocations.Place> discovered = new HashSet<>();
     private static final int MAX_WAYPOINTS = 9;   // buttons shown at once (per world)
     private final MonoSpriteFont hudFont = new MonoSpriteFont();
     private int fadeIn;                         // frames left of the black fade-in after a respawn
     private final MonoSpriteFont bannerFont = new MonoSpriteFont();
+
+    // SAVE: K saves to the default slot, L loads it. saveMessage is shown for saveMessageTimer frames
+    private String saveMessage;
+    private int saveMessageTimer;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -92,9 +147,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
         inventory = new Inventory();
 
+        // CHEST: new registry and random for a new game. the controller gets the inventory with each open() call
+        chestRegistry = new ChestRegistry();
+        chestRandom = new Random();
+        chestController = new ChestController(chestRegistry, chestRandom);
+
+        // SURVIVAL: ticked once per frame while RUNNING, so it only drains while exploring
+        survivalController = new SurvivalController(Config.TARGET_FPS);
+
         // define/setup map
         map = new World1Map();
         currentMapName = "world1";   // BATTLE
+        shopWorldMapName = "world1";   // SHOP
         map.setFlagManager(flagManager);
 
         // setup player
@@ -124,6 +188,8 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         // game has been won by calling its "onWin" method
         map.addListener(this);
 
+        // CHEST: add this map's chests before the scripts are preloaded, so their scripts get initialised too
+        MapChests.install(map, currentMapName, chestRegistry, chestRandom);
 
         // preloads all scripts ahead of time rather than loading them dynamically
         // both are supported, however preloading is recommended
@@ -137,24 +203,42 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
-        inventory.addItem(ItemTestFactory.createRustedShortSword(null));
-        inventory.addItem(ItemTestFactory.createRustedShortSword(null));   // duplicate, to test the identity swap
-        inventory.addItem(ItemTestFactory.createWraithboneSaber(null));    // legendary, to test the color
-        inventory.addItem(ItemTestFactory.createCrackedHuntingBow(null));
-        inventory.addItem(ItemTestFactory.createPatchedWoodShield(null));
-        inventory.addItem(ItemTestFactory.createFamineEdgeVestmentsArmor(null));
-
-        //Check to see current state of the game or what map to set the background music
-        soundManager.backgroundMusic(currentMapName,playLevelScreenState);
+        // SHOP: the merchant, the blacksmith and the clock live here (not on the map) because onMapChange() rebuilds the map and the player
+        GameClock shopClock = new GameClock(Config.TARGET_FPS);
+        Merchant merchant = new Merchant(shopClock, new Random());
+        MerchantViewModel shopModel = new MerchantViewModel(merchant, () -> inventory);
+        BlacksmithViewModel blacksmithModel = new BlacksmithViewModel(new Blacksmith(), () -> inventory);
+        shopController = new ShopController(shopClock, merchant,
+                new MerchantScreen(shopModel, () -> shopController.close()),
+                new BlacksmithScreen(blacksmithModel, () -> inventory, () -> shopController.close()),
+                () -> player.unlock());
+        // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables use the Consumables constants
+        inventory.addItem(new RustedShortSword(null));
+        inventory.addItem(new RustedShortSword(null));   // duplicate, to test the identity swap
+        inventory.addItem(new WraithboneSaber(null));    // legendary, to test the color
+        inventory.addItem(new CrackedHuntingBow(null));
+        inventory.addItem(new PatchedWoodShield(null));
+        inventory.addItem(new FamineEdgeVestmentsArmor(null));
+        inventory.addItem(new BaronsBroadsword(null));   // world 2 item, to test the world 2 registrar
+        inventory.addItem(new BeastbaneBarrier(null));   // world 3 item, to test the world 3 registrar
+        // consumables take inventory slots (one per stack) but are not shown on the inventory screen yet
+        for (int i = 0; i < 3; i++) inventory.addConsumable(Consumables.HARDTACK_RATION);
+        for (int i = 0; i < 2; i++) inventory.addConsumable(Consumables.WATER_BOTTLE);
     }
 
 
 
     public void update() {
+        // SAVE: if this level was started from the load screen, restore that save on the first update
+        // (takePendingLoad returns null after the first call, so this only happens once)
+        SaveData pending = screenCoordinator.takePendingLoad();
+        if (pending != null) applySaveData(pending);
         if (inventory != null) inventory.removeBrokenItem();
         if (Keyboard.isKeyUp(Key.I)) keyLocker.unlockKey(Key.I);
         MouseInput.update();
-        java.awt.Point click = MouseInput.pollClick();   // a mouse click this frame, if any
+        Point click = MouseInput.pollClick();   // a mouse click this frame, if any
+        // SHOP: while the shop is open nothing else updates (no encounters, no clock ticks)
+        if (shopController.isOpen()) { shopController.update(); return; }
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the
@@ -170,7 +254,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 }
                 // waypoints: click a JUMP button on the right of the screen to travel to that place
                 if (click != null && !player.isLocked() && fadeIn == 0) {
-                    java.util.List<NamedLocations.Place> list = waypointList();
+                    List<NamedLocations.Place> list = waypointList();
                     for (int n = 0; n < list.size(); n++) {
                         if (waypointButton(n).contains(click) && list.get(n) != lastPlace) {
                             moveToPlace(list.get(n));
@@ -179,8 +263,22 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                     }
                 }
                 if (playLevelScreenState != PlayLevelScreenState.RUNNING) break;
+                // SAVE: quick save / quick load
+                if (Keyboard.isKeyDown(Key.K) && !keyLocker.isKeyLocked(Key.K) && !player.isLocked()) {
+                    keyLocker.lockKey(Key.K);
+                    showSaveMessage(saveGame(Save.DEFAULT_SLOT) ? "GAME SAVED" : "SAVE FAILED");
+                }
+                if (Keyboard.isKeyUp(Key.K)) keyLocker.unlockKey(Key.K);
+                if (Keyboard.isKeyDown(Key.L) && !keyLocker.isKeyLocked(Key.L) && !player.isLocked()) {
+                    keyLocker.lockKey(Key.L);
+                    showSaveMessage(loadGame(Save.DEFAULT_SLOT) ? "GAME LOADED" : "NO SAVE TO LOAD");
+                }
+                if (Keyboard.isKeyUp(Key.L)) keyLocker.unlockKey(Key.L);
+                if (saveMessageTimer > 0) saveMessageTimer--;
                 player.update();
                 map.update(player);
+                shopController.tick();   // SHOP: game time only passes while exploring
+                survivalTick();          // SURVIVAL
                 trackPlace();
                 checkRandomEncounter();
                 if (fadeIn > 0) fadeIn--;
@@ -288,7 +386,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         if (p == null) {
             player.setLocation(map.getPlayerStartPosition().x, map.getPlayerStartPosition().y);
         } else if (!p.map.equals(currentMapName)) {
-            float[] sp = NamedLocations.spawnPixels(p, createMap(p.map));
+            float[] sp = NamedLocations.spawnPixels(p, buildMap(p.map));
             onMapChange(p.map, sp[0], sp[1]);
         } else {
             float[] sp = NamedLocations.spawnPixels(p, map);
@@ -319,7 +417,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     private static final double STEP_CHANCE = 0.90;     // chance per step after the grace period
     private float lastX, lastY, stepDist;
     private int stepsSinceBattle;
-    private final java.util.Random encRng = new java.util.Random();
+    private final Random encRng = new Random();
 
     private void checkRandomEncounter() {
         float dx = player.getX() - lastX, dy = player.getY() - lastY;
@@ -353,7 +451,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
             gameOverScreen.initialize();
             playLevelScreenState = PlayLevelScreenState.GAME_OVER;
         }
-        // VICTORY: XP and gold were already given by the battle.  FLED: nothing to do.
+        // VICTORY: XP and g    old were already given by the battle.  FLED: nothing to do.
     }
 
     @Override
@@ -367,8 +465,9 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     // Called when the player changes maps. The mapName is the name of the new map
     // and playerX and playerY are the player's new coordinates in that map.
     public void onMapChange(String mapName, float playerX, float playerY) {
-        map = createMap(mapName);
+        map = buildMap(mapName);
         currentMapName = mapName;   // BATTLE
+        if (!"guild_hall_map".equals(mapName)) shopWorldMapName = mapName;   // SHOP
         map.setFlagManager(flagManager);
         player = new Knight(playerX, playerY);
         player.setMap(map);
@@ -381,30 +480,38 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         map.setPlayer(player);
         map.getTextbox().setInteractKey(player.getInteractKey());
         map.addListener(this);
+        MapChests.install(map, currentMapName, chestRegistry, chestRandom);   // CHEST: before preloadScripts
         map.preloadScripts();
         trackPlace();
+    }
+
+    // creates the maps added for world 3 and the world 2 guild hall, and hands every other name to createMap
+    private Map buildMap(String mapName) {
+        switch (mapName) {
+            case "world3_map":
+                return new World3Map();
+            case "guild_hall_map_world2":
+                return new World2GuildHallMap();
+            default:
+                return createMap(mapName);
+        }
     }
 
     // This method creates a new map based on the provided map name. It returns a
     // new instance of the appropriate map class.
     private Map createMap(String mapName) {
-        switch (mapName) {
-            case "blank":
-                return new BlankMap();
-            case "test":
-                return new TestMap();
-            case "world1":
-                return new World1Map();
-            case "world2_map":
-                return new World2Map();
-            case "guild_hall_map":
-                return new GuildHallMap();
-            default:
-                return new TestMap();
-        }
+        return switch (mapName) {
+            case "blank" -> new BlankMap();
+            case "world1" -> new World1Map();
+            case "world2_map" -> new World2Map();
+            case "guild_hall_map" -> new GuildHallMap();
+            default -> new TestMap();
+        };
     }
 
     public void draw(GraphicsHandler graphicsHandler) {
+        // SHOP: the shop window is drawn over the map
+        if (shopController.isOpen()) { map.draw(player, graphicsHandler); shopController.draw(graphicsHandler); return; }
         // based on screen state, draw appropriate graphics
         switch (playLevelScreenState) {
             case RUNNING:
@@ -457,16 +564,18 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 if(player.getCurrentHP() >= 100) {
                     graphicsHandler.drawFilledRectangle(357, 28, 30, 10, new Color(0, 255, 0, 71));
                 }
+                drawSurvivalBars(graphicsHandler);   // SURVIVAL
+                drawSaveMessage(graphicsHandler);
                 break;
             case LEVEL_COMPLETED:
                 winScreen.draw(graphicsHandler);
                 break;
-            case INVENTORY:
-                inventoryScreen.draw(graphicsHandler);
-                break;
             case ATTACK_WINDOW:
                 map.draw(player, graphicsHandler);
                 attackWindow.draw(graphicsHandler);
+                break;
+            case INVENTORY:
+                inventoryScreen.draw(graphicsHandler);
                 break;
             case BATTLE:   // BATTLE
                 battleScreen.draw(graphicsHandler);
@@ -482,30 +591,30 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
 
     // the discovered places of the world the knight is in (each world has its own buttons; going back to a world shows
     // its buttons again)
-    private java.util.List<NamedLocations.Place> waypointList() {
-        java.util.List<NamedLocations.Place> out = new java.util.ArrayList<>();
+    private List<NamedLocations.Place> waypointList() {
+        List<NamedLocations.Place> out = new ArrayList<>();
         for (NamedLocations.Place p : NamedLocations.all())
             if (p.map.equals(currentMapName) && discovered.contains(p) && out.size() < MAX_WAYPOINTS) out.add(p);
         return out;
     }
 
     // where the i-th JUMP button is on the screen
-    private java.awt.Rectangle waypointButton(int i) {
+    private Rectangle waypointButton(int i) {
         int size = 34, gap = 8;
-        return new java.awt.Rectangle(800 - size - 14, 70 + i * (size + gap), size, size);
+        return new Rectangle(800 - size - 14, 70 + i * (size + gap), size, size);
     }
 
     // the JUMP buttons down the right side of the screen: click one to travel there.
     // A new button appears the first time the knight discovers a place; the one for the current place is lit green.
     private void drawWaypointButtons(GraphicsHandler gh) {
-        java.util.List<NamedLocations.Place> list = waypointList();
+        List<NamedLocations.Place> list = waypointList();
         if (list.size() < 2) return;   // nothing to jump to yet
         Graphics2D g = gh.getGraphics();
-        java.awt.Rectangle first = waypointButton(0);
+        Rectangle first = waypointButton(0);
         hudFont.draw(gh, "JUMP", first.x + first.width / 2 - hudFont.getTextWidth("JUMP", 2, 1) / 2, first.y - 22, 2, 1, new Color(255, 240, 200));
         for (int i = 0; i < list.size(); i++) {
             NamedLocations.Place p = list.get(i);
-            java.awt.Rectangle r = waypointButton(i);
+            Rectangle r = waypointButton(i);
             boolean here = p == lastPlace;
             boolean hover = r.contains(MouseInput.getX(), MouseInput.getY());
             g.setColor(here ? new Color(70, 150, 80, 230) : (hover ? new Color(90, 72, 40, 235) : new Color(30, 26, 22, 220)));
@@ -540,6 +649,108 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         }
     }
 
+    // SAVE: writes the current game to the given slot. Returns true if it was written
+    public boolean saveGame(int slot) {
+        return Save.save(slot, createSaveData());
+    }
+
+    // SAVE: replaces the current game with the one in the given slot. Returns false (and changes nothing) if the
+    // slot is empty or unreadable
+    public boolean loadGame(int slot) {
+        SaveData data = Save.load(slot);
+        if (data == null) return false;
+        applySaveData(data);
+        return true;
+    }
+
+    // SAVE: a snapshot of the game as it is right now
+    private SaveData createSaveData() {
+        SaveData data = new SaveData();
+        data.mapName = currentMapName;
+        data.playerX = player.getX();
+        data.playerY = player.getY();
+        data.facingDirection = player.getFacingDirection().name();
+        data.level = player.getLevel();
+        data.currentXP = player.getCurrentXP();
+        data.xpToNextLevel = player.getXpToNextLevel();
+        data.maxHP = player.getMaxHP() - player.getBonusMaxHP();
+        data.currentHP = player.getCurrentHP();
+        data.baseATK = player.getBaseATK() / player.getAtkModifier();
+        data.baseDEF = player.getBaseDEF() / player.getDefModifier();
+        data.baseSPD = player.getBaseSPD() / player.getSpdModifier();
+        data.gold = PlayerData.getCurrency();
+        for (NamedLocations.Place p : NamedLocations.all()) if (discovered.contains(p)) data.discoveredPlaces.add(p.name);
+        data.lastPlace = lastPlace != null ? lastPlace.name : null;
+        for (Item item : inventory.getAllItems()) {
+            data.items.add(new SaveData.ItemSave(item.getClass().getName(), item.getItemStats().getLvl(),
+                    item.getItemStats().getXp(), item.getItemStats().getDurability(), inventory.isItemEquipped(item)));
+        }
+        return data;
+    }
+
+    // SAVE: puts the game back the way the snapshot describes
+    private void applySaveData(SaveData data) {
+        PlayerData.setCurrency(data.gold);
+
+        // inventory first, so the gear's max HP bonus is in place before the player's HP is restored
+        inventory.clear();
+        for (SaveData.ItemSave saved : data.items) {
+            Item item = createItem(saved.className);
+            if (item == null) continue;
+            item.getItemStats().restore(saved.level, saved.xp, saved.durability);
+            inventory.addItem(item);
+            if (saved.equipped) inventory.toggleItemEquip(inventory.getAllItems().size() - 1);
+        }
+
+        onMapChange(data.mapName, data.playerX, data.playerY);   // builds a fresh knight on the saved map
+        try {
+            player.setFacingDirection(Direction.valueOf(data.facingDirection));
+        } catch (IllegalArgumentException e) {
+            player.setFacingDirection(Direction.LEFT);
+        }
+        syncGearHealth();
+        player.restoreStats(data.level, data.currentXP, data.xpToNextLevel, data.maxHP, data.currentHP,
+                data.baseATK, data.baseDEF, data.baseSPD);
+
+        discovered.clear();
+        lastPlace = null;
+        for (NamedLocations.Place p : NamedLocations.all()) {
+            if (data.discoveredPlaces.contains(p.name)) discovered.add(p);
+            if (p.name.equals(data.lastPlace)) lastPlace = p;
+        }
+
+        stepsSinceBattle = 0;
+        bannerTimer = 0;
+        fadeIn = 60;
+        playLevelScreenState = PlayLevelScreenState.RUNNING;
+    }
+
+    // SAVE: rebuilds an item from its class name. Every item has a public constructor that takes its sprite sheet
+    // (null makes it load its own). Returns null if the class no longer exists, so an old save still loads
+    private static Item createItem(String className) {
+        try {
+            return Class.forName(className).asSubclass(Item.class)
+                    .getConstructor(GameObject.SpriteSheet.class).newInstance((Object) null);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            System.err.println("Skipping saved item " + className + ": " + e);
+            return null;
+        }
+    }
+
+    private void showSaveMessage(String message) {
+        saveMessage = message;
+        saveMessageTimer = 90;
+    }
+
+    private void drawSaveMessage(GraphicsHandler gh) {
+        if (saveMessageTimer <= 0 || saveMessage == null) return;
+        int w = hudFont.getTextWidth(saveMessage, 2, 1);
+        Graphics2D g = gh.getGraphics();
+        g.setColor(new Color(0, 0, 0, 160));
+        g.fillRect(400 - w / 2 - 12, 540, w + 24, 30);
+        hudFont.draw(gh, saveMessage, 400 - w / 2, 548, 2, 1, new Color(255, 240, 200));
+    }
+
     public PlayLevelScreenState getPlayLevelScreenState() {
         return playLevelScreenState;
     }
@@ -557,6 +768,26 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         playLevelScreenState = PlayLevelScreenState.RUNNING;
     }
 
+    // SHOP: called by OpenShopScriptAction (through the map's listeners) once the shopkeeper's greeting is done
+    @Override
+    public void onOpenShop() {
+        shopController.open(BattleWorld.fromMapName(shopWorldMapName).ordinal() + 1);
+    }
+
+    // SHOP: called by OpenBlacksmithScriptAction (through the map's listeners) once the blacksmith's greeting is done.
+    // the blacksmith needs no world: an item's price comes from its own world in the registry
+    @Override
+    public void onOpenBlacksmith() {
+        shopController.openBlacksmith();
+    }
+
+    // CHEST: called by OpenChestScriptAction (through the map's listeners). pays the gold, puts the item in the pack and tells
+    // the script what to show. the chest's world comes from the name of the map it is on
+    @Override
+    public ChestResult onOpenChest(ChestId id) {
+        return chestController.open(id, ChestWorlds.worldOf(id.mapName()), inventory);
+    }
+
     public void closeInventory() {
         syncGearHealth();
         player.unlock();
@@ -569,6 +800,49 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
     }
 
     public Inventory getInventory() { return inventory; }
+
+    // SURVIVAL: one frame of hunger/hydration. an empty meter costs HP, but never below 1 HP (the controller decides how much)
+    private void survivalTick() {
+        int loss = survivalController.tick();
+        if (loss == 0) return;
+        float hp = player.getCurrentHP();
+        player.applyDamage(hp - SurvivalController.hpAfterLoss(hp, loss));   // applyDamage: raw HP, no DEF
+    }
+
+    // SURVIVAL: called by the inventory screen (ENTER on a consumable). uses one from the pack and heals the player
+    public SurvivalResult useConsumable(String itemName) {
+        SurvivalResult result = survivalController.use(inventory, itemName, player.getCurrentHP(), player.getMaxHP());
+        // the result's health is already clamped to the missing HP. setCurrentHP clamps to the base max HP and would cut off
+        // any gear bonus, so the heal goes through applyDamage (a negative amount adds HP)
+        if (result.health() > 0) player.applyDamage(-result.health());
+        return result;
+    }
+
+    // SURVIVAL: the hunger and hydration bars, bottom left. hidden while the player is locked (textboxes and scripts use that area)
+    private static final int SURVIVAL_BAR_W = 140, SURVIVAL_BAR_H = 14, SURVIVAL_LABEL_W = 70;
+    private static final int SURVIVAL_LOW = 25;   // at or below this the bar turns red
+    private static final Color SURVIVAL_BACK = new Color(20, 20, 20);
+    private static final Color SURVIVAL_LOW_COLOR = new Color(200, 60, 60);
+    private static final Color HUNGER_COLOR = new Color(210, 150, 60);
+    private static final Color HYDRATION_COLOR = new Color(70, 140, 220);
+
+    private void drawSurvivalBars(GraphicsHandler gh) {
+        if (player.isLocked()) return;
+        int x = 10;
+        int hydrationY = ScreenManager.getScreenHeight() - 12 - SURVIVAL_BAR_H;
+        int hungerY = hydrationY - SURVIVAL_BAR_H - 8;
+        drawSurvivalBar(gh, "FOOD", survivalController.getHunger(), HUNGER_COLOR, x, hungerY);
+        drawSurvivalBar(gh, "WATER", survivalController.getHydration(), HYDRATION_COLOR, x, hydrationY);
+    }
+
+    private void drawSurvivalBar(GraphicsHandler gh, String label, int value, Color color, int x, int y) {
+        hudFont.draw(gh, label, x + 1, y + (SURVIVAL_BAR_H - hudFont.getCapHeight(2)) / 2 + 1, 2, 1, Color.BLACK);
+        hudFont.draw(gh, label, x, y + (SURVIVAL_BAR_H - hudFont.getCapHeight(2)) / 2, 2, 1, Color.WHITE);
+        int barX = x + SURVIVAL_LABEL_W;
+        gh.drawFilledRectangleWithBorder(barX, y, SURVIVAL_BAR_W, SURVIVAL_BAR_H, SURVIVAL_BACK, Color.BLACK, 2);
+        int fill = (SURVIVAL_BAR_W - 4) * value / 100;
+        if (fill > 0) gh.drawFilledRectangle(barX + 2, y + 2, fill, SURVIVAL_BAR_H - 4, value <= SURVIVAL_LOW ? SURVIVAL_LOW_COLOR : color);
+    }
 
     // This enum represents the different states this screen can be in
     public enum PlayLevelScreenState {

@@ -7,8 +7,7 @@ import inventory.Inventory;
 
 import java.util.Map;
 
-public sealed abstract class RangedWeapon extends Item permits
-        CrackedHuntingBow, SplinteredSling, ScavengersCrossBow, FamineEdgeLongbow, WraithboneRepeater {
+public abstract class RangedWeapon extends Item {
     protected int rangedDmg;
 
     // placeholder constructor
@@ -19,7 +18,7 @@ public sealed abstract class RangedWeapon extends Item permits
                 ItemStats.getDefaultsForItemRarity(itemRarity));
     }
 
-    RangedWeapon(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
+    protected RangedWeapon(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
                  Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities,
                  Map<ItemBuffs, Double> itemBuffs, int rangedDmg, ItemStats stats) {
         super(itemName, itemLook, itemRarity, itemAbilities, itemBuffs, stats);
