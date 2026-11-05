@@ -1,0 +1,36 @@
+package Item.Armor.World2;
+
+import Engine.ImageLoader;
+import GameObject.SpriteSheet;
+import Item.Armor.Armor;
+import Item.ItemStats;
+
+import java.awt.image.BufferedImage;
+import java.util.Map;
+
+public final class WoodmansHide extends Armor {
+    private static final Map<AbilityType, Map<ItemAbilities, Double>> ABILITIES = Map.of(
+            AbilityType.HEAL, Map.of(ItemAbilities.SECOND_WIND, 0.05),
+            AbilityType.SPD_BOOST, Map.of(ItemAbilities.LIGHT_FOOTING, 0.03),
+            AbilityType.DMG_REDUCTION, Map.of(ItemAbilities.HARDEN, 0.05),
+            AbilityType.BONUS_DEF, Map.of(ItemAbilities.IRON_STANCE, 0.05)
+    );
+
+    public WoodmansHide(SpriteSheet itemLook) {
+        super("WoodmansHide", itemLook, ItemRarity.COMMON, ABILITIES, Map.of(), 20,
+                ItemStats.getDefaultsForItemRarity(ItemRarity.COMMON));
+    }
+
+    @Override
+    public SpriteSheet assignSprite() {
+        // load the full item sprite sheet
+        BufferedImage mstrSheet = ImageLoader.load("Items.png");
+
+        int row = 1;
+        int col = 1;
+
+        // get the subimage (the actual sprite for each item type)
+        BufferedImage croppedIcon = mstrSheet.getSubimage(col * 32, row * 32, 32, 32);
+        return new SpriteSheet(croppedIcon, 32, 32);
+    }
+}

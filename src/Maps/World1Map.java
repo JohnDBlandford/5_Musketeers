@@ -31,8 +31,8 @@ public class World1Map extends Map {
         world2portal.setInteractScript(new PortalScript());
         enhancedMapTiles.add(world2portal);
 
-        Door hallDoor = new Door(getMapTile(77, 79).getX(), getMapTile(77, 79).getY(),
-                "guild_hall_map", 408, 624, 48, 48);
+        Door hallDoor = new Door(getMapTile(76, 79).getX(), getMapTile(76, 79).getY(),
+                "guild_hall_map", 456, 600, 96, 48);
         hallDoor.setInteractScript(new DoorScript());
         enhancedMapTiles.add(hallDoor);
 

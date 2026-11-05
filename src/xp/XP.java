@@ -31,6 +31,12 @@ public class XP {
     public int getMaxLvl() { return maxLvl; }
     public boolean isMaxLvl() { return startLvl >= maxLvl;}
 
+    // puts the level and xp back to saved values, clamped so a bad save can't leave this in an impossible state
+    public void restore(int lvl, long currXP) {
+        startLvl = Math.max(1, Math.min(lvl, maxLvl));
+        xp = isMaxLvl() ? 0 : Math.max(0, Math.min(currXP, xpRequiredToLeaveLvl(startLvl) - 1));
+    }
+
     // xp earned toward the next level
     public long getCurrXP() { return xp; }
 

@@ -5,9 +5,8 @@ import Engine.GraphicsHandler;
 import Engine.Screen;
 import Screens.AboutScreen;
 import Screens.ControlsScreen;
-import Screens.CreditsScreen;
-import Screens.MenuScreen;
-import Screens.PlayLevelScreen;
+import Save.SaveData;
+import Screens.*;
 
 /*
  * Based on the current game state, this class determines which Screen should be shown
@@ -25,9 +24,24 @@ public class ScreenCoordinator extends Screen {
 		return gameState;
 	}
 
-	// Other Screens can set the gameState of this class to force it to change the currentScreen
+	// Other Screens can set the gameState of this class to force it to change the
+	// currentScreen
 	public void setGameState(GameState gameState) {
 		this.gameState = gameState;
+	}
+
+	// a save picked on the LoadSaveScreen, waiting for the next PlayLevelScreen to apply it
+	private SaveData pendingLoad;
+
+	public void setPendingLoad(SaveData data) {
+		pendingLoad = data;
+	}
+
+	// returns the pending save (or null) and clears it so it is only applied once
+	public SaveData takePendingLoad() {
+		SaveData data = pendingLoad;
+		pendingLoad = null;
+		return data;
 	}
 
 	@Override
@@ -39,15 +53,20 @@ public class ScreenCoordinator extends Screen {
 	@Override
 	public void update() {
 		do {
-			// if previousGameState does not equal gameState, it means there was a change in gameState
-			// this triggers ScreenCoordinator to bring up a new Screen based on what the gameState is
+			// if previousGameState does not equal gameState, it means there was a change in
+			// gameState
+			// this triggers ScreenCoordinator to bring up a new Screen based on what the
+			// gameState is
 			if (previousGameState != gameState) {
-				switch(gameState) {
+				switch (gameState) {
 					case MENU:
 						currentScreen = new MenuScreen(this);
 						break;
 					case LEVEL:
 						currentScreen = new PlayLevelScreen(this);
+						break;
+					case LOAD_SAVE:
+						currentScreen = new LoadSaveScreen(this);
 						break;
 					case CREDITS:
 						currentScreen = new CreditsScreen(this);

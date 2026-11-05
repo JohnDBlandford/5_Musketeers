@@ -9,3 +9,5 @@ out/
 TestResources/
 _site
 .DS_Store
+src/Save/SaveTextFiles/save*.txt
+src/Save/SaveTextFiles/*.tmp

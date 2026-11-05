@@ -24,7 +24,7 @@ public class MenuScreen extends Screen {
     private static final String TITLE = "DABBAH";
     private static final String TITLE_BOTTOM = "RISES";
     private static final String FOOTER = "V0.910  (C)2026 THE 5 MUSKETEERS";
-    private static final String[] ITEMS = { "BEGIN", "CONTROLS", "ABOUT US", "CREDITS", "EXIT" }; // 0 = start game, 1 = controls, 2 = about us, 3 = credits, 4 = exit
+    private static final String[] ITEMS = { "BEGIN", "CONTROLS", "ABOUT US", "CREDITS", "LOAD SAVE", "EXIT" }; // 0 = start game, 1 = controls, 2 = about us, 3 = credits, 4 = load save, 5 = exit
     private static final float BG_MAX_ALPHA = 0.22f;               // how visible Dabbah is (keep low)
     private static final float[] FORM_ALPHA = { 1.0f, 1.0f, 1.4f }; // dark beams need a little extra to be seen
     private static final float BEAM_ALPHA = 0.7f;                 // beams get their own, much stronger layer so they can be seen
@@ -32,8 +32,8 @@ public class MenuScreen extends Screen {
     private static final int PHASE_FRAMES = 600;                   // how long each form is shown (60 fps -> 10 s)
     private static final int FADE_FRAMES = 150;                    // cross-fade length
     private static final int LOWRES_SCALE = 4;                     // bigger = chunkier background pixels
-    private static final double MENU_TOP = 0.50;                   // where the first menu item sits (fraction of the screen height)
-    private static final double MENU_LINE = 2.1;                   // menu line spacing, in cap heights (5 items fit above the footer)
+    private static final double MENU_TOP = 0.47;                   // where the first menu item sits (fraction of the screen height)
+    private static final double MENU_LINE = 1.9;                   // menu line spacing, in cap heights (6 items fit above the footer)
 
     private static final Color RED = new Color(255, 0, 0);
     private static final Color DARK_RED = new Color(110, 0, 0);
@@ -107,7 +107,8 @@ public class MenuScreen extends Screen {
                 case 1: screenCoordinator.setGameState(GameState.CONTROLS); break;
                 case 2: screenCoordinator.setGameState(GameState.ABOUT); break;
                 case 3: screenCoordinator.setGameState(GameState.CREDITS); break;
-                case 4: System.exit(0); break;
+                case 4: screenCoordinator.setGameState(GameState.LOAD_SAVE); break;
+                case 5: System.exit(0); break;
             }
         }
     }

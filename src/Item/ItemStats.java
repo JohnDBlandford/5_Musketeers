@@ -121,6 +121,12 @@ public final class ItemStats {
         return xpGained;
     }
 
+    // puts the level, xp and durability back to saved values, used when loading a save
+    public void restore(int lvl, long xp, int durability) {
+        progress.restore(lvl, xp);
+        itemDurability = Math.max(0, Math.min(durability, getItemMaxDurability()));
+    }
+
     // gets the max durability of an item
     public int getItemMaxDurability() { return (int)Math.round(scale(baseMaxDurability, durabilityGrowth)); }
     public int getDurability() { return this.itemDurability; }
