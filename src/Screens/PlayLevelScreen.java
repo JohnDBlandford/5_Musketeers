@@ -539,7 +539,7 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         playLevelScreenState = PlayLevelScreenState.RUNNING;
         // BALANCE: HP goes back to full after EVERY battle (PP refills on its own: each battle starts with full PP)
         syncGearHealth();
-        player.setCurrentHP(player.getMaxHP());
+        player.setCurrentHP(player.getMaxHP()); // THIS LINE MAKES IT SO YOUR HP DOES NOT GO DOWN, SO THE HP BAR WAS WORKING IT WAS THE HP ITSELF WAS NOT GOING DOWN
         if (result == Battle.BattleResult.DEFEAT) {
             // the knight fell: show the game-over screen, which then sends him back to the last named location
             player.lock();
@@ -651,38 +651,41 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
                 graphicsHandler.drawFilledRectangle(297,10,30,10,new Color(49, 243, 49, 216));
                 graphicsHandler.drawFilledRectangle(327,10,30,10,new Color(24, 243, 24, 163));
                 graphicsHandler.drawFilledRectangle(357,10,30,10,new Color(0, 255, 0, 115));
-                graphicsHandler.drawFilledRectangle(87 + (xp * 3), 10, 300 - (xp * 3), 10, Color.LIGHT_GRAY);
+                int xpNeeded = player.getXpToNextLevel();   // 0 at max level, which counts as a full bar
+                int xpFill = xpNeeded > 0 ? 300 * player.getCurrentXP() / xpNeeded : 300;
+                graphicsHandler.drawFilledRectangle(87 + xpFill, 10, 300 - xpFill, 10, Color.LIGHT_GRAY);
                 //HEALTH BAR
                 healthDisplay.draw(graphicsHandler);
                 currHealth.draw(graphicsHandler);
-                if(player.getCurrentHP() >= 10) {
+                float hpPercent = player.getCurrentHP() / player.getMaxHP() * 100;
+                if(hpPercent  >= 10) {
                     graphicsHandler.drawFilledRectangle(87, 28, 30, 10, new Color(255, 59, 54));
                 }
-                if(player.getCurrentHP() >= 20) {
+                if(hpPercent  >= 20) {
                     graphicsHandler.drawFilledRectangle(117, 28, 30, 10, new Color(246, 27, 24));
                 }
-                if(player.getCurrentHP() >= 30) {
+                if(hpPercent >= 30) {
                     graphicsHandler.drawFilledRectangle(147, 28, 30, 10, new Color(255, 17, 13, 200));
                 }
-                if(player.getCurrentHP() >= 40) {
+                if(hpPercent >= 40) {
                     graphicsHandler.drawFilledRectangle(177, 28, 30, 10, new Color(241, 169, 15, 236));
                 }
-                if(player.getCurrentHP() >= 50) {
+                if(hpPercent >= 50) {
                     graphicsHandler.drawFilledRectangle(207, 28, 30, 10, new Color(253, 154, 73));
                 }
-                if(player.getCurrentHP() >= 60) {
+                if(hpPercent >= 60) {
                     graphicsHandler.drawFilledRectangle(237, 28, 30, 10, new Color(145, 248, 145, 158));
                 }
-                if(player.getCurrentHP() >= 70) {
+                if(hpPercent >= 70) {
                     graphicsHandler.drawFilledRectangle(267, 28, 30, 10, new Color(66, 243, 66, 165));
                 }
-                if(player.getCurrentHP() >= 80) {
+                if(hpPercent >= 80) {
                     graphicsHandler.drawFilledRectangle(297, 28, 30, 10, new Color(85, 246, 85, 152));
                 }
-                if(player.getCurrentHP() >= 90) {
+                if(hpPercent  >= 90) {
                     graphicsHandler.drawFilledRectangle(327, 28, 30, 10, new Color(48, 255, 48, 84));
                 }
-                if(player.getCurrentHP() >= 100) {
+                if(hpPercent >= 100) {
                     graphicsHandler.drawFilledRectangle(357, 28, 30, 10, new Color(0, 255, 0, 71));
                 }
                 drawSurvivalBars(graphicsHandler);   // SURVIVAL
