@@ -33,6 +33,10 @@ public class ControlsScreen extends Screen {
             { "BATTLE", "ARROWS", "CHOOSE", "ENTER", "CONFIRM", "1 - 4", "USE ABILITY", "B / X", "BACK", "Y", "ABILITY INFO" },
     };
 
+    private static final String[][] BOTTOM = {
+            { "SHOP (MERCHANT & BLACKSMITH)", "ESC", "QUIT", "ENTER", "CONFIRM", "ARROWS", "NAVIGATE" }
+    };
+
     private static final int TITLE_SCALE = 5, HEAD_SCALE = 2, TEXT_SCALE = 2;
     private static final int ROW_H = 22, HEAD_H = 30, SECTION_GAP = 18, KEY_COL = 112;
 
@@ -79,21 +83,32 @@ public class ControlsScreen extends Screen {
         font.draw(gh, title, tx, 40, TITLE_SCALE, TITLE_SCALE, RED);
 
         int colW = (w - 100) / 2;
-        drawColumn(gh, LEFT, 50 + 20, 115);
-        drawColumn(gh, RIGHT, 50 + colW + 20, 115);
+        int leftEnd = drawColumn(gh, LEFT, 50 + 20, 115, 300);
+        int rightEnd = drawColumn(gh, RIGHT, 50 + colW + 20, 115, 300);
+
+        // shop block: centered under both columns
+        int blockW = 0;
+        for (String[] s : BOTTOM) {
+            blockW = Math.max(blockW, font.getTextWidth(s[0], HEAD_SCALE, HEAD_SCALE * 2));
+            for (int i = 1; i + 1 < s.length; i += 2) {
+                blockW = Math.max(blockW, KEY_COL + font.getTextWidth(s[i + 1], TEXT_SCALE, 0));
+            }
+        }
+        drawColumn(gh, BOTTOM, (w - blockW) / 2, Math.max(leftEnd, rightEnd), blockW);
 
         String back = "PRESS SPACE TO RETURN";
         int alpha = Math.max(0, Math.min(255, (int) (150 + 105 * Math.sin(frame * 0.05))));
-        font.draw(gh, back, (w - font.getTextWidth(back, TEXT_SCALE, TEXT_SCALE * 2)) / 2, h - 60, TEXT_SCALE, TEXT_SCALE * 2,
+        font.draw(gh, back, (w - font.getTextWidth(back, TEXT_SCALE, TEXT_SCALE * 2)) / 2, h - 30, TEXT_SCALE, TEXT_SCALE * 2,
                 new Color(150, 150, 150, alpha));
 
         for (int y = 0; y < h; y += 3) gh.drawFilledRectangle(0, y, w, 1, SCANLINE);
     }
 
-    private void drawColumn(GraphicsHandler gh, String[][] sections, int x, int y) {
+    // draws the sections and returns the y just below the last one
+    private int drawColumn(GraphicsHandler gh, String[][] sections, int x, int y, int width) {
         for (String[] s : sections) {
             font.draw(gh, s[0], x, y, HEAD_SCALE, HEAD_SCALE * 2, HEADER);
-            gh.drawFilledRectangle(x, y + font.getCapHeight(HEAD_SCALE) + 6, 300, 2, DARK_RED);
+            gh.drawFilledRectangle(x, y + font.getCapHeight(HEAD_SCALE) + 6, width, 2, DARK_RED);
             y += HEAD_H;
             for (int i = 1; i + 1 < s.length; i += 2) {
                 font.draw(gh, s[i], x, y, TEXT_SCALE, 0, KEY);
@@ -102,5 +117,6 @@ public class ControlsScreen extends Screen {
             }
             y += SECTION_GAP;
         }
+        return y;
     }
 }
