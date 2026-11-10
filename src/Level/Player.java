@@ -1,9 +1,5 @@
 package Level;
 
-
-import java.awt.Color;
-
-
 import BattleSystem.Balance;
 import Engine.CombatResolver;
 import Engine.GraphicsHandler;
@@ -17,9 +13,7 @@ import NPCs.Enemy;
 import Utils.Direction;
 import Game.PlayerData;
 
-
 import java.util.ArrayList;
-
 
 import Lighting.BackgroundOpacity;
 
