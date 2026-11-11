@@ -11,6 +11,7 @@ import inventory.Inventory;
 import Item.ItemStats;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -164,7 +165,7 @@ public final class InventoryScreen extends Screen {
     // draws one line of pixel-font body text with its capitals' top edge at y, enlarged by DETAIL_ZOOM
     private static void bodyText(GraphicsHandler g, String s, int x, int y, int width, Color color) {
         Graphics2D g2 = g.getGraphics();
-        java.awt.geom.AffineTransform saved = g2.getTransform();
+        AffineTransform saved = g2.getTransform();
         Object hint = g2.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
         g2.translate(x, y);
         g2.scale(DETAIL_ZOOM, DETAIL_ZOOM);
@@ -317,7 +318,7 @@ public final class InventoryScreen extends Screen {
     // rarity color assigner
     public static Color rarityColor(Item item) { return rarityColor(item.getItemRarity()); }
 
-    public static Color rarityColor(Item.ItemRarity rarity) {
+    private static Color rarityColor(Item.ItemRarity rarity) {
         return switch (rarity) {
             case UNCOMMON -> new Color(80, 170, 80);
             case EPIC -> new Color(150, 80, 200);
