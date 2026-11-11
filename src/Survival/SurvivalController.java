@@ -26,6 +26,7 @@ public final class SurvivalController implements ISurvival {
 
     // fps (60 default, 30 in the slower mode)
     public SurvivalController(int fps) {
+        assert fps > 0;
         if (fps <= 0) throw new IllegalArgumentException("fps must be positive, but got: " + fps);
         this.framesPerPoint = (long) fps * REAL_SECONDS_PER_POINT;
         this.framesPerMinute = (long) fps * REAL_SECONDS_PER_GAME_MINUTE;
