@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.IntFunction;
 
-// Opens chests (chest spec, section 1). open() checks, in order: null arguments, the world, that the chest is in the registry,
+// Opens chests. open() checks, in order: null arguments, the world, that the chest is in the registry,
 // and whether it was already opened (then nothing happens and no random numbers are used). Otherwise it rolls the contents with
 // ChestLoot and the player's luck, pays the gold, puts the item in the pack if it fits (a full pack destroys it), marks the
 // chest opened and returns what happened. The pools are injected by function so tests can use tiny hand made pools.
