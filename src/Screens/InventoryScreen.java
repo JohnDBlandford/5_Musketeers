@@ -241,7 +241,7 @@ public final class InventoryScreen extends Screen {
         int width = detailW - 24;
         int nameLineH = BattleUI.font().getCapHeight(NAME_SCALE) + 8;
         int nameChars = Math.max(1, width / (6 * NAME_SCALE));
-        for (String line : BattleUI.wrap(ItemNames.prettyName(consumable.getItemName()), nameChars)) {
+        for (String line : BattleUI.wrap(ItemNames.getPrettyName(consumable.getItemName()), nameChars)) {
             BattleUI.text(g, line, x, y, NAME_SCALE, rarityColor(consumable.getItemRarity()));
             y += nameLineH;
         }

@@ -36,8 +36,8 @@ public record ChestResult(Outcome outcome, int gold, String itemName, ItemRarity
         return switch (outcome) {
             case ALREADY_OPENED -> List.of("The chest is empty.");
             case GOLD_ONLY -> List.of(goldPage);
-            case ITEM_ADDED -> List.of(goldPage, "You also found: " + ItemNames.prettyName(itemName) + ".");
-            case ITEM_LOST -> List.of(goldPage, "Pack full! " + ItemNames.prettyName(itemName) + " was lost.");
+            case ITEM_ADDED -> List.of(goldPage, "You also found: " + ItemNames.getPrettyName(itemName) + ".");
+            case ITEM_LOST -> List.of(goldPage, "Pack full! " + ItemNames.getPrettyName(itemName) + " was lost.");
         };
     }
 
