@@ -14,7 +14,7 @@ public class ChestScript extends Script {
     private final ChestId chestId;
 
     public ChestScript(ChestId id) {
-        this.chestId = Objects.requireNonNull(id, "id");
+        this.chestId = Objects.requireNonNull(id, "id not found");
     }
 
     @Override

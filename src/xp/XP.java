@@ -21,7 +21,7 @@ public class XP {
         // disallow maxLvl to be less than 1
         if (maxLvl < 1) throw new IllegalArgumentException("Max level must be at least 1, but got: " + maxLvl);
         this.maxLvl = maxLvl;
-        this.xpToNextLvl = Objects.requireNonNull(xpToNextLvl, "xp to next level");
+        this.xpToNextLvl = Objects.requireNonNull(xpToNextLvl, "xp not enough to get to next level");
     }
 
     // player curve: EXP_to_next(L) = L^3. use as new XP(maxLevel, XP::cubicCurve)

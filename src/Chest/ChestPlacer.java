@@ -33,10 +33,10 @@ public final class ChestPlacer {
     // walkable is indexed [row][column] and must be rectangular. start is the player's start tile and must be walkable.
     // entities are the tiles of doors, portals, signs and NPCs. Nothing passed in is changed
     public static List<ChestId> place(String mapName, boolean[][] walkable, Tile start, List<Tile> entities, int count, Random random) {
-        Objects.requireNonNull(walkable, "walkable");
-        Objects.requireNonNull(start, "start");
-        Objects.requireNonNull(entities, "entities");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(walkable, "walkable not set");
+        Objects.requireNonNull(start, "start not set");
+        Objects.requireNonNull(entities, "entities not set");
+        Objects.requireNonNull(random, "random not set");
         if (mapName == null || mapName.isBlank()) throw new IllegalArgumentException("Map name cannot be blank");
         if (count < 1) throw new IllegalArgumentException("Chest count must be at least 1, but got: " + count);
         requireValidGrid(walkable, start);

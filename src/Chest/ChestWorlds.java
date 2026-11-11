@@ -26,7 +26,7 @@ public final class ChestWorlds {
     private static final int NO_WORLD = 0;
 
     private static int find(String mapName) {
-        Objects.requireNonNull(mapName, "mapName");
+        Objects.requireNonNull(mapName, "mapName cannot be found");
         String name = mapName.toLowerCase(Locale.ROOT);
         for (int world = ItemEntry.getMinWorld(); world <= ItemEntry.getMaxWorld(); world++) {
             if (name.contains("world" + world)) return world;

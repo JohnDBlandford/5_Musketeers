@@ -22,8 +22,8 @@ public final class MerchantViewModel {
     private String message = "";
 
     public MerchantViewModel(IMerchant merchant, Supplier<Inventory> inventory) {
-        this.merchant = Objects.requireNonNull(merchant, "merchant");
-        this.inventory = Objects.requireNonNull(inventory, "inventory");
+        this.merchant = Objects.requireNonNull(merchant, "merchant not set");
+        this.inventory = Objects.requireNonNull(inventory, "inventory not set");
     }
 
     // call every time the shop opens: back to the first slot, quantity 1, no message

@@ -21,9 +21,9 @@ public final class ChestLoot {
 
     public static ChestContents rollContents(int world, int luck, List<ItemEntry> gearPool, List<ItemEntry> consumablePool,
                                              Random random) {
-        Objects.requireNonNull(gearPool, "gearPool");
-        Objects.requireNonNull(consumablePool, "consumablePool");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(gearPool, "gearPool not set");
+        Objects.requireNonNull(consumablePool, "consumablePool not set");
+        Objects.requireNonNull(random, "random not set");
         ItemEntry.requireValidWorld(world);
         if (luck < 0) throw new IllegalArgumentException("Luck cannot be negative, but got: " + luck);
         for (ItemEntry entry : gearPool) {

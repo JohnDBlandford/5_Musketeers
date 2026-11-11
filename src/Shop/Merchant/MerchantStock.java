@@ -33,9 +33,9 @@ public final class MerchantStock {
     // The caller decides what is eligible (worlds 1-3 see their world and older, the Final world only its own), this
     // class only does the picking. All randomness comes from `random`, so a seeded Random gives a repeatable shop.
     public static MerchantStock rollStock(int shopWorld, List<ItemEntry> gearPool, List<ItemEntry> consumablePool, Random random) {
-        Objects.requireNonNull(gearPool, "gearPool");
-        Objects.requireNonNull(consumablePool, "consumablePool");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(gearPool, "gearPool missing");
+        Objects.requireNonNull(consumablePool, "consumablePool missing");
+        Objects.requireNonNull(random, "random not set");
         ItemEntry.requireValidWorld(shopWorld);
         for (ItemEntry entry : gearPool) {
             if (entry.itemKind() != ItemKind.GEAR) throw new IllegalArgumentException(entry.id() + " is not gear");

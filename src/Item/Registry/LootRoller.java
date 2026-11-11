@@ -30,7 +30,7 @@ public final class LootRoller {
     public static int getRarityWeight(int world, ItemRarity rarity) {
         ItemEntry.requireValidWorld(world);
         boolean lateGame = world >= 3;
-        return switch (Objects.requireNonNull(rarity, "rarity")) {
+        return switch (Objects.requireNonNull(rarity, "rarity weight cannot be found")) {
             case COMMON -> lateGame ? 0 : 55;
             case UNCOMMON -> lateGame ? 0 : 25;
             case EPIC -> lateGame ? 60 : 17;
@@ -56,8 +56,8 @@ public final class LootRoller {
     // evenly so the slot is still filled. returns null if nothing is available.
     // walks ItemRarity.values() instead of the set, so the order the set happens to iterate in never changes the result
     public static ItemRarity rollRarity(int world, Set<ItemRarity> available, int luck, Random random) {
-        Objects.requireNonNull(available, "available");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(available, "available not set");
+        Objects.requireNonNull(random, "random not set");
         ItemEntry.requireValidWorld(world);
         getLuckMultiplier(luck); // rejects negative luck even when nothing is available
 
@@ -84,8 +84,8 @@ public final class LootRoller {
     // removes and returns one entry from the bucket. items from the roller's own world are CURRENT_WORLD_WEIGHT times
     // as likely as older ones. the bucket must not be empty
     public static ItemEntry pickWithinRarity(int world, List<ItemEntry> bucket, Random random) {
-        Objects.requireNonNull(bucket, "bucket");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(bucket, "bucket not set");
+        Objects.requireNonNull(random, "random not set");
         ItemEntry.requireValidWorld(world);
         if (bucket.isEmpty()) throw new IllegalArgumentException("Cannot pick from an empty bucket");
 
@@ -102,8 +102,8 @@ public final class LootRoller {
     // rolls one item from a pool: a rarity first (only rarities the pool has), then an item within it. the pool itself is
     // not changed, so the same pool can be rolled again. returns null for an empty pool
     public static ItemEntry rollOne(int world, List<ItemEntry> pool, int luck, Random random) {
-        Objects.requireNonNull(pool, "pool");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(pool, "pool not set");
+        Objects.requireNonNull(random, "random not set");
         ItemEntry.requireValidWorld(world);
         getLuckMultiplier(luck);
 

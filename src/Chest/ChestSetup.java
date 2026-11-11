@@ -14,7 +14,7 @@ public final class ChestSetup {
     private ChestSetup() {}
 
     public static boolean[][] walkableGrid(int width, int height, BiPredicate<Integer, Integer> isWalkable) {
-        Objects.requireNonNull(isWalkable, "isWalkable");
+        Objects.requireNonNull(isWalkable, "isWalkable not set");
         if (width < 1 || height < 1) {
             throw new IllegalArgumentException("The grid needs at least one tile, but got " + width + " x " + height);
         }
@@ -29,12 +29,12 @@ public final class ChestSetup {
 
     public static List<ChestId> ensurePlaced(ChestRegistry registry, String mapName, boolean[][] walkable,
                                              ChestPlacer.Tile start, List<ChestPlacer.Tile> entities, Random random) {
-        Objects.requireNonNull(registry, "registry");
-        Objects.requireNonNull(mapName, "mapName");
-        Objects.requireNonNull(walkable, "walkable");
-        Objects.requireNonNull(start, "start");
-        Objects.requireNonNull(entities, "entities");
-        Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(registry, "registry not set");
+        Objects.requireNonNull(mapName, "mapName not found");
+        Objects.requireNonNull(walkable, "walkable not set");
+        Objects.requireNonNull(start, "start not set");
+        Objects.requireNonNull(entities, "entities not set");
+        Objects.requireNonNull(random, "random not set");
 
         if (registry.isPlaced(mapName)) return registry.getChests(mapName);
         List<ChestId> chests = ChestPlacer.place(mapName, walkable, start, entities, ChestConfig.CHESTS_PER_MAP, random);

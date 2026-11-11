@@ -22,7 +22,7 @@ public class OpenShopScriptAction extends ScriptAction {
 
     // tells every ShopOpener in the list to open the shop and returns how many were told; anything else is skipped
     public static int notifyOpeners(List<?> listeners) {
-        Objects.requireNonNull(listeners, "listeners");
+        Objects.requireNonNull(listeners, "listeners not set");
         int told = 0;
         for (Object listener : listeners) {
             if (listener instanceof ShopOpener opener) {

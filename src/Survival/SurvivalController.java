@@ -65,8 +65,8 @@ public final class SurvivalController implements ISurvival {
     // uses ONE of the named consumable. nothing is used up when it would change nothing (every stat it restores is already full)
     // or when the pack has none. The gains in the result are what really changed, clamped to what fits
     public SurvivalResult use(Inventory inventory, String itemName, float currHp, float maxHp) {
-        Objects.requireNonNull(inventory, "inventory");
-        Objects.requireNonNull(itemName, "itemName");
+        Objects.requireNonNull(inventory, "inventory not set");
+        Objects.requireNonNull(itemName, "itemName not set");
         Consumable consumable = findInPack(inventory, itemName);
         if (consumable == null) return new SurvivalResult(Outcome.NOT_FOUND, itemName, 0, 0, 0);
 

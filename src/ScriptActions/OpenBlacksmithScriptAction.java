@@ -23,7 +23,7 @@ public class OpenBlacksmithScriptAction extends ScriptAction {
 
     // tells every BlacksmithOpener in the list to open the blacksmith and returns how many were told; anything else is skipped
     public static int notifyOpeners(List<?> listeners) {
-        Objects.requireNonNull(listeners, "listeners");
+        Objects.requireNonNull(listeners, "listeners not set");
         int told = 0;
         for (Object listener : listeners) {
             if (listener instanceof BlacksmithOpener opener) {

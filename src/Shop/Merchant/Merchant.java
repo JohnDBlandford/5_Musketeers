@@ -23,8 +23,8 @@ public class Merchant implements IMerchant {
 
     // random is passed in so tests can seed it
     public Merchant(GameClock clock, Random random) {
-        this.clock = Objects.requireNonNull(clock, "clock");
-        this.random = Objects.requireNonNull(random, "random");
+        this.clock = Objects.requireNonNull(clock, "clock not set");
+        this.random = Objects.requireNonNull(random, "random not initialized");
     }
 
     @Override
@@ -48,7 +48,7 @@ public class Merchant implements IMerchant {
 
     @Override
     public PurchaseResult purchase(int world, int slotIndex, int quantity, Inventory inventory) {
-        Objects.requireNonNull(inventory, "inventory");
+        Objects.requireNonNull(inventory, "inventory not set");
         List<MerchantStock.ShopSlot> slots = getSlotsOf(world);
         if (slotIndex < 0 || slotIndex >= slots.size()) throw new IllegalArgumentException("No slot at index " + slotIndex);
         MerchantStock.ShopSlot slot = slots.get(slotIndex);

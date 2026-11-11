@@ -33,20 +33,20 @@ public final class ShopController {
 
     // a controller for the merchant only
     public ShopController(GameClock clock, IMerchant merchant, Panel merchantPanel, Runnable onClosed) {
-        this.clock = Objects.requireNonNull(clock, "clock");
-        this.merchant = Objects.requireNonNull(merchant, "merchant");
-        this.merchantPanel = Objects.requireNonNull(merchantPanel, "panel");
+        this.clock = Objects.requireNonNull(clock, "clock not set");
+        this.merchant = Objects.requireNonNull(merchant, "merchant not set");
+        this.merchantPanel = Objects.requireNonNull(merchantPanel, "panel not set");
         this.blacksmithPanel = null;
-        this.onClosed = Objects.requireNonNull(onClosed, "onClosed");
+        this.onClosed = Objects.requireNonNull(onClosed, "onClosed not set. Attach a Runnable.");
     }
 
     // a controller for the merchant and the blacksmith
     public ShopController(GameClock clock, IMerchant merchant, Panel merchantPanel, Panel blacksmithPanel, Runnable onClosed) {
-        this.clock = Objects.requireNonNull(clock, "clock");
-        this.merchant = Objects.requireNonNull(merchant, "merchant");
-        this.merchantPanel = Objects.requireNonNull(merchantPanel, "panel");
-        this.blacksmithPanel = Objects.requireNonNull(blacksmithPanel, "blacksmith panel");
-        this.onClosed = Objects.requireNonNull(onClosed, "onClosed");
+        this.clock = Objects.requireNonNull(clock, "clock not set");
+        this.merchant = Objects.requireNonNull(merchant, "merchant not set");
+        this.merchantPanel = Objects.requireNonNull(merchantPanel, "merchant panel not set");
+        this.blacksmithPanel = Objects.requireNonNull(blacksmithPanel, "blacksmith panel not set");
+        this.onClosed = Objects.requireNonNull(onClosed, "onClosed not set. Attach a Runnable. ");
     }
 
     public boolean isOpen() { return open; }

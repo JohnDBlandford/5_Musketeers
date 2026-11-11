@@ -21,7 +21,7 @@ public final class ChestRegistry {
     // that stays. an empty list is fine (no valid spots) and still counts as placed. nothing is stored if the list is rejected
     public void place(String mapName, List<ChestId> chests) {
         requireMapName(mapName);
-        Objects.requireNonNull(chests, "chests");
+        Objects.requireNonNull(chests, "chests not placed");
         if (placed.containsKey(mapName)) throw new IllegalStateException("Chests were already placed on " + mapName);
 
         Set<ChestId> seen = new HashSet<>();
@@ -47,13 +47,13 @@ public final class ChestRegistry {
     }
 
     public boolean isOpened(ChestId id) {
-        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(id, "id cannot be found");
         return opened.contains(id);
     }
 
     // true if the chest exists and this call opened it. false if it was already opened or was never placed
     public boolean markOpened(ChestId id) {
-        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(id, "id cannot be found");
         if (!getChests(id.mapName()).contains(id)) return false;
         return opened.add(id);
     }

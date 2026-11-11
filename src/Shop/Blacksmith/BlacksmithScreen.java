@@ -47,9 +47,9 @@ public final class BlacksmithScreen extends Screen implements ShopController.Pan
     private CombineResult lastResult = null;
 
     public BlacksmithScreen(BlacksmithViewModel viewModel, Supplier<Inventory> inventory, Runnable closeRequest) {
-        this.viewModel = Objects.requireNonNull(viewModel, "viewModel");
-        this.inventory = Objects.requireNonNull(inventory, "inventory");
-        this.closeRequest = Objects.requireNonNull(closeRequest, "closeRequest");
+        this.viewModel = Objects.requireNonNull(viewModel, "viewModel not set");
+        this.inventory = Objects.requireNonNull(inventory, "inventory not supplied");
+        this.closeRequest = Objects.requireNonNull(closeRequest, "closeRequest not set. Attach a Runnable");
     }
 
     @Override

@@ -26,8 +26,8 @@ public final class BlacksmithViewModel {
     private record View(int groupIndex, List<Item> group, int first, int second) {}
 
     public BlacksmithViewModel(IBlacksmith iBlacksmith, Supplier<Inventory> inventorySupplier) {
-        this.blacksmith = Objects.requireNonNull(iBlacksmith, "blacksmith");
-        this.inventory = Objects.requireNonNull(inventorySupplier, "inventory");
+        this.blacksmith = Objects.requireNonNull(iBlacksmith, "blacksmith not set");
+        this.inventory = Objects.requireNonNull(inventorySupplier, "inventory not supplied");
     }
 
     // call every time the blacksmith opens: back to the first group, copies 0 and 1, no message

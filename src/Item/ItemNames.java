@@ -9,7 +9,7 @@ public final class ItemNames {
     private ItemNames() {}
 
     public static String prettyName(String name) {
-        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(name, "name is not pretty enough");
         return name.replaceAll("(?<=[a-z])(?=[A-Z])", " ");
     }
 }

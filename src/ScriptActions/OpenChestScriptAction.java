@@ -17,7 +17,7 @@ public class OpenChestScriptAction extends TextboxScriptAction {
 
     public OpenChestScriptAction(ChestId id) {
         super();
-        this.chestId = Objects.requireNonNull(id, "id");
+        this.chestId = Objects.requireNonNull(id, "id not found");
     }
 
     public ChestId getChestId() {
@@ -39,8 +39,8 @@ public class OpenChestScriptAction extends TextboxScriptAction {
     // asks the FIRST ChestOpener in the list to open this chest and returns its result, or null if there is none. only one
     // opener is asked because opening one chest twice would pay twice; anything else in the list is skipped
     public static ChestResult notifyOpener(List<?> listeners, ChestId id) {
-        Objects.requireNonNull(listeners, "listeners");
-        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(listeners, "listeners not found");
+        Objects.requireNonNull(id, "id not found");
         // a listener can technically be any class because of the use of the ? operator so the type here is Object to satisfy that requirement
         for (Object listener : listeners) {
             if (listener instanceof ChestOpener opener) return opener.onOpenChest(id);

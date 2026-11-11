@@ -30,7 +30,7 @@ public class ChestTile extends EnhancedMapTile {
     // location is the top left corner of the map tile the chest stands on
     public ChestTile(Point location, ChestId id) {
         super(location.x, location.y, buildBottomLayer(location), null, TileType.NOT_PASSABLE);
-        this.chestId = Objects.requireNonNull(id, "id");
+        this.chestId = Objects.requireNonNull(id, "id cannot be found");
         setInteractScript(new ChestScript(id));
     }
 

@@ -55,8 +55,8 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     private PurchaseResult lastResult = null;
 
     public MerchantScreen(MerchantViewModel viewModel, Runnable closeRequest) {
-        this.viewModel = Objects.requireNonNull(viewModel, "viewModel");
-        this.closeRequest = Objects.requireNonNull(closeRequest, "closeRequest");
+        this.viewModel = Objects.requireNonNull(viewModel, "viewModel not set");
+        this.closeRequest = Objects.requireNonNull(closeRequest, "closeRequest not set. Attach a Runnable");
     }
 
     @Override

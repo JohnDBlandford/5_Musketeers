@@ -53,7 +53,7 @@ public final class MerchantConfig {
 
     // number of items a single slot starts with
     public static int getStockPerSlot(ItemRarity rarity) {
-        return switch (Objects.requireNonNull(rarity, "rarity")) {
+        return switch (Objects.requireNonNull(rarity, "rarity not assigned")) {
             case COMMON -> COMMON_STOCK;
             case UNCOMMON -> UNCOMMON_STOCK;
             case EPIC -> EPIC_STOCK;
@@ -68,7 +68,7 @@ public final class MerchantConfig {
     }
 
     public static int getBasePrice(ItemRarity rarity) {
-        return switch (Objects.requireNonNull(rarity, "rarity")) {
+        return switch (Objects.requireNonNull(rarity, "rarity price not set")) {
             case COMMON -> COMMON_BASE_PRICE;
             case UNCOMMON -> UNCOMMON_BASE_PRICE;
             case EPIC -> EPIC_BASE_PRICE;

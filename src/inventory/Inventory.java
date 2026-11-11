@@ -57,7 +57,7 @@ public class Inventory {
     // room in partial stacks of the same consumable is used first, then whatever is left needs new stacks of
     // MAX_CONSUMABLE_STACK, and those new stacks must fit in the free slots. this does not change the inventory
     public boolean canAddConsumables(Consumable consumable, int qty) {
-        Objects.requireNonNull(consumable, "consumable");
+        Objects.requireNonNull(consumable, "consumable cannot be added");
         if (qty < 0) throw new IllegalArgumentException("Consumable quantity cannot be negative: " + qty);
 
         int remaining = qty;

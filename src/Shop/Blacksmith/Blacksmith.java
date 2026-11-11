@@ -17,7 +17,7 @@ public class Blacksmith implements IBlacksmith {
     // item the registry does not know throws, so a missing fee can never become a free repair
     @Override
     public int getRepairFee(Item item) {
-        Objects.requireNonNull(item, "item");
+        Objects.requireNonNull(item, "item not found");
         ItemEntry entry = ItemRegistry.getEntry(item.getItemName());
         return BlacksmithConfig.getRepairFee(item.getItemRarity(), entry.world());
     }
@@ -26,7 +26,7 @@ public class Blacksmith implements IBlacksmith {
     // Inventory.removeBrokenItem anyway and can't be repaired, so it is never offered
     @Override
     public List<List<Item>> getCombinableGroups(Inventory inventory) {
-        Objects.requireNonNull(inventory, "inventory");
+        Objects.requireNonNull(inventory, "inventory cannot be combined");
         Map<String, List<Item>> byName = new LinkedHashMap<>();
         for (Item item : inventory.getAllItems()) {
             if (item.getItemStats().isBroken()) continue;
@@ -43,17 +43,17 @@ public class Blacksmith implements IBlacksmith {
     // matter. checks nothing else and changes nothing, so the screen can use it to preview a combine
     @Override
     public Item pickKeeper(Item a, Item b) {
-        Objects.requireNonNull(a, "a");
-        Objects.requireNonNull(b, "b");
+        Objects.requireNonNull(a, "a item cannot be found");
+        Objects.requireNonNull(b, "b item cannot be found");
         return outranks(b, a) ? b : a;
     }
 
     // all checks run before anything changes, so a rejected combine costs nothing
     @Override
     public CombineResult combine(Item a, Item b, Inventory inventory) {
-        Objects.requireNonNull(a, "a");
-        Objects.requireNonNull(b, "b");
-        Objects.requireNonNull(inventory, "inventory");
+        Objects.requireNonNull(a, "a item not set");
+        Objects.requireNonNull(b, "b item not set");
+        Objects.requireNonNull(inventory, "inventory not set");
 
         List<Item> pack = inventory.getAllItems();
         if (!pack.contains(a) || !pack.contains(b)) return CombineResult.NOT_IN_INVENTORY;

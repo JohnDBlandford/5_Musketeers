@@ -27,10 +27,10 @@ public final class ChestController {
 
     public ChestController(ChestRegistry registry, Random random, IntFunction<List<ItemEntry>> gearPools,
                            IntFunction<List<ItemEntry>> consumablePools) {
-        this.registry = Objects.requireNonNull(registry, "registry");
-        this.random = Objects.requireNonNull(random, "random");
-        this.gearPools = Objects.requireNonNull(gearPools, "gearPools");
-        this.consumablePools = Objects.requireNonNull(consumablePools, "consumablePools");
+        this.registry = Objects.requireNonNull(registry, "registry cannot be found");
+        this.random = Objects.requireNonNull(random, "random not set");
+        this.gearPools = Objects.requireNonNull(gearPools, "gearPools not set");
+        this.consumablePools = Objects.requireNonNull(consumablePools, "consumablePools not set");
     }
 
     // production: the pools come from the item registry
@@ -49,8 +49,8 @@ public final class ChestController {
     }
 
     public ChestResult open(ChestId id, int world, Inventory inventory) {
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(inventory, "inventory");
+        Objects.requireNonNull(id, "id not found");
+        Objects.requireNonNull(inventory, "inventory not set");
         ItemEntry.requireValidWorld(world);
         // if the map doesnt contain the correct chest id, throw
         if (!registry.getChests(id.mapName()).contains(id)) {
