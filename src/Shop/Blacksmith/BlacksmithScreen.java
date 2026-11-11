@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static Screens.InventoryScreen.rarityColor;
 import static Shop.ShopUI.BAD;
 import static Shop.ShopUI.DIM;
 import static Shop.ShopUI.GOOD;
@@ -25,7 +26,6 @@ import static Shop.ShopUI.PANEL_FILL;
 import static Shop.ShopUI.SLOT_BORDER;
 import static Shop.ShopUI.SLOT_FILL;
 import static Shop.ShopUI.line;
-import static Shop.ShopUI.rarityColor;
 
 // The blacksmith's window. UI only: every decision (selected group, which two copies are picked, who is kept, the fee, combining,
 // the status message) lives in BlacksmithViewModel; this class maps keys to it and draws what it reports. Shown by ShopController,

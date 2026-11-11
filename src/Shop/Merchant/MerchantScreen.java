@@ -24,13 +24,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import static Screens.InventoryScreen.rarityColor;
 import static Shop.ShopUI.BAD;
 import static Shop.ShopUI.DIM;
 import static Shop.ShopUI.GOOD;
 import static Shop.ShopUI.PANEL_FILL;
 import static Shop.ShopUI.SLOT_BORDER;
 import static Shop.ShopUI.SLOT_FILL;
-import static Shop.ShopUI.rarityColor;
 
 // The merchant's shop window. UI only: every decision (selection, quantity stepper, buying, the status message) lives in
 // MerchantViewModel; this class maps keys to it and draws what it reports. Shown by ShopController, which restocks and

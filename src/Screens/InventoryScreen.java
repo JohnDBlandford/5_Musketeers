@@ -318,7 +318,7 @@ public final class InventoryScreen extends Screen {
     // rarity color assigner
     public static Color rarityColor(Item item) { return rarityColor(item.getItemRarity()); }
 
-    private static Color rarityColor(Item.ItemRarity rarity) {
+    public static Color rarityColor(Item.ItemRarity rarity) {
         return switch (rarity) {
             case UNCOMMON -> new Color(80, 170, 80);
             case EPIC -> new Color(150, 80, 200);

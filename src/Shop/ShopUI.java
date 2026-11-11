@@ -19,15 +19,6 @@ public final class ShopUI {
     public static final Color GOOD = new Color(110, 220, 120);
     public static final Color BAD = new Color(235, 90, 80);
 
-    public static Color rarityColor(Item.ItemRarity rarity) {
-        return switch (rarity) {
-            case UNCOMMON -> new Color(80, 170, 80);
-            case EPIC -> new Color(150, 80, 200);
-            case LEGENDARY -> new Color(230, 150, 40);
-            default -> new Color(130, 130, 130);
-        };
-    }
-
     // draws one line of text (scale 2, dropping to scale 1 if it is too wide) and returns the y of the next line; stops drawing past `bottom`
     public static int line(GraphicsHandler g, String text, int x, int y, int width, Color color, int bottom) {
         int scale = BattleUI.textW(text, 2) <= width ? 2 : 1;
