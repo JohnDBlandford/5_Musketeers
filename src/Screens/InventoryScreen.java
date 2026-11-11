@@ -17,8 +17,8 @@ import java.util.Map;
 
 // The inventory, drawn with the same pixel font (VCR OSD Mono) as the title screen and the battle screens.
 public final class InventoryScreen extends Screen {
-    private KeyLocker keyLocker = new KeyLocker();
-    private PlayLevelScreen playLevelScreen;
+    private final KeyLocker keyLocker = new KeyLocker();
+    private final PlayLevelScreen playLevelScreen;
     private SpriteFont instructions;
     private static final int COLS = 5;
     private static final int ROWS = 4;
