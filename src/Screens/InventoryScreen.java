@@ -47,10 +47,7 @@ public final class InventoryScreen extends Screen {
     private int panelX, panelY, panelW, panelH, slotsY, equipX, gridX, detailX, detailW, detailH;
     private final int screenWidth = ScreenManager.getScreenWidth();
     private final int screenHeight = ScreenManager.getScreenHeight();
-    private static final boolean DEBUG_KEYS = true;
-    // for debug: W subtracts 10 durability, I gives 500 xp to selected item
-    private static final Key[] INPUT_KEYS = DEBUG_KEYS ? new Key[]{ Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER, Key.I, Key.W }
-            : new Key[]{Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER};
+    private static final Key[] INPUT_KEYS = new Key[]{ Key.ESC, Key.UP, Key.DOWN, Key.LEFT, Key.RIGHT, Key.ENTER, Key.I, Key.W };
 
     public InventoryScreen(PlayLevelScreen playLevelScreen) {
         this.playLevelScreen = playLevelScreen;
