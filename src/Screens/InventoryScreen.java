@@ -97,8 +97,6 @@ public final class InventoryScreen extends Screen {
                 case LEFT -> col = Math.max(0, col - 1);
                 case RIGHT -> col = Math.min(COLS - 1, col + 1);
                 case ENTER -> activateSelected();
-                case W -> debugDmgSelected();
-                case I -> debugAddXpToSelected();
                 default -> {}
             }
         }
@@ -130,17 +128,6 @@ public final class InventoryScreen extends Screen {
         List<Item> items = playLevelScreen.getInventory().getAllItems();
         int idx = row * COLS + col;
         return idx < items.size() ? items.get(idx) : null;
-    }
-
-    // debug only methods
-    private void debugDmgSelected() {
-        Item item = selectedItem();
-        if (item != null) item.getItemStats().damageItem(10);
-    }
-
-    private void debugAddXpToSelected() {
-        Item item = selectedItem();
-        if (item != null) item.getItemStats().addXp(50000);
     }
 
     @Override
