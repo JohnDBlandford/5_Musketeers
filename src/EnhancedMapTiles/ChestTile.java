@@ -28,17 +28,32 @@ public class ChestTile extends EnhancedMapTile {
     private final ChestId chestId;
 
     // location is the top left corner of the map tile the chest stands on
+
+    /**
+     * @author Derek
+     * @param location the location where the chest is on the map
+     * @param id the chest id
+     */
     public ChestTile(Point location, ChestId id) {
+        Objects.requireNonNull(location, "location not set");
         super(location.x, location.y, buildBottomLayer(location), null, TileType.NOT_PASSABLE);
         this.chestId = Objects.requireNonNull(id, "id cannot be found");
         setInteractScript(new ChestScript(id));
     }
 
-    public ChestId getChestId() {
-        return chestId;
-    }
+    /**
+     * @author Derek
+     * @return returns a chest id
+     */
+    public ChestId getChestId() { return chestId; }
 
+    /**
+     * @author Derek
+     * @param location the location of the bottom layer
+     * @return a GameObject with its location and frame set
+     */
     private static GameObject buildBottomLayer(Point location) {
+        Objects.requireNonNull(location, "location not set");
         BufferedImage sheet = ImageLoader.load(IMAGE_FILE);
         BufferedImage cell = sheet.getSubimage(CELL_COLUMN * CELL_SIZE, CELL_ROW * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         Frame frame = new FrameBuilder(cell).withScale(SCALE).build();
