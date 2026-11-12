@@ -6,10 +6,19 @@ import Item.ItemEntry;
 // world) and not a built Item, so rolling a chest never creates anything. ChestController builds the real item with
 // entry.create() only at the moment it puts it in the pack. item is null for a chest that only holds gold.
 public record ChestContents(int gold, ItemEntry item) {
+    /**
+     * @author Derek
+     * @param gold amount of gold in the chest -> guaranteed
+     * @param item the item in the chest -> not guaranteed
+     */
     public ChestContents {
         if (gold < 0) throw new IllegalArgumentException("Gold cannot be negative, but got: " + gold);
     }
 
+    /**
+     * @author Derek
+     * @return returns the item if not null
+     */
     public boolean hasItem() {
         return item != null;
     }

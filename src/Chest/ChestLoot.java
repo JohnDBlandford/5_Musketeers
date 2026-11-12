@@ -19,6 +19,15 @@ import java.util.Random;
 public final class ChestLoot {
     private ChestLoot() {}
 
+    /**
+     * @author Derek
+     * @param world the world the contents belong to
+     * @param luck the players luck value which increases the chance of an item to also be in the chest
+     * @param gearPool the gear pool for the world
+     * @param consumablePool the consumable pool for the world
+     * @param random the random chance for items to also be in chests
+     * @return returns a ChestContents object that sets all of the values
+     */
     public static ChestContents rollContents(int world, int luck, List<ItemEntry> gearPool, List<ItemEntry> consumablePool,
                                              Random random) {
         Objects.requireNonNull(gearPool, "gearPool not set");
@@ -38,15 +47,34 @@ public final class ChestLoot {
     }
 
     // inclusive at both ends
+
+    /**
+     * @author Derek
+     * @param world the world that the gold is in
+     * @param random the random value to roll
+     * @return returns a random integer from min to max - min + 1
+     */
     private static int rollGold(int world, Random random) {
+        Objects.requireNonNull(random, "random not set");
         int min = ChestConfig.getMinGold(world);
         int max = ChestConfig.getMaxGold(world);
         return min + random.nextInt(max - min + 1);
     }
 
     // null when the chest holds no item
+
+    /**
+     * @author Derek
+     * @param world the world which the item was rolled in
+     * @param luck the players luck value, gives a higher chance of an item dropping
+     * @param gearPool the gear pool for the world
+     * @param consumablePool the consumable pool for the world
+     * @param random the random seed to determine what item gets picked
+     * @return returns one item with the params required
+     */
     private static ItemEntry rollItem(int world, int luck, List<ItemEntry> gearPool, List<ItemEntry> consumablePool,
                                       Random random) {
+        Objects.requireNonNull(random, "random not set");
         if (random.nextDouble() >= ChestConfig.ITEM_CHANCE) return null;
         if (random.nextDouble() < ChestConfig.CONSUMABLE_SHARE) {
             if (consumablePool.isEmpty()) return null;

@@ -24,6 +24,13 @@ import java.util.Random;
 public final class MapChests {
     private MapChests() {}
 
+    /**
+     * @author Derek
+     * @param map the map object that the chest is associated with
+     * @param mapName the map name that the chest is in
+     * @param registry the chest registry
+     * @param random the random seed for placement
+     */
     public static void install(Map map, String mapName, ChestRegistry registry, Random random) {
         if (!ChestWorlds.hasWorld(mapName)) return;
 

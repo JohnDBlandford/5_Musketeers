@@ -3,6 +3,12 @@ package Chest;
 // Identifies one chest: the map it is on and its tile. The same tile on two different maps is two different chests.
 // Used as the key of ChestRegistry's opened set, so equals/hashCode by value (a record gives that for free)
 public record ChestId(String mapName, int column, int row) {
+    /**
+     * @author Derek
+     * @param mapName the name of the map
+     * @param column the column where the chest is
+     * @param row the row where the chest is
+     */
     public ChestId {
         if (mapName == null || mapName.isBlank()) throw new IllegalArgumentException("Map name cannot be blank");
         if (column < 0 || row < 0) {

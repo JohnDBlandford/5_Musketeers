@@ -15,10 +15,19 @@ public final class ChestRegistry {
     private final Map<String, List<ChestId>> placed = new HashMap<>();
     private final Set<ChestId> opened = new HashSet<>();
 
+    /**
+     * @author Derek
+     */
     public ChestRegistry() {}
 
     // stores a map's chests. a map is placed once per game: a second call is an error so the placer's first answer is the one
     // that stays. an empty list is fine (no valid spots) and still counts as placed. nothing is stored if the list is rejected
+
+    /**
+     * @author Derek
+     * @param mapName the map name for chest placement
+     * @param chests the list of chest ids to place
+     */
     public void place(String mapName, List<ChestId> chests) {
         requireMapName(mapName);
         Objects.requireNonNull(chests, "chests not placed");
@@ -34,6 +43,11 @@ public final class ChestRegistry {
         placed.put(mapName, List.copyOf(chests)); // its own unmodifiable copy, so the caller can't change it afterwards
     }
 
+    /**
+     * @author Derek
+     * @param mapName the name of the map
+     * @return returns true if the chest can be placed
+     */
     public boolean isPlaced(String mapName) {
         requireMapName(mapName);
         return placed.containsKey(mapName);
@@ -41,17 +55,34 @@ public final class ChestRegistry {
 
     // the chests of a map in the order they were placed. empty if the map has not been placed. opened chests stay in the list
     // because the map still has to draw them (as opened)
+
+    /**
+     * @author Derek
+     * @param mapName the name of the map where the chests are
+     * @return returns a list of chest ids for the map or returns an empty list if no chests exist for that world
+     */
     public List<ChestId> getChests(String mapName) {
         requireMapName(mapName);
         return placed.getOrDefault(mapName, List.of());
     }
 
+    /**
+     * @author Derek
+     * @param id the id of the chest that has been opened
+     * @return returns true if that chest id is a part of the set that tracks which chests are opened or not
+     */
     public boolean isOpened(ChestId id) {
         Objects.requireNonNull(id, "id cannot be found");
         return opened.contains(id);
     }
 
     // true if the chest exists and this call opened it. false if it was already opened or was never placed
+
+    /**
+     * @author Derek
+     * @param id the chest id that has already been marked as opened
+     * @return adds the id to the set tracking the open chests
+     */
     public boolean markOpened(ChestId id) {
         Objects.requireNonNull(id, "id cannot be found");
         if (!getChests(id.mapName()).contains(id)) return false;
@@ -59,11 +90,19 @@ public final class ChestRegistry {
     }
 
     // a new game: nothing placed, nothing opened
+
+    /**
+     * @author Derek
+     */
     public void reset() {
         placed.clear();
         opened.clear();
     }
 
+    /**
+     * @author Derek
+     * @param mapName the map name
+     */
     private static void requireMapName(String mapName) {
         if (mapName == null || mapName.isBlank()) throw new IllegalArgumentException("Map name cannot be blank");
     }

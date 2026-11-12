@@ -13,6 +13,13 @@ import java.util.function.BiPredicate;
 public final class ChestSetup {
     private ChestSetup() {}
 
+    /**
+     * @author Derek
+     * @param width the width of the walkable grid
+     * @param height the height of the walkable grid
+     * @param isWalkable whether the path is free
+     * @return returns a grid equal to the width and height
+     */
     public static boolean[][] walkableGrid(int width, int height, BiPredicate<Integer, Integer> isWalkable) {
         Objects.requireNonNull(isWalkable, "isWalkable not set");
         if (width < 1 || height < 1) {
@@ -27,6 +34,16 @@ public final class ChestSetup {
         return grid;
     }
 
+    /**
+     * @author Derek
+     * @param registry the chest registry
+     * @param mapName the map name where the chest gets placed
+     * @param walkable is the path walkable or not
+     * @param start the starting tile
+     * @param entities the entities around the chest
+     * @param random the random seed for the placement algo
+     * @return a list of valid chest ids from the registry for the current world
+     */
     public static List<ChestId> ensurePlaced(ChestRegistry registry, String mapName, boolean[][] walkable,
                                              ChestPlacer.Tile start, List<ChestPlacer.Tile> entities, Random random) {
         Objects.requireNonNull(registry, "registry not set");

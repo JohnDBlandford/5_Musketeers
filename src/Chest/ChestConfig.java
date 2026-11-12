@@ -26,12 +26,22 @@ public final class ChestConfig {
     private static final int[] MAX_GOLD = {120, 360, 600, 1200};
 
     // lowest gold a chest in the given world can pay, inclusive
+    /**
+     * @author Derek
+     * @param world the world of the chest
+     * @return returns the minimum gold for that world
+     */
     public static int getMinGold(int world) {
         ItemEntry.requireValidWorld(world);
         return MIN_GOLD[world - ItemEntry.getMinWorld()];
     }
 
     // highest gold a chest in the given world can pay, inclusive
+    /**
+     * @author Derek
+     * @param world the world of the chest
+     * @return returns the maximum gold for that world
+     */
     public static int getMaxGold(int world) {
         ItemEntry.requireValidWorld(world);
         return MAX_GOLD[world - ItemEntry.getMinWorld()];

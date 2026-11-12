@@ -25,6 +25,13 @@ public final class ChestController {
     private final IntFunction<List<ItemEntry>> gearPools;
     private final IntFunction<List<ItemEntry>> consumablePools;
 
+    /**
+     * @author Derek
+     * @param registry the chest registry
+     * @param random the random place for each chest
+     * @param gearPools the different kinds of gear that chests can give
+     * @param consumablePools the different kinds of consumables that chests can give
+     */
     public ChestController(ChestRegistry registry, Random random, IntFunction<List<ItemEntry>> gearPools,
                            IntFunction<List<ItemEntry>> consumablePools) {
         this.registry = Objects.requireNonNull(registry, "registry cannot be found");
@@ -34,11 +41,21 @@ public final class ChestController {
     }
 
     // production: the pools come from the item registry
+    /**
+     * @author Derek
+     * @param registry the chest registry
+     * @param random the random chest location for each chest
+     */
     public ChestController(ChestRegistry registry, Random random) {
         this(registry, random, ChestController::registryGearPool, ItemRegistry::queryConsumablesUpToWorld);
     }
 
     // worlds 1-3 hold their own gear and older gear. the Final world holds only its own pool (same rule as the shop)
+    /**
+     * @author Derek
+     * @param world the world that the registry gear comes from
+     * @return returns the gear pool from the provided world
+     */
     private static List<ItemEntry> registryGearPool(int world) {
         List<ItemEntry> pool = new ArrayList<>();
         for (Item.ItemRarity rarity : Item.ItemRarity.values()) {
@@ -48,6 +65,13 @@ public final class ChestController {
         return pool;
     }
 
+    /**
+     * @author Derek
+     * @param id the id of the chest to be opened
+     * @param world the world the chest is opened in
+     * @param inventory the inventory so that items can go right into it after the chest being opened
+     * @return returns a new ChestResult object that contains whether its added an item or not, and the amount of gold given, the chest id, and the items rarity
+     */
     public ChestResult open(ChestId id, int world, Inventory inventory) {
         Objects.requireNonNull(id, "id not found");
         Objects.requireNonNull(inventory, "inventory not set");
