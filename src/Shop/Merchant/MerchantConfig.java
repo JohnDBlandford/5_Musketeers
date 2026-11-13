@@ -15,17 +15,17 @@ public final class MerchantConfig {
     private MerchantConfig() {}
 
     // shop layout and limits
-    public static final int GEAR_SLOTS = 8;
-    public static final int FOOD_SLOTS = 1;
-    public static final int WATER_SLOTS = 1;
+    private static final int GEAR_SLOTS = 8;
+    private static final int FOOD_SLOTS = 1;
+    private static final int WATER_SLOTS = 1;
 
     // most of one item a player can buy in a single purchase
-    public static final int MAX_PER_PURCHASE = 5;
+    private static final int MAX_PER_PURCHASE = 5;
     // in-game minutes between restocks (GameClock turns this into frames)
-    public static final int RESTOCK_INTERVAL_MINUTES = 30;
+    private static final int RESTOCK_INTERVAL_MINUTES = 30;
     // how much more likely an item from the shop's own world is to be picked than an item from an older world
     // (the number itself lives in LootRoller now, since chests use the same rule)
-    public static final int CURRENT_WORLD_WEIGHT = LootRoller.CURRENT_WORLD_WEIGHT;
+    private static final int CURRENT_WORLD_WEIGHT = LootRoller.CURRENT_WORLD_WEIGHT;
 
     // prices
     // gear price = round(base price of the rarity * multiplier of the item's OWN world)
@@ -50,6 +50,13 @@ public final class MerchantConfig {
 
     // 1 on purpose, but it means a legendary pair can't be bought in one visit (noted in the spec for the Blacksmith)
     private static final int LEGENDARY_STOCK = 1;
+
+    public static int getGearSlots() { return GEAR_SLOTS; }
+    public static int getFoodSlots() { return FOOD_SLOTS; }
+    public static int getWaterSlots() { return WATER_SLOTS; }
+    public static int getMaxPerPurchase() { return MAX_PER_PURCHASE; }
+    public static int getRestockIntervalMins() { return RESTOCK_INTERVAL_MINUTES; }
+    public static int getCurrWorldWeight() { return CURRENT_WORLD_WEIGHT; }
 
     // number of items a single slot starts with
     public static int getStockPerSlot(ItemRarity rarity) {

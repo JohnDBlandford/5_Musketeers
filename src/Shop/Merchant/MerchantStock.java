@@ -73,7 +73,7 @@ public final class MerchantStock {
         for (ItemEntry entry : gearPool) buckets.get(entry.rarity()).add(entry);
 
         List<ShopSlot> slots = new ArrayList<>();
-        for (int i = 0; i < MerchantConfig.GEAR_SLOTS; i++) {
+        for (int i = 0; i < MerchantConfig.getGearSlots(); i++) {
             // the shop never uses luck, so it always rolls with 0
             Item.ItemRarity rarity = LootRoller.rollRarity(shopWorld, availableRarities(buckets), 0, random);
             if (rarity == null) break; // every bucket is empty, the shop is just smaller

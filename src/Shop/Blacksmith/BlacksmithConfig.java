@@ -7,7 +7,9 @@ import Shop.Merchant.MerchantConfig;
 // Tests/BlacksmithConfigTests and add a line to the spec's changelog.
 public final class BlacksmithConfig {
     // the fee to combine two copies of an item, as a fraction of what the merchant charges for that item
-    public static final double REPAIR_RATE_FEE = 0.25;
+    private static final double REPAIR_RATE_FEE = 0.25;
+
+    public static double getRepairRateFee() { return REPAIR_RATE_FEE; }
 
     private BlacksmithConfig() {}
 

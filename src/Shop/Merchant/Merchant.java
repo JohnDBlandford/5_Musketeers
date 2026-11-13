@@ -31,7 +31,7 @@ public class Merchant implements IMerchant {
     public void restockIfDue(int world) {
         ItemEntry.requireValidWorld(world);
         Long last = lastRestockFrame.get(world);
-        long intervalFrames = (long) MerchantConfig.RESTOCK_INTERVAL_MINUTES * clock.getFramesPerGameMinute();
+        long intervalFrames = (long) MerchantConfig.getRestockIntervalMins() * clock.getFramesPerGameMinute();
         if (last != null && clock.getFrames() - last < intervalFrames) return;
 
         stocks.put(world, MerchantStock.rollStock(world, gearPool(world), ItemRegistry.queryConsumablesUpToWorld(world), random));
@@ -55,7 +55,7 @@ public class Merchant implements IMerchant {
 
         // every check happens before anything changes, so a rejected purchase costs the player nothing
         if (slot.isSoldOut()) return PurchaseResult.SOLD_OUT;
-        if (quantity < 1 || quantity > MerchantConfig.MAX_PER_PURCHASE || quantity > slot.getRemainingStock()) {
+        if (quantity < 1 || quantity > MerchantConfig.getMaxPerPurchase() || quantity > slot.getRemainingStock()) {
             return PurchaseResult.OVER_LIMIT;
         }
 

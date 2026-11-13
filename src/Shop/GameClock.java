@@ -5,7 +5,7 @@ package Shop;
 // frames it is told about. The caller decides when time passes: PlayLevelScreen calls tick() once per frame, and only
 // while the state is RUNNING, so time stands still in menus, battles, and the inventory.
 public class GameClock {
-    public static final int DEFAULT_FPS = 60;
+    private static final int DEFAULT_FPS = 60;
     private static final int REAL_SECONDS_PER_GAME_MINUTE = 10;
 
     private final int framesPerGameMinute;

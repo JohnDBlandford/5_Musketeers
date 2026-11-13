@@ -70,8 +70,8 @@ public final class MerchantViewModel {
     // the most the stepper may reach: 1..MAX_PER_PURCHASE, capped by stock; never below 1 so a sold-out slot stays valid
     public int getMaxQuantity() {
         SlotView selected = getSelected();
-        if (selected == null || selected.unlimited()) return MerchantConfig.MAX_PER_PURCHASE;
-        return Math.clamp(selected.remainingStock(), 1, MerchantConfig.MAX_PER_PURCHASE);
+        if (selected == null || selected.unlimited()) return MerchantConfig.getMaxPerPurchase();
+        return Math.clamp(selected.remainingStock(), 1, MerchantConfig.getMaxPerPurchase());
     }
 
     public int getQuantity() {
