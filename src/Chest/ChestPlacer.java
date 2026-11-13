@@ -134,7 +134,7 @@ public final class ChestPlacer {
             for (int column = 1; column < walkable[0].length - 1; column++) {
                 if (!reachable[row][column] || !isBlockWalkable(walkable, column, row)) continue;
                 Tile spot = new Tile(column, row);
-                if (distance(spot, start) < ChestConfig.MIN_ENTITY_SPACING) continue;
+                if (distance(spot, start) < ChestConfig.getMinEntitySpacing()) continue;
                 if (isNearAny(spot, entities)) continue;
                 spots.add(spot);
             }
@@ -171,7 +171,7 @@ public final class ChestPlacer {
     private static boolean isNearAny(Tile spot, List<Tile> entities) {
         Objects.requireNonNull(entities, "entities list not found");
         for (Tile entity : entities) {
-            if (distance(spot, entity) < ChestConfig.MIN_ENTITY_SPACING) return true;
+            if (distance(spot, entity) < ChestConfig.getMinEntitySpacing()) return true;
         }
         return false;
     }
@@ -185,7 +185,7 @@ public final class ChestPlacer {
     private static boolean isFarFromChests(Tile spot, List<ChestId> chests) {
         Objects.requireNonNull(chests, "chest list not found");
         for (ChestId chest : chests) {
-            if (distance(spot, new Tile(chest.column(), chest.row())) < ChestConfig.MIN_CHEST_SPACING) return false;
+            if (distance(spot, new Tile(chest.column(), chest.row())) < ChestConfig.getMinChestSpacing()) return false;
         }
         return true;
     }

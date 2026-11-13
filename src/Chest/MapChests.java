@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 // The part of the chest wiring that needs a real Map (ChestSetup is the part that does not). Call install() on a freshly built
-// map BEFORE map.preloadScripts(), so the chests' scripts get initialised with everything else.
+// map BEFORE map.preloadScripts(), so the chests' scripts get initialized with everything else.
 //  - maps with no world in their name (the Guild Hall, test and blank maps) get no chests
 //  - walkable = the tile's type is PASSABLE. The flood fill starts at the map's own player start tile, so a fast travel into
 //    a sealed pocket on the first visit cannot decide where the chests go for the whole game

@@ -75,8 +75,8 @@ public final class ChestLoot {
     private static ItemEntry rollItem(int world, int luck, List<ItemEntry> gearPool, List<ItemEntry> consumablePool,
                                       Random random) {
         Objects.requireNonNull(random, "random not set");
-        if (random.nextDouble() >= ChestConfig.ITEM_CHANCE) return null;
-        if (random.nextDouble() < ChestConfig.CONSUMABLE_SHARE) {
+        if (random.nextDouble() >= ChestConfig.getItemChance()) return null;
+        if (random.nextDouble() < ChestConfig.getConsumableShare()) {
             if (consumablePool.isEmpty()) return null;
             return consumablePool.get(random.nextInt(consumablePool.size()));
         }

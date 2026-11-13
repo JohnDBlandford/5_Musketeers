@@ -54,7 +54,7 @@ public final class ChestSetup {
         Objects.requireNonNull(random, "random not set");
 
         if (registry.isPlaced(mapName)) return registry.getChests(mapName);
-        List<ChestId> chests = ChestPlacer.place(mapName, walkable, start, entities, ChestConfig.CHESTS_PER_MAP, random);
+        List<ChestId> chests = ChestPlacer.place(mapName, walkable, start, entities, ChestConfig.getChestsPerMap(), random);
         registry.place(mapName, chests);
         return chests;
     }
