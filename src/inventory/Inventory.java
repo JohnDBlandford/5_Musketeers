@@ -10,7 +10,7 @@ public class Inventory {
 
     private static final int MAX_INVENTORY_SLOTS = 20;
     // consumables stack, and each stack uses one of the shared MAX_INVENTORY_SLOTS
-    public static final int MAX_CONSUMABLE_STACK = 10;
+    private static final int MAX_CONSUMABLE_STACK = 10;
     private final List<Item> items = new ArrayList<>();
     private final List<InventoryStack> consumables = new ArrayList<>();
     private final Map<EquipSlot, Item> equippedItems = new EnumMap<>(EquipSlot.class);
