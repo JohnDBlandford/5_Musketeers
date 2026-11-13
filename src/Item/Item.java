@@ -9,7 +9,7 @@ import java.util.*;
 public abstract class Item implements Stockable {
     protected final String itemName;
     protected SpriteSheet itemLook;
-    protected ItemRarity itemRarity;
+    protected final ItemRarity itemRarity;
     protected Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
     protected final ItemStats itemStats;
@@ -47,9 +47,9 @@ public abstract class Item implements Stockable {
 
     // protected constructor to prevent instantiation outside of this package
     // but also allows subclasses to see it
-    protected Item(String itemName, SpriteSheet itemLook, ItemRarity itemRarity,
-                   Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities,
-                   Map<ItemBuffs, Double> buffModifiers, ItemStats itemStats) {
+    protected Item(final String itemName, final SpriteSheet itemLook, final ItemRarity itemRarity,
+                   final Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities,
+                   final Map<ItemBuffs, Double> buffModifiers, final ItemStats itemStats) {
         // common items never have buffs
         // this check is here so that this fails at compile time and not runtime
         if ((itemRarity == ItemRarity.COMMON) && (!buffModifiers.isEmpty())) {
@@ -65,7 +65,7 @@ public abstract class Item implements Stockable {
 
     protected abstract SpriteSheet assignSprite();
 
-    public String getItemName() {
+    public final String getItemName() {
         return this.itemName;
     }
 
@@ -74,11 +74,11 @@ public abstract class Item implements Stockable {
         return this.itemLook;
     }
 
-    public ItemRarity getItemRarity() {
+    public final ItemRarity getItemRarity() {
         return this.itemRarity;
     }
 
-    public double getItemBuffModifiers(ItemBuffs buff) {
+    public double getItemBuffModifiers(final ItemBuffs buff) {
         return buffModifiers.getOrDefault(buff, 0.0);
     }
 
@@ -87,11 +87,11 @@ public abstract class Item implements Stockable {
 
     // note that these two methods return the entire map every time they are called
     // they are unmodifiable
-    public Map<AbilityType, Map<ItemAbilities, Double>> getTotalItemAbilities() {
+    public final Map<AbilityType, Map<ItemAbilities, Double>> getTotalItemAbilities() {
         return Collections.unmodifiableMap(this.itemAbilities);
     }
 
-    public Map<ItemBuffs, Double> getTotalItemBuffs() {
+    public final Map<ItemBuffs, Double> getTotalItemBuffs() {
         return Collections.unmodifiableMap(this.buffModifiers);
     }
 
@@ -101,10 +101,10 @@ public abstract class Item implements Stockable {
     );
 
     // returns true if the buff is a part of the FLAT_ITEM_BUFF set
-    public static boolean isFlatBuff(ItemBuffs buff) { return FLAT_ITEM_BUFFS.contains(buff); }
+    public static boolean isFlatBuff(final ItemBuffs buff) { return FLAT_ITEM_BUFFS.contains(buff); }
 
     // these are per item stat specific methods
-    public ItemStats getItemStats() { return this.itemStats; }
+    public final ItemStats getItemStats() { return this.itemStats; }
 
     // base stat methods for those items that dont set their own stats
     // all default to zero
@@ -144,7 +144,7 @@ public abstract class Item implements Stockable {
     public double getItemSpeed() { return scaledBuffOrZero(ItemBuffs.SPD_BOOST); }
     public double getItemBonusMaxHp() { return scaledBuffOrZero(ItemBuffs.BONUS_MAX_HP); }
 
-    private double scaledBuffOrZero(ItemBuffs buff) {
+    private double scaledBuffOrZero(final ItemBuffs buff) {
         return buffModifiers.containsKey(buff) ? itemStats.scaleBuff(buff, buffModifiers.get(buff)) : 0.0;
     }
 

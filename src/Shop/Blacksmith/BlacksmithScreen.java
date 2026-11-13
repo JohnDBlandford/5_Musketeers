@@ -19,13 +19,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static Screens.InventoryScreen.rarityColor;
-import static Shop.ShopUI.BAD;
-import static Shop.ShopUI.DIM;
-import static Shop.ShopUI.GOOD;
-import static Shop.ShopUI.PANEL_FILL;
-import static Shop.ShopUI.SLOT_BORDER;
-import static Shop.ShopUI.SLOT_FILL;
-import static Shop.ShopUI.line;
+import static Shop.ShopUI.*;
 
 // The blacksmith's window. UI only: every decision (selected group, which two copies are picked, who is kept, the fee, combining,
 // the status message) lives in BlacksmithViewModel; this class maps keys to it and draws what it reports. Shown by ShopController,
@@ -99,8 +93,8 @@ public final class BlacksmithScreen extends Screen implements ShopController.Pan
         int rightX = contentX + LIST_W + 30;
         int rightW = panelX + panelW - 30 - rightX;
 
-        g.drawFilledRectangle(0, 0, screenW, screenH, DIM);
-        g.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, PANEL_FILL, Color.black, 3);
+        g.drawFilledRectangle(0, 0, screenW, screenH, getDimColor());
+        g.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, getPanelFillColor(), Color.black, 3);
 
         BattleUI.shadowText(g, "BLACKSMITH", panelX + 30, panelY + 24, 3, BattleUI.WHITE);
         String gold = "GOLD " + PlayerData.getCurrency();
@@ -120,7 +114,7 @@ public final class BlacksmithScreen extends Screen implements ShopController.Pan
 
     // the items that have a pair, scrolled so the selected one is always on screen
     private void drawGroupList(GraphicsHandler g, List<List<Item>> groups, int x, int y, int w, int h) {
-        g.drawFilledRectangleWithBorder(x, y, w, h, SLOT_FILL, SLOT_BORDER, 2);
+        g.drawFilledRectangleWithBorder(x, y, w, h, getSlotFillColor(), getSlotBorderColor(), 2);
         int selected = viewModel.getSelectedGroupIndex();
         int visible = Math.max(1, (h - 8) / ROW);
         int top = Math.clamp(selected - visible / 2, 0, Math.max(0, groups.size() - visible));
@@ -170,7 +164,7 @@ public final class BlacksmithScreen extends Screen implements ShopController.Pan
     }
 
     private void drawCard(GraphicsHandler g, String label, Item item, boolean kept, int x, int y, int w, int h) {
-        g.drawFilledRectangleWithBorder(x, y, w, h, SLOT_FILL, kept ? GOOD : SLOT_BORDER, kept ? 3 : 2);
+        g.drawFilledRectangleWithBorder(x, y, w, h, getSlotFillColor(), kept ? getGoodColor() : getSlotBorderColor(), kept ? 3 : 2);
         if (item == null) return;
         int tx = x + 12;
         int width = w - 24;
@@ -180,7 +174,7 @@ public final class BlacksmithScreen extends Screen implements ShopController.Pan
         // the label is small so it can never run into the KEEP / USED UP tag, even in a narrow card
         BattleUI.text(g, "COPY " + label, tx, y + 13, 1, BattleUI.GREY);
         String tag = kept ? "KEEP" : "USED UP";
-        BattleUI.text(g, tag, x + w - 12 - BattleUI.textW(tag, 2), y + 10, 2, kept ? GOOD : BAD);
+        BattleUI.text(g, tag, x + w - 12 - BattleUI.textW(tag, 2), y + 10, 2, kept ? getGoodColor() : getBadColor());
 
         int ty = y + 10 + BattleUI.font().getCapHeight(2) + 14;
         int icon = 56;
@@ -213,13 +207,13 @@ public final class BlacksmithScreen extends Screen implements ShopController.Pan
             int fee = viewModel.getFee();
             boolean affordable = PlayerData.getCurrency() >= fee;
             ItemStats stats = keeper.getItemStats();
-            BattleUI.text(g, "FEE " + fee, x, y, 2, affordable ? BattleUI.GOLD : BAD);
+            BattleUI.text(g, "FEE " + fee, x, y, 2, affordable ? BattleUI.GOLD : getBadColor());
             BattleUI.text(g, "KEEPS LV " + stats.getLvl() + "   DUR " + stats.getDurability() + " > " + stats.getItemMaxDurability(),
                     x + 190, y, 2, BattleUI.WHITE);
         }
         String message = viewModel.getMessage();
         if (!message.isEmpty()) {
-            BattleUI.text(g, message, x, y + 34, 2, lastResult == CombineResult.SUCCESS ? GOOD : BAD);
+            BattleUI.text(g, message, x, y + 34, 2, lastResult == CombineResult.SUCCESS ? getGoodColor() : getBadColor());
         }
         // key hints, two lines at scale 2 so they are easy to read (one line at this size would be wider than the panel)
         BattleUI.shadowText(g, "UP/DOWN: ITEM   LEFT: COPY A   RIGHT: COPY B", x, panelY + panelH - 56,

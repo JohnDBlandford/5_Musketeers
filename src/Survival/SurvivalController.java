@@ -71,8 +71,8 @@ public final class SurvivalController implements ISurvival {
         Consumable consumable = findInPack(inventory, itemName);
         if (consumable == null) return new SurvivalResult(Outcome.NOT_FOUND, itemName, 0, 0, 0);
 
-        int hungerGain = Math.min(consumable.getHungerRestore(), Meter.MAX - hunger.getValue());
-        int hydrationGain = Math.min(consumable.getHydrationRestore(), Meter.MAX - hydration.getValue());
+        int hungerGain = Math.min(consumable.getHungerRestore(), Meter.getMaxMeter() - hunger.getValue());
+        int hydrationGain = Math.min(consumable.getHydrationRestore(), Meter.getMaxMeter() - hydration.getValue());
         int healthGain = (int) Math.min(consumable.getHealthRestore(), Math.max(0.0f, maxHp - currHp));
         if (hungerGain + hydrationGain + healthGain == 0) return new SurvivalResult(Outcome.NOTHING_TO_RESTORE, itemName, 0, 0, 0);
 

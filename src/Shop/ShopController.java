@@ -12,8 +12,8 @@ import java.util.Objects;
 // - openBlacksmith() shows the blacksmith panel. It needs no world (an item's world comes from the registry) and restocks nothing.
 // - update() and draw() reach only the panel that was opened, and close() runs onClosed (PlayLevelScreen passes player::unlock).
 public final class ShopController {
-    public static final int MIN_WORLD = 1;
-    public static final int MAX_WORLD = 4;
+    private static final int MIN_WORLD = 1;
+    private static final int MAX_WORLD = 4;
 
     // What the controller needs from the UI. MerchantScreen and BlacksmithScreen implement this.
     // the blacksmith is always told world 0, which its panel ignores

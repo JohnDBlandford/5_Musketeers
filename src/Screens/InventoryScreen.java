@@ -213,7 +213,7 @@ public final class InventoryScreen extends Screen {
         g.drawFilledRectangle(x, y, width, 2, SLOT_BORDER);   // the divider between the old and the new
         y += 10;
 
-        y = statLine(g, "Level", stats.getLvl() + " / " + ItemStats.MAX_LVL, x, y, width, Color.white);
+        y = statLine(g, "Level", stats.getLvl() + " / " + ItemStats.getMaxLvl(), x, y, width, Color.white);
 
         y = statLine(g, "XP", stats.isMaxLvl() ? "MAX" : stats.getXp() + " / " + stats.getXpToNextLvl(), x, y, width, Color.white);
         drawBar(g, x, y - 3, width, 8, stats.getXpBarFullness(), XP_COLOR);   // the bar sits right under the text

@@ -12,12 +12,19 @@ import java.awt.Color;
 public final class ShopUI {
     private ShopUI() {}
 
-    public static final Color DIM = new Color(0, 0, 0, 140);
-    public static final Color PANEL_FILL = new Color(60, 60, 60);
-    public static final Color SLOT_FILL = new Color(35, 35, 35);
-    public static final Color SLOT_BORDER = new Color(90, 90, 90);
-    public static final Color GOOD = new Color(110, 220, 120);
-    public static final Color BAD = new Color(235, 90, 80);
+    private static final Color DIM = new Color(0, 0, 0, 140);
+    private static final Color PANEL_FILL = new Color(60, 60, 60);
+    private static final Color SLOT_FILL = new Color(35, 35, 35);
+    private static final Color SLOT_BORDER = new Color(90, 90, 90);
+    private static final Color GOOD = new Color(110, 220, 120);
+    private static final Color BAD = new Color(235, 90, 80);
+
+    public static Color getDimColor() { return DIM; }
+    public static Color getPanelFillColor() { return PANEL_FILL; }
+    public static Color getSlotFillColor() { return SLOT_FILL; }
+    public static Color getSlotBorderColor() { return SLOT_BORDER; }
+    public static Color getGoodColor() { return GOOD; }
+    public static Color getBadColor() { return BAD; }
 
     // draws one line of text (scale 2, dropping to scale 1 if it is too wide) and returns the y of the next line; stops drawing past `bottom`
     public static int line(GraphicsHandler g, String text, int x, int y, int width, Color color, int bottom) {

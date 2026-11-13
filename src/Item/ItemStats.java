@@ -11,13 +11,13 @@ import java.util.*;
 // Items now also gain XP from battles (PlayBattleScreen gives every equipped item a share of the battle's XP), so these
 // growth rates finally matter in play.
 public final class ItemStats {
-    public static final int MAX_LVL = 100;
+    private static final int MAX_LVL = 100;
 
     // a buff or ability can never be worth more than 6 times its base stat buff (its lvl one value)
-    public static final double MAX_SCALE = 6.0;
+    private static final double MAX_SCALE = 6.0;
 
     // cap on chance type buffs since a chance type buff at 100% is meaningless
-    public static final double CHANCE_CEILING = 0.95;
+    private static final double CHANCE_CEILING = 0.95;
 
     // chance buffs are stored here inside a unmodifiable set, these have the CHANCE_CEILING applied to them
     private static final Set<Item.ItemBuffs> CHANCE_BUFFS = Collections.unmodifiableSet(EnumSet.of(
@@ -53,7 +53,7 @@ public final class ItemStats {
     private final XP progress = new XP(MAX_LVL, ItemStats::xpRequiredToLeaveLvl);
     private int itemDurability;
 
-    public ItemStats(int baseMaxDurability, double attackGrowth, double defenseGrowth, double buffGrowth,
+    public ItemStats(final int baseMaxDurability, double attackGrowth, double defenseGrowth, double buffGrowth,
                      double abilityGrowth, double durabilityGrowth, Map<Item.ItemAbilities, Double> abilityGrowthOverrides) {
         // disallow baseMaxDurability be less than or equal to 0
         if (baseMaxDurability <= 0) {
@@ -75,14 +75,17 @@ public final class ItemStats {
     }
 
     // constructor for initializing the default values
-    public ItemStats(int baseMaxDurability) {
+    public ItemStats(final int baseMaxDurability) {
         this(baseMaxDurability, DEFAULT_ATTACK_GROWTH, DEFAULT_DEFENSE_GROWTH, DEFAULT_BUFF_GROWTH,
                 DEFAULT_ABILITY_GROWTH, DEFAULT_DURABILITY_GROWTH, Map.of());
     }
 
+    public static int getMaxLvl() { return MAX_LVL; }
+
     // gets the default for any item that does not set its own
     // these are placeholders for now before testing
-    public static ItemStats getDefaultsForItemRarity(Item.ItemRarity itemRarity) {
+    public static ItemStats getDefaultsForItemRarity(final Item.ItemRarity itemRarity) {
+        Objects.requireNonNull(itemRarity, "item rarity cannot be null");
         return new ItemStats(switch (itemRarity) {
             case COMMON -> 50;
             case UNCOMMON -> 75;
@@ -98,7 +101,7 @@ public final class ItemStats {
     public long getXp() { return progress.getCurrXP(); }
 
     // xp needed to go from one lvl to the next
-    public static long xpRequiredToLeaveLvl(int lvl) {
+    public static long xpRequiredToLeaveLvl(final int lvl) {
         return Math.round(XP_BASE * Math.pow(lvl, XP_EXPO));
     }
 
@@ -109,7 +112,7 @@ public final class ItemStats {
     public double getXpBarFullness() { return progress.getXpFraction(); }
 
     // adds the xp + returns how many lvls gained
-    public int addXp(long amount) {
+    public int addXp(final long amount) {
         int maxBefore = getItemMaxDurability();
         int xpGained = progress.addXP(amount);
 
@@ -122,7 +125,7 @@ public final class ItemStats {
     }
 
     // puts the level, xp and durability back to saved values, used when loading a save
-    public void restore(int lvl, long xp, int durability) {
+    public void restore(final int lvl, final long xp, final int durability) {
         progress.restore(lvl, xp);
         itemDurability = Math.max(0, Math.min(durability, getItemMaxDurability()));
     }
@@ -134,22 +137,22 @@ public final class ItemStats {
     public double getDurabilityFraction() { return (double) itemDurability / getItemMaxDurability(); }
 
     // damages the item
-    public void damageItem(int amount) {
+    public void damageItem(final int amount) {
         if (amount > 0) itemDurability = Math.max(0, itemDurability - amount);
     }
 
     // repairs the item
-    public void repairItem(int amount) {
+    public void repairItem(final int amount) {
         if (amount > 0) itemDurability = Math.min(getItemMaxDurability(), itemDurability + amount);
     }
 
     // scales item atk and def
-    public int scaleAttack(int baseAttack) { return (int) Math.round(scale(baseAttack, attackGrowth)); }
-    public int scaleDefense(int baseDefense) { return (int) Math.round(scale(baseDefense, defenseGrowth)); }
+    public int scaleAttack(final int baseAttack) { return (int) Math.round(scale(baseAttack, attackGrowth)); }
+    public int scaleDefense(final int baseDefense) { return (int) Math.round(scale(baseDefense, defenseGrowth)); }
 
     // scales the item buff, capped at MAX_SCALE * its lvl 1 value
     // chance-type buffs are held under their cap unless the raw value starts above that cap
-    public double scaleBuff(Item.ItemBuffs buff, double baseValue) {
+    public double scaleBuff(final Item.ItemBuffs buff, final double baseValue) {
         double value = Math.min(scale(baseValue, buffGrowth), baseValue * MAX_SCALE);
         if (CHANCE_BUFFS.contains(buff)) //noinspection MathClampMigration
             value = Math.min(value, Math.max(CHANCE_CEILING, baseValue));
@@ -157,7 +160,7 @@ public final class ItemStats {
     }
 
     // gets the buff's cap, returns true if the cap is reached
-    public boolean isBuffCapped(Item.ItemBuffs buff, double baseValue) {
+    public boolean isBuffCapped(final Item.ItemBuffs buff, final double baseValue) {
         // cant have a value less than zero
         if (baseValue <= 0) return false;
         double value = scaleBuff(buff, baseValue);
@@ -166,12 +169,12 @@ public final class ItemStats {
     }
 
     // scale the item's ability using the same rules as the buffs
-    public double scaleAbility(Item.ItemAbilities ability, double baseValue) {
+    public double scaleAbility(final Item.ItemAbilities ability, final double baseValue) {
         double growth = abilityGrowthOverrides.getOrDefault(ability, abilityGrowth);
         return Math.min(scale(baseValue, growth), baseValue * MAX_SCALE);
     }
 
-    private double scale(double base, double growth) {
+    private double scale(final double base, final double growth) {
         return base * (1.0 + growth * (getLvl() - 1));
     }
 }

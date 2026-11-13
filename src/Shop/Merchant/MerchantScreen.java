@@ -25,12 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static Screens.InventoryScreen.rarityColor;
-import static Shop.ShopUI.BAD;
-import static Shop.ShopUI.DIM;
-import static Shop.ShopUI.GOOD;
-import static Shop.ShopUI.PANEL_FILL;
-import static Shop.ShopUI.SLOT_BORDER;
-import static Shop.ShopUI.SLOT_FILL;
+import static Shop.ShopUI.*;
 
 // The merchant's shop window. UI only: every decision (selection, quantity stepper, buying, the status message) lives in
 // MerchantViewModel; this class maps keys to it and draws what it reports. Shown by ShopController, which restocks and
@@ -63,7 +58,7 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     public void initialize() {}
 
     @Override
-    public void onOpen(int world) {
+    public void onOpen(final int world) {
         viewModel.open(world);
         details.clear();
         lastResult = null;
@@ -98,25 +93,29 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     // drawing
     @Override
     public void draw(GraphicsHandler g) {
-        int screenW = BattleUI.W();
-        int screenH = BattleUI.H();
-        int panelX = 40, panelY = 40, panelW = screenW - 80, panelH = screenH - 80;
-        int gridX = panelX + 30;
-        int gridY = panelY + 80;
-        int gridW = COLS * PITCH_X - GAP;
-        int detailX = gridX + gridW + 30;
-        int detailW = panelX + panelW - 30 - detailX;
-        int detailH = panelY + panelH - 130 - gridY;
+        Objects.requireNonNull(g, "graphics cannot be null");
+        final int screenW = BattleUI.W();
+        final int screenH = BattleUI.H();
+        final int panelX = 40;
+        final int panelY = 40;
+        final int panelW = screenW - 80;
+        final int panelH = screenH - 80;
+        final int gridX = panelX + 30;
+        final int gridY = panelY + 80;
+        final int gridW = COLS * PITCH_X - GAP;
+        final int detailX = gridX + gridW + 30;
+        final int detailW = panelX + panelW - 30 - detailX;
+        final int detailH = panelY + panelH - 130 - gridY;
 
-        g.drawFilledRectangle(0, 0, screenW, screenH, DIM);
-        g.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, PANEL_FILL, Color.black, 3);
+        g.drawFilledRectangle(0, 0, screenW, screenH, getDimColor());
+        g.drawFilledRectangleWithBorder(panelX, panelY, panelW, panelH, getPanelFillColor(), Color.black, 3);
 
         BattleUI.shadowText(g, "MERCHANT", panelX + 30, panelY + 24, 3, BattleUI.WHITE);
         BattleUI.shadowText(g, "GOLD " + PlayerData.getCurrency(), panelX + panelW - 30 - BattleUI.textW("GOLD " +
                         PlayerData.getCurrency(), 2), panelY + 28, 2, BattleUI.GOLD);
 
         List<SlotView> slots = viewModel.getSlots();
-        int selected = viewModel.getSelectedIndex();
+        final int selected = viewModel.getSelectedIndex();
         for (int i = 0; i < slots.size(); i++) {
             drawSlot(g, slots.get(i), gridX + (i % COLS) * PITCH_X, gridY + (i / COLS) * PITCH_Y);
         }
@@ -131,8 +130,10 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         drawPurchaseBar(g, panelX, panelY, panelW, panelH);
     }
 
-    private void drawSlot(GraphicsHandler g, SlotView slot, int x, int y) {
-        g.drawFilledRectangleWithBorder(x, y, SLOT, SLOT, SLOT_FILL, SLOT_BORDER, 2);
+    private void drawSlot(GraphicsHandler g, final SlotView slot, int x, int y) {
+        Objects.requireNonNull(g, "graphics cannot be null");
+        Objects.requireNonNull(slot, "slot not set");
+        g.drawFilledRectangleWithBorder(x, y, SLOT, SLOT, getSlotFillColor(), getSlotBorderColor(), 2);
         g.drawFilledRectangle(x + 4, y + 4, SLOT - 8, SLOT - 8, rarityColor(slot.rarity()));
         if (slot.kind() == ItemEntry.ItemKind.GEAR) {
             Item item = gear(slot.id());
@@ -140,7 +141,9 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
                 BufferedImage sprite = item.getItemLook().getSprite(0, 0);
                 g.drawImage(sprite, x + 4, y + 4, SLOT - 8, SLOT - 8);
             }
-        } else { drawPlaceholderLetter(g, consumableLetter(consumable(slot.id())), x, y); }
+        } else {
+            drawPlaceholderLetter(g, consumableLetter(consumable(slot.id())), x, y);
+        }
         if (slot.isSoldOut()) {
             g.drawFilledRectangle(x + 2, y + 2, SLOT - 4, SLOT - 4, SOLD_OUT_SHADE);
             BattleUI.textCenter(g, "SOLD", x + SLOT / 2, y + (SLOT - BattleUI.font().getCapHeight(1)) / 2,
@@ -150,24 +153,26 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         }
         boolean affordable = PlayerData.getCurrency() >= slot.unitPrice();
         BattleUI.textCenter(g, String.valueOf(slot.unitPrice()), x + SLOT / 2, y + SLOT + 8, 1, affordable
-                ? BattleUI.GOLD : BAD);
+                ? BattleUI.GOLD : getBadColor());
     }
 
     // PLACEHOLDER: food and water have no sprites yet
-    private void drawPlaceholderLetter(GraphicsHandler g, String letter, int x, int y) {
-        g.drawFilledRectangleWithBorder(x + 10, y + 10, SLOT - 20, SLOT - 20, SLOT_FILL, Color.black,
+    private void drawPlaceholderLetter(GraphicsHandler g, final String letter, int x, int y) {
+        Objects.requireNonNull(g, "graphics cannot be null");
+        g.drawFilledRectangleWithBorder(x + 10, y + 10, SLOT - 20, SLOT - 20, getSlotFillColor(), Color.black,
                 2);
-        int scale = 3;
+        final int scale = 3;
         BattleUI.textCenter(g, letter, x + SLOT / 2, y + (SLOT - BattleUI.font().getCapHeight(scale)) / 2, scale,
                 BattleUI.WHITE);
     }
 
     private void drawDetails(GraphicsHandler g, SlotView slot, int x, int y, int w, int h) {
-        g.drawFilledRectangleWithBorder(x, y, w, h, SLOT_FILL, SLOT_BORDER, 2);
+        Objects.requireNonNull(g, "graphics cannot be null");
+        g.drawFilledRectangleWithBorder(x, y, w, h, getSlotFillColor(), getSlotBorderColor(), 2);
         if (slot == null) return;
-        int tx = x + 12;
-        int width = w - 24;
-        int bottom = y + h - 10;
+        final int tx = x + 12;
+        final int width = w - 24;
+        final int bottom = y + h - 10;
         int ty = y + 12;
 
         int nameChars = Math.max(1, width / (6 * 2));   // every letter is 6 px wide at scale 1
@@ -181,7 +186,7 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         ty = line(g, "Stock", slot.unlimited() ? "UNLIMITED" : String.valueOf(slot.remainingStock()), tx, ty, width, Color.white,
                 bottom);
         ty += 6;
-        g.drawFilledRectangle(tx, ty, width, 2, SLOT_BORDER);
+        g.drawFilledRectangle(tx, ty, width, 2, getSlotBorderColor());
         ty += 10;
 
         if (slot.kind() == ItemEntry.ItemKind.GEAR) {
@@ -205,25 +210,26 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     }
 
     // draws "LABEL  value" (or just the label when value is empty) with ShopUI.line and returns the y of the next line
-    private static int line(GraphicsHandler g, String label, String value, int x, int y, int width, Color color, int bottom) {
+    private static int line(GraphicsHandler g, String label, String value, int x, int y, int width, final Color color, int bottom) {
+        Objects.requireNonNull(value, "value cannot be null");
         return ShopUI.line(g, value.isEmpty() ? label : label + "  " + value, x, y, width, color, bottom);
     }
 
-    private void drawPurchaseBar(GraphicsHandler g, int panelX, int panelY, int panelW, int panelH) {
-        int x = panelX + 30;
-        int y = panelY + panelH - 118;
+    private void drawPurchaseBar(final GraphicsHandler g, int panelX, int panelY, int panelW, int panelH) {
+        final int x = panelX + 30;
+        final int y = panelY + panelH - 118;
         SlotView selected = viewModel.getSelected();
         if (selected != null) {
-            int qty = viewModel.getQuantity();
-            int total = viewModel.getTotalPrice();
-            boolean affordable = PlayerData.getCurrency() >= total;
+            final int qty = viewModel.getQuantity();
+            final int total = viewModel.getTotalPrice();
+            final boolean affordable = PlayerData.getCurrency() >= total;
             BattleUI.text(g, "QTY", x, y, 2, BattleUI.WHITE);
             BattleUI.text(g, "< " + qty + " >", x + 70, y, 2, BattleUI.WHITE);
-            BattleUI.text(g, "TOTAL " + total, x + 190, y, 2, affordable ? BattleUI.GOLD : BAD);
+            BattleUI.text(g, "TOTAL " + total, x + 190, y, 2, affordable ? BattleUI.GOLD : getBadColor());
         }
         String message = viewModel.getMessage();
         if (!message.isEmpty()) {
-            BattleUI.text(g, message, x, y + 34, 2, lastResult == PurchaseResult.SUCCESS ? GOOD : BAD);
+            BattleUI.text(g, message, x, y + 34, 2, lastResult == PurchaseResult.SUCCESS ? getGoodColor() : getBadColor());
         }
         // key hints, two lines at scale 2 so they are easy to read (one line at this size would be wider than the panel)
         BattleUI.shadowText(g, "LEFT/RIGHT: ITEM   UP/DOWN: QUANTITY", x, panelY + panelH - 56, 2, BattleUI.WHITE);
@@ -231,21 +237,21 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     }
 
     // helpers
-    private Item gear(String id) {
+    private Item gear(final String id) {
         return (Item) details.computeIfAbsent(id, ItemRegistry::createItem);
     }
 
-    private Consumable consumable(String id) {
+    private Consumable consumable(final String id) {
         return (Consumable) details.computeIfAbsent(id, ItemRegistry::createConsumable);
     }
 
     // PLACEHOLDER rule: hydration means water, anything else is food (same split MerchantStock uses for its two guaranteed slots)
-    static String consumableLetter(Consumable c) {
+    static String consumableLetter(final Consumable c) {
         return c != null && c.getHydrationRestore() > 0 ? "W" : "F";
     }
 
     // flat buffs are stored as value / 100, everything else is a fraction shown as a percentage (same rule as InventoryScreen)
-    private static String formatBuff(Item.ItemBuffs buff, double value) {
+    private static String formatBuff(Item.ItemBuffs buff, final double value) {
         if (Item.isFlatBuff(buff)) return "+" + Math.round(value * 100.0);
         String text = String.format(Locale.ROOT, "%.1f", value * 100.0);
         if (text.endsWith(".0")) text = text.substring(0, text.length() - 2);

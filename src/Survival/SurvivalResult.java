@@ -22,7 +22,7 @@ public record SurvivalResult(Outcome outcome, String itemName, int hunger, int h
 
     // text for the inventory screen. PLACEHOLDER wording
     public String message() {
-        String name = ItemNames.getPrettyName(itemName);
+        final String name = ItemNames.getPrettyName(itemName);
         return switch (outcome) {
             case NOT_FOUND -> "You have no " + name + ".";
             case NOTHING_TO_RESTORE -> "You don't need " + name + " right now.";
