@@ -1,5 +1,6 @@
 package Item;
 
+import Enchantment.ItemEnchants;
 import GameObject.SpriteSheet;
 import inventory.Inventory;
 
@@ -13,6 +14,7 @@ public abstract class Item implements Stockable {
     protected Map<AbilityType, Map<ItemAbilities, Double>> itemAbilities;
     protected Map<ItemBuffs, Double> buffModifiers;
     protected final ItemStats itemStats;
+    private final ItemEnchants enchants = new ItemEnchants();
 
     public enum ItemRarity {
         COMMON, UNCOMMON, EPIC, LEGENDARY
@@ -68,6 +70,7 @@ public abstract class Item implements Stockable {
     public final String getItemName() {
         return this.itemName;
     }
+    public final ItemEnchants getEnchants() { return enchants; }
 
     public SpriteSheet getItemLook() {
         if (this.itemLook == null) this.itemLook = assignSprite();
