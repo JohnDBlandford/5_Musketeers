@@ -22,7 +22,7 @@ public record ItemEntry(String id, int world, Item.ItemRarity rarity, ItemKind i
     }
 
     // GEAR entries build an Item, CONSUMABLE entries build a Consumable
-    public enum ItemKind { GEAR, CONSUMABLE }
+    public enum ItemKind { GEAR, CONSUMABLE, BOOK }
 
     public ItemEntry {
         if (id == null || id.isBlank()) throw new IllegalArgumentException("Item id cannot be blank");

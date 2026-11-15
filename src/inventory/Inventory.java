@@ -1,5 +1,7 @@
 package inventory;
 
+import Enchantment.EnchantBook;
+import Enchantment.EnchantmentConfig;
 import Item.Consumable.Consumable;
 import Item.Item;
 
@@ -13,6 +15,7 @@ public class Inventory {
     private static final int MAX_CONSUMABLE_STACK = 10;
     private final List<Item> items = new ArrayList<>();
     private final List<InventoryStack> consumables = new ArrayList<>();
+    private final List<InventoryBookStack> books = new ArrayList<>();
     private final Map<EquipSlot, Item> equippedItems = new EnumMap<>(EquipSlot.class);
 
     // read only view of a stack of consumables
@@ -23,6 +26,8 @@ public class Inventory {
      * @param count the count of that consumable
      */
     public record ConsumableStack(Consumable consumable, int count) {}
+    // read only view of a stack of books
+    public record BookStack(EnchantBook book, int qty) {}
 
     private static final class InventoryStack {
         private final Consumable consumable;
@@ -38,13 +43,26 @@ public class Inventory {
         }
     }
 
-    // gear and consumable stacks share the same slots
+    // the book version of InventoryStack. books are stacked in their own list but use the same shared slots
+    private static final class InventoryBookStack {
+        private final EnchantBook book;
+        private int count;
+
+        private InventoryBookStack(EnchantBook book) {
+            this.book = book;
+            this.count = 1;
+        }
+    }
+
+    // gear, consumable and book stacks share the same slots
 
     /**
      * @author Derek
-     * @return the combo of the item and consumable slots
+     * @return the combo of the item, consumable and book slots
      */
-    public int getUsedSlots() { return items.size() + consumables.size(); }
+    public int getUsedSlots() { return items.size() + consumables.size() + books.size(); }
+
+    public static int getMaxConsumableStack() { return MAX_CONSUMABLE_STACK; }
 
     /**
      * @author Derek
@@ -220,19 +238,77 @@ public class Inventory {
         equippedItems.clear();
     }
 
-    public boolean isItemEquipped(Item item) {
+    public boolean isItemEquipped(final Item item) {
         Objects.requireNonNull(item, "item not found");
         return equippedItems.get(item.getEquipSlot()) == item;
     }
 
-    public Item getEquippedItem(EquipSlot slot) {
+    // adds one to a stack of that book with room, otherwise starts a new stack. false if there is no room
+    public boolean addBook(EnchantBook book) {
+        Objects.requireNonNull(book, "book cannot be null");
+        for (InventoryBookStack stack : books) {
+            if (stack.book.getItemName().equals(book.getItemName()) && stack.count < EnchantmentConfig.getMaxBookStack()) {
+                stack.count++;
+                return true;
+            }
+        }
+        if (isFull()) return false;
+        books.add(new InventoryBookStack(book));
+        return true;
+    }
+
+    // true if qty of this book would ALL fit, the same logic as canAddConsumables: room in partial stacks of the same book is
+    // used first, then whatever is left needs new stacks that must fit in the free slots. this does not change the inventory
+    public boolean canAddBooks(EnchantBook book, final int qty) {
+        Objects.requireNonNull(book, "book cannot be added");
+        if (qty < 0) throw new IllegalArgumentException("Book quantity cannot be negative: " + qty);
+
+        final int maxStack = EnchantmentConfig.getMaxBookStack();
+        int remaining = qty;
+        for (InventoryBookStack stack : books) {
+            if (stack.book.getItemName().equals(book.getItemName())) remaining -= maxStack - stack.count;
+        }
+        if (remaining <= 0) return true;
+
+        int newStacksNeeded = (remaining + maxStack - 1) / maxStack; // rounds up
+        return getUsedSlots() + newStacksNeeded <= MAX_INVENTORY_SLOTS;
+    }
+
+    // uses up one of the book with this id and returns it so the caller can apply it, or null if there are none. the smallest
+    // stack is used first so partial stacks clear out and free their slot
+    public EnchantBook useBook(final String itemName) {
+        InventoryBookStack smallest = null;
+        for (InventoryBookStack stack : books) {
+            if (stack.book.getItemName().equals(itemName) && (smallest == null || stack.count < smallest.count)) smallest = stack;
+        }
+        if (smallest == null) return null;
+        smallest.count--;
+        if (smallest.count == 0) books.remove(smallest);
+        return smallest.book;
+    }
+
+    // a snapshot of every book stack, in the order they were started
+    public List<BookStack> getAllBooks() {
+        List<BookStack> view = new ArrayList<>();
+        for (InventoryBookStack stack : books) view.add(new BookStack(stack.book, stack.count));
+        return Collections.unmodifiableList(view);
+    }
+
+    public Item getEquippedItem(final EquipSlot slot) {
         return equippedItems.get(slot);
+    }
+
+    // the total count of the book with this id across all of its stacks, 0 if there are none
+    public int getBookCount(String itemName) {
+        int total = 0;
+        for (InventoryBookStack stack : books) if (stack.book.getItemName().equals(itemName)) total += stack.count;
+        return total;
     }
 
     // returns an unmodifiable map of the entire item map each time called. this
     // doesnt get an individual index
     public List<Item> getAllEquippedItems() {
-        return Collections.unmodifiableList(new ArrayList<>(equippedItems.values()));
+        return List.<Item>copyOf(equippedItems.values());
     }
 
     // this gets all items, not just equipped items, again as an unmodifiable map
