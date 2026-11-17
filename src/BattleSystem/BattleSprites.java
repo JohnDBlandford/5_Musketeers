@@ -248,7 +248,7 @@ public final class BattleSprites {
                 hurt = new BufferedImage[] {cell(img, 0, 0), cell(img, 1, 1), cell(img, 2, 1), cell(img, 0, 2), cell(img, 1, 2)};
                 idleBase = cell(img, 0, 0);
                 //idle = new BufferedImage[] {cell(img, 0, 0), cell(img, 2, 2), cell(img, 0, 3), cell(img, 1, 3), cell(img, 2, 3)};
-            } else if (enemyName.equals("FamineWarden")) {
+            } else if (enemyName.equals("FamineWarden") || enemyName.equals("BaronOfTheClearedWood") || enemyName.equals("TheHuntCaptain") || enemyName.equals("TheLastCrusader")) {
                 attack = new BufferedImage[] {superCell(img, 0, 0), superCell(img, 1, 0), superCell(img, 2, 0), superCell(img, 3, 0), superCell(img, 0, 1), superCell(img, 1, 1), superCell(img, 2, 1), superCell(img, 3, 1)};
                 hurt = new BufferedImage[] {superCell(img, 0, 0), superCell(img, 0, 2), superCell(img, 1, 2), superCell(img, 2, 2), superCell(img, 3, 2), superCell(img, 0, 3)};
                 idleBase = superCell(img, 0, 0);
