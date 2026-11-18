@@ -5,24 +5,20 @@ import BattleSystem.*;
 import Engine.GraphicsHandler;
 import Engine.Key;
 import Engine.Screen;
+import Enchantment.EnchantEffects;
 import Item.Item;
 import Level.Player;
 import NPCs.Enemy;
 import NPCs.World1.Dabbah;
 import NPCs.World4.GlitchEntity;
+import Wear.GearWear;
 import BattleSystem.Ability.Effect;
 import inventory.Inventory;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 
 //For sound
 import Sound.Sound;
@@ -187,7 +183,14 @@ public class PlayBattleScreen extends Screen {
 
     // GLITCH TEST MODE (the T and G keys in PlayLevelScreen): no damage to the knight, every move unlocked. Remove before release.
     private boolean testMode;
-    public PlayBattleScreen setTestMode(boolean on) { this.testMode = on; return this; }
+    // GEAR WEAR: lowers the durability of the knight's gear (the weapon he attacks with, armor that is hit, shield that blocks). One per
+    // battle, made in initialize(). Off in test mode (the knight cannot be hurt), and setTestMode can run before or after initialize()
+    private GearWear gearWear;
+    public PlayBattleScreen setTestMode(boolean on) {
+        this.testMode = on;
+        if (gearWear != null) gearWear.setEnabled(!on);
+        return this;
+    }
     boolean isTestMode() { return testMode; }
     // a slot is usable: learned by level, or test mode
     boolean slotUnlocked(int slot) { return testMode || Balance.moveUnlocked(slot, player.getLevel()); }
@@ -246,6 +249,8 @@ public class PlayBattleScreen extends Screen {
         playerGuard = playerCounter = enemyStunned = false;
         hint = "";
         ppUsed.clear();          // BALANCE: every move starts the battle with full PP
+        gearWear = new GearWear(inventory, new Random());   // GEAR WEAR: its own Random, so the battle's rng sequence is unchanged
+        gearWear.setEnabled(!testMode);
         enemyPpUsed.clear();
         recharging = false;
         lastPlayerAbility = null;   // BALANCE
@@ -670,6 +675,7 @@ public class PlayBattleScreen extends Screen {
             return;
         }
 
+        gearWear.wearWeapon(a.getCategory().getSlot());   // GEAR WEAR: one point for using the move, hit or miss (bare hands wear nothing)
         int hits = a.getEffect() == Effect.MULTI_HIT ? 3 : 1;
         float atk = BattleMath.effectiveAtk(player, inventory, weapon) * grief();   // GLITCH: GRIEVANCE halves it
         double critChance = BattleMath.critChance(weapon);
@@ -829,6 +835,7 @@ public class PlayBattleScreen extends Screen {
     // the stat changes a move causes. The enemy's own changes always happen; changes to the knight only if the attack landed
     // (and, for attacks, by the move's chance and only while the knight is still standing).
     private void enemyEffects(List<Step> steps, EnemyMoves.Move move, boolean landed) {
+        Objects.requireNonNull(move, "move not set");
         boolean toPlayer = false;
         for (EnemyMoves.Fx fx : move.effects()) if (fx.onPlayer) toPlayer = true;
         boolean playerFx = toPlayer && landed && (!move.damages || rng.nextFloat() < move.effectChance());
@@ -905,6 +912,7 @@ public class PlayBattleScreen extends Screen {
         if (playerGuard) {
             steps.add(new Step(playerName + " blocked the attack!", () -> {
                 playerGuard = false;
+                gearWear.wearShield();   // GEAR WEAR: the shield took the whole blow
                 playerSprite.setPose(BattleSprites.BattleSprite.Pose.GUARD);
             }));
             enemyEffects(steps, move, false);
@@ -939,15 +947,17 @@ public class PlayBattleScreen extends Screen {
             if (blocked) dmgF *= (float) (1 - BattleMath.blockAmount(inventory));
             final int hit = Math.max(1, Math.round(dmgF));
             dmg = hit;
+            final boolean firstHit = h == 0;   // GEAR WEAR: the armor wears once per enemy attack that lands, not once per hit of a combo
             steps.add(new Step((bossCrit ? "A critical hit! " : "") + enemyName + " hit for " + hit + " damage!", () -> {
                 if (player.getCurrentHP() <= 0) return;
                 if (bossCrit) finalBoss.critImpact();   // CINEMATIC
+                if (firstHit) gearWear.wearArmor();     // GEAR WEAR
                 dealt[0] += hit;
                 if (!testMode) player.applyDamage(hit);   // GLITCH TEST MODE: the knight can't be hurt
                 log.hit(hit, player.getCurrentHP());
                 playerSprite.setPose(BattleSprites.BattleSprite.Pose.HURT);
             }));
-            if (blocked) steps.add(new Step("The shield took some of the blow!", null));
+            if (blocked) steps.add(new Step("The shield took some of the blow!", () -> gearWear.wearShield()));   // GEAR WEAR: one point per block
         }
         // passives that react to the damage dealt (Hollow Chorus Zealot drains health)
         if (brain != null) {
@@ -1121,6 +1131,7 @@ public class PlayBattleScreen extends Screen {
             xpSum += Balance.expGain(glitch.getXpReward(), glitchLevel, player.getLevel());
             goldSum += glitch.getGoldReward();
         }
+        goldSum += EnchantEffects.goldBonus(inventory, goldSum);   // ENCHANT: Looting on the equipped sword adds a share of the gold
         final int xp = xpSum, gold = goldSum;   // GLITCH: final copies, the lambdas below can only use final values
         // GLITCH: each enemy's "down" line is said once, whichever fell first
         if (finalBoss != null) say("DABBAH COLLAPSES AND SINKS BACK INTO THE EARTH...", () -> enemySprite.setPose(BattleSprites.BattleSprite.Pose.FAINT));   // FINAL BOSS

@@ -1,5 +1,6 @@
 package BattleSystem;
 
+import Enchantment.EnchantEffects;
 import Item.Armor.Armor;
 import Item.Item;
 import Item.RangedWeapon.RangedWeapon;
@@ -9,6 +10,7 @@ import Level.Player;
 import inventory.Inventory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 // All the battle formulas in one place so they are easy to tune.
@@ -71,16 +73,19 @@ public final class BattleMath {
         return total;
     }
 
-    // ATK = (your ATK + a fraction of the weapon's damage) * (1 + ATK_BOOST). The weapon is the one the move uses (null = bare hands).
+    // ATK = (your ATK + a fraction of the weapon's damage) * (1 + ATK_BOOST + the weapon's own Sharpness or Power). The weapon is the one the move uses (null = bare hands).
     public static float effectiveAtk(Player p, Inventory inv, Item weapon) {
-        return (p.getBaseATK() + (float) (weaponBase(weapon) * WEAPON_WEIGHT)) * (float) (1 + sumBuff(inv, Item.ItemBuffs.ATK_BOOST));
+        Objects.requireNonNull(p, "player not set");
+        return (p.getBaseATK() + (float) (weaponBase(weapon) * WEAPON_WEIGHT)) * (float) (1 + sumBuff(inv, Item.ItemBuffs.ATK_BOOST) + EnchantEffects.attackBonus(weapon));
     }
 
     // DEF = (your DEF + ARMOR_WEIGHT x armor baseDef) * (1 + BONUS_DEF + DEF_BOOST + IRON_STANCE).
     // BONUS_DEF is stored as a fraction (0.22 on the Wraithbone shield) so it is treated as a percentage like DEF_BOOST.
     public static float effectiveDef(Player p, Inventory inv) {
+        Objects.requireNonNull(p, "player not set");
+        Objects.requireNonNull(inv, "inventory not set");
         Item armor = inv.getEquippedItem(Inventory.EquipSlot.ARMOR);
-        // BALANCE: armour baseDef x ARMOR_WEIGHT (was the full baseDef)
+        // BALANCE: armor baseDef x ARMOR_WEIGHT (was the full baseDef)
         float flat = p.getBaseDEF() + (armor instanceof Armor ? (float) (((Armor) armor).getBaseDef() * ARMOR_WEIGHT) : 0);
         double pct = sumBuff(inv, Item.ItemBuffs.BONUS_DEF) + sumBuff(inv, Item.ItemBuffs.DEF_BOOST) + abilityValue(inv, Item.ItemAbilities.IRON_STANCE);
         return flat * (float) (1 + pct);
@@ -88,12 +93,13 @@ public final class BattleMath {
 
     // SPD = your SPD * (1 + SPD_BOOST + LIGHT_FOOTING)
     public static float effectiveSpd(Player p, Inventory inv) {
+        Objects.requireNonNull(p, "player not set");
         return p.getBaseSPD() * (float) (1 + sumBuff(inv, Item.ItemBuffs.SPD_BOOST) + abilityValue(inv, Item.ItemAbilities.LIGHT_FOOTING));
     }
 
-    // share of every hit you take that is shaved off (armor DMG_REDUCTION buff + HARDEN), capped at 75%
+    // share of every hit you take that is shaved off (armor DMG_REDUCTION buff + HARDEN + Protection enchant), capped at 75%
     public static double damageReduction(Inventory inv) {
-        return Math.min(0.75, sumBuff(inv, Item.ItemBuffs.DMG_REDUCTION) + abilityValue(inv, Item.ItemAbilities.HARDEN));
+        return Math.min(0.75, sumBuff(inv, Item.ItemBuffs.DMG_REDUCTION) + abilityValue(inv, Item.ItemAbilities.HARDEN) + EnchantEffects.damageReductionBonus(inv));
     }
 
     // share of a hit that bounces back at the attacker (the THORNS buff)
