@@ -10,7 +10,7 @@ import inventory.Inventory;
 import java.util.*;
 
 // The blacksmith combines two copies of the same item into one at full durability (like an anvil): the better copy is kept
-// and repaired, the other is used up, and the player pays BlacksmithConfig's fee in gold. Stateless: gold lives in PlayerData
+// and repaired, the other is used up (its enchantments move onto the keeper), and the player pays BlacksmithConfig's fee in gold. Stateless: gold lives in PlayerData
 // and the items live in the Inventory, so one instance can be shared.
 public class Blacksmith implements IBlacksmith {
     // fee for combining copies of this item. the world comes from the registry (an Item does not store its own world), and an
@@ -72,6 +72,10 @@ public class Blacksmith implements IBlacksmith {
         inventory.removeItem(fodder);
         if (fodderWasEquipped) inventory.toggleItemEquip(inventory.getAllItems().indexOf(keeper));
 
+        // the fodder's enchantments move onto the keeper, each one at the higher of the two levels (never added together,
+        // which would get around the world cap). this is after the fee, so a rejected combine merges nothing
+        keeper.getEnchants().mergeHigher(fodder.getEnchants());
+
         ItemStats stats = keeper.getItemStats();
         stats.repairItem(stats.getItemMaxDurability());
         return CombineResult.SUCCESS;
@@ -79,6 +83,8 @@ public class Blacksmith implements IBlacksmith {
 
     // true if first is strictly better than second: a higher level, or the same level and more xp
     private static boolean outranks(Item first, Item second) {
+        Objects.requireNonNull(first, "first item cannot be null");
+        Objects.requireNonNull(second, "second item cannot be null");
         ItemStats f = first.getItemStats();
         ItemStats s = second.getItemStats();
         if (f.getLvl() != s.getLvl()) return f.getLvl() > s.getLvl();
