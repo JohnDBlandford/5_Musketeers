@@ -1,8 +1,8 @@
 package Shop.Merchant;
 
+import Enchantment.EnchantBook;
 import Game.PlayerData;
 import Item.Consumable.Consumable;
-import Item.Item;
 import Item.ItemEntry;
 import Item.ItemEntry.ItemKind;
 import Item.Registry.ItemRegistry;
@@ -12,7 +12,7 @@ import inventory.Inventory;
 
 import java.util.*;
 
-// Sells gear and food to the player. Keeps a separate MerchantStock for each world and re-rolls a world's stock once
+// Sells gear, enchantment books, food and water to the player. Keeps a separate MerchantStock for each world and re-rolls a world's stock once
 // RESTOCK_INTERVAL_MINUTES of in-game time have passed since it was last rolled. The screen only sees this through IMerchant.
 public class Merchant implements IMerchant {
     private final GameClock clock;
@@ -34,7 +34,7 @@ public class Merchant implements IMerchant {
         long intervalFrames = (long) MerchantConfig.getRestockIntervalMins() * clock.getFramesPerGameMinute();
         if (last != null && clock.getFrames() - last < intervalFrames) return;
 
-        stocks.put(world, MerchantStock.rollStock(world, gearPool(world), ItemRegistry.queryConsumablesUpToWorld(world), random));
+        stocks.put(world, MerchantStock.rollStock(world, gearPool(world), bookPool(world), ItemRegistry.queryConsumablesUpToWorld(world), random));
         // the timer restarts now, so a long absence causes one restock and not a backlog of them
         lastRestockFrame.put(world, clock.getFrames());
     }
@@ -62,28 +62,33 @@ public class Merchant implements IMerchant {
         int total = slot.getUnitPrice() * quantity;
         if (PlayerData.getCurrency() < total) return PurchaseResult.NOT_ENOUGH_GOLD;
 
+        // consumables and books are shared immutable values, gear is built fresh per unit so every copy has its own durability
         boolean isGear = slot.getKind() == ItemKind.GEAR;
-        // consumables are shared constants, gear is built fresh per unit so every copy has its own durability
-        Consumable consumable = isGear ? null : ItemRegistry.createConsumable(slot.getId());
-        boolean hasRoom = isGear ? inventory.canAddItems(quantity) : inventory.canAddConsumables(consumable, quantity);
+        boolean isBook = slot.getKind() == ItemKind.BOOK;
+        Consumable consumable = (isGear || isBook) ? null : ItemRegistry.createConsumable(slot.getId());
+        EnchantBook book = isBook ? ItemRegistry.createBook(slot.getId()) : null;
+        boolean hasRoom = isGear ? inventory.canAddItems(quantity)
+                : isBook ? inventory.canAddBooks(book, quantity) : inventory.canAddConsumables(consumable, quantity);
         if (!hasRoom) return PurchaseResult.INVENTORY_FULL;
 
         // all checks passed, nothing below should be able to fail
         if (!PlayerData.trySpend(total)) throw new IllegalStateException("Gold changed during a purchase");
         for (int i = 0; i < quantity; i++) {
-            boolean added = isGear ? inventory.addItem(ItemRegistry.createItem(slot.getId())) : inventory.addConsumable(consumable);
+            boolean added = isGear ? inventory.addItem(ItemRegistry.createItem(slot.getId()))
+                    : isBook ? inventory.addBook(book) : inventory.addConsumable(consumable);
             if (!added) throw new IllegalStateException("Inventory refused " + slot.getId() + " after reporting room for it");
         }
         slot.take(quantity);
         return PurchaseResult.SUCCESS;
     }
 
-    // gear, then food, then water. a slot's position here is the index purchase() takes
+    // gear, then books, then food, then water. a slot's position here is the index purchase() takes
     private List<MerchantStock.ShopSlot> getSlotsOf(int world) {
         ItemEntry.requireValidWorld(world);
         MerchantStock stock = stocks.get(world);
         if (stock == null) throw new IllegalStateException("World " + world + " has not been stocked, call restockIfDue first");
         List<MerchantStock.ShopSlot> slots = new ArrayList<>(stock.getGearSlots());
+        slots.addAll(stock.getBookSlots());
         stock.getFoodSlot().ifPresent(slots::add);
         stock.getWaterSlot().ifPresent(slots::add);
         return slots;
@@ -91,17 +96,18 @@ public class Merchant implements IMerchant {
 
     // constructs a new SlotView object to display
     private static SlotView getViewOf(MerchantStock.ShopSlot slot) {
+        Objects.requireNonNull(slot, "ShopSlot cannot be null");
         return new SlotView(slot.getId(), slot.getKind(), slot.getRarity(), slot.getItemWorld(), slot.getUnitPrice(),
                 slot.getRemainingStock(), slot.isUnlimited());
     }
 
-    // worlds 1-3 sell their own gear and older gear. the Final world sells only its own pool
-    private static List<ItemEntry> gearPool(int world) {
-        List<ItemEntry> pool = new ArrayList<>();
-        for (Item.ItemRarity rarity : Item.ItemRarity.values()) {
-            pool.addAll(world == ItemEntry.getMaxWorld() ? ItemRegistry.query(world, world, rarity)
-                    : ItemRegistry.queryUpToWorld(world, rarity));
-        }
-        return pool;
+    // worlds 1-3 sell their own gear and older gear. the Final world sells only its own pool (the registry owns that rule)
+    private static List<ItemEntry> gearPool(final int world) {
+        return ItemRegistry.queryGearPoolForWorld(world);
+    }
+
+    // books are exactly the shop's own world: one per enchantment, all at that world's level. a World 2 shop never sells a level I book
+    private static List<ItemEntry> bookPool(final int world) {
+        return ItemRegistry.queryBooksForWorld(world);
     }
 }

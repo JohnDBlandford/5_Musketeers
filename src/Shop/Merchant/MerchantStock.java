@@ -1,5 +1,6 @@
 package Shop.Merchant;
 
+import Enchantment.EnchantmentConfig;
 import Item.Consumable.Consumable;
 import Item.Item;
 import Item.ItemEntry;
@@ -8,17 +9,19 @@ import Item.Registry.LootRoller;
 
 import java.util.*;
 
-// One world's shop stock: the gear slots plus one food slot and one water slot.
+// One world's shop stock: the gear slots, the enchantment book slots, one food slot and one water slot.
 // Built by rollStock(), which does all of the random picking
 public final class MerchantStock {
     private final int shopWorld;
     private final List<ShopSlot> gearSlots;
+    private final List<ShopSlot> bookSlots;
     private final ShopSlot foodSlot;   // null if the pool had no food
     private final ShopSlot waterSlot;  // null if the pool had no water
 
-    private MerchantStock(int shopWorld, List<ShopSlot> gearSlots, ShopSlot foodSlot, ShopSlot waterSlot) {
+    private MerchantStock(int shopWorld, List<ShopSlot> gearSlots, List<ShopSlot> bookSlots, ShopSlot foodSlot, ShopSlot waterSlot) {
         this.shopWorld = shopWorld;
         this.gearSlots = Collections.unmodifiableList(gearSlots);
+        this.bookSlots = Collections.unmodifiableList(bookSlots);
         this.foodSlot = foodSlot;
         this.waterSlot = waterSlot;
     }
@@ -26,25 +29,33 @@ public final class MerchantStock {
     public int getShopWorld() { return this.shopWorld; }
     // in the order they were drawn
     public List<ShopSlot> getGearSlots() { return this.gearSlots; }
+    public List<ShopSlot> getBookSlots() { return this.bookSlots; }
     public Optional<ShopSlot> getFoodSlot() { return Optional.ofNullable(foodSlot); }
     public Optional<ShopSlot> getWaterSlot() { return Optional.ofNullable(waterSlot); }
 
-    // Rolls a new stock. gearPool is every gear entry this shop is allowed to sell and consumablePool every consumable.
-    // The caller decides what is eligible (worlds 1-3 see their world and older, the Final world only its own), this
-    // class only does the picking. All randomness comes from `random`, so a seeded Random gives a repeatable shop.
-    public static MerchantStock rollStock(int shopWorld, List<ItemEntry> gearPool, List<ItemEntry> consumablePool, Random random) {
+    // Rolls a new stock. gearPool is every gear entry this shop is allowed to sell, bookPool every enchantment book and
+    // consumablePool every consumable. The caller decides what is eligible (worlds 1-3 see their world and older gear, the
+    // Final world only its own, and books are always exactly the shop's world), this class only does the picking.
+    // The gear is drawn first, then the books, then food and water, so adding books never changes which gear a seed gives.
+    // All randomness comes from `random`, so a seeded Random gives a repeatable shop.
+    public static MerchantStock rollStock(int shopWorld, List<ItemEntry> gearPool, List<ItemEntry> bookPool, List<ItemEntry> consumablePool, Random random) {
         Objects.requireNonNull(gearPool, "gearPool missing");
+        Objects.requireNonNull(bookPool, "bookPool missing");
         Objects.requireNonNull(consumablePool, "consumablePool missing");
         Objects.requireNonNull(random, "random not set");
         ItemEntry.requireValidWorld(shopWorld);
         for (ItemEntry entry : gearPool) {
             if (entry.itemKind() != ItemKind.GEAR) throw new IllegalArgumentException(entry.id() + " is not gear");
         }
+        for (ItemEntry entry : bookPool) {
+            if (entry.itemKind() != ItemKind.BOOK) throw new IllegalArgumentException(entry.id() + " is not a book");
+        }
         for (ItemEntry entry : consumablePool) {
             if (entry.itemKind() != ItemKind.CONSUMABLE) throw new IllegalArgumentException(entry.id() + " is not a consumable");
         }
 
         List<ShopSlot> gear = rollGear(shopWorld, gearPool, random);
+        List<ShopSlot> books = rollBooks(bookPool, random);
 
         // food then water, always in that order so a seed always gives the same shop
         List<ItemEntry> foods = new ArrayList<>();
@@ -57,13 +68,27 @@ public final class MerchantStock {
             else if (consumable.getHungerRestore() > 0) foods.add(entry);
             // anything that only restores health has no guaranteed slot
         }
-        return new MerchantStock(shopWorld, gear, pickConsumable(foods, random), pickConsumable(waters, random));
+        return new MerchantStock(shopWorld, gear, books, pickConsumable(foods, random), pickConsumable(waters, random));
     }
 
     private static ShopSlot pickConsumable(List<ItemEntry> candidates, Random random) {
+        Objects.requireNonNull(candidates, "candidates cannot be null");
         if (candidates.isEmpty()) return null;
         ItemEntry entry = candidates.get(random.nextInt(candidates.size()));
         return new ShopSlot(entry, MerchantConfig.getConsumablePrice(entry.id()), 0, true);
+    }
+
+    // draws up to EnchantmentConfig.getBookSlots() books without replacement, each one as likely as any other. books never go
+    // through the rarity curve (it would show mostly level I books in World 2), and a book's price comes from its level, which
+    // is the world of its registry entry
+    private static List<ShopSlot> rollBooks(List<ItemEntry> bookPool, Random random) {
+        List<ItemEntry> left = new ArrayList<>(bookPool);   // never touch the caller's list
+        List<ShopSlot> slots = new ArrayList<>();
+        for (int i = 0; i < EnchantmentConfig.getBookSlots() && !left.isEmpty(); i++) {
+            ItemEntry entry = left.remove(random.nextInt(left.size()));
+            slots.add(new ShopSlot(entry, EnchantmentConfig.getBookPrice(entry.world()), EnchantmentConfig.getBookStockPerSlot(), false));
+        }
+        return slots;
     }
 
     // draws up to GEAR_SLOTS items without replacement. each draw rolls a rarity, then an item within that rarity
@@ -93,7 +118,7 @@ public final class MerchantStock {
         return available;
     }
 
-    // one thing on sale. gear has a limited stock, food and water are unlimited
+    // one thing on sale. gear and books have a limited stock, food and water are unlimited
     public static final class ShopSlot {
         private final String id;
         private final ItemKind kind;
@@ -104,6 +129,7 @@ public final class MerchantStock {
         private int remaining;
 
         private ShopSlot(ItemEntry entry, int unitPrice, int stock, boolean unlimited) {
+            Objects.requireNonNull(entry, "item entry cannot be null");
             this.id = entry.id();
             this.kind = entry.itemKind();
             this.rarity = entry.rarity();

@@ -155,4 +155,16 @@ public final class ItemRegistry {
         }
         return problems;
     }
+
+    // every gear entry this world can offer, at any rarity. worlds 1-3 see their own gear and older gear, the Final world only
+    // its own. the merchant and the chests both use this, so a shop and a chest in the same world always draw from the same pool.
+    // the order is rarity first (Item.ItemRarity.values()), then registry order, which feeds random.nextInt so keep it
+    public static List<ItemEntry> queryGearPoolForWorld(final int world) {
+        ItemEntry.requireValidWorld(world);
+        List<ItemEntry> pool = new ArrayList<>();
+        for (Item.ItemRarity rarity : Item.ItemRarity.values()) {
+            pool.addAll(world == ItemEntry.getMaxWorld() ? query(world, world, rarity) : queryUpToWorld(world, rarity));
+        }
+        return Collections.unmodifiableList(pool);
+    }
 }

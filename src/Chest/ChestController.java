@@ -9,7 +9,6 @@ import Item.ItemEntry.ItemKind;
 import Item.Registry.ItemRegistry;
 import inventory.Inventory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -47,22 +46,7 @@ public final class ChestController {
      * @param random the random chest location for each chest
      */
     public ChestController(ChestRegistry registry, Random random) {
-        this(registry, random, ChestController::registryGearPool, ItemRegistry::queryConsumablesUpToWorld);
-    }
-
-    // worlds 1-3 hold their own gear and older gear. the Final world holds only its own pool (same rule as the shop)
-    /**
-     * @author Derek
-     * @param world the world that the registry gear comes from
-     * @return returns the gear pool from the provided world
-     */
-    private static List<ItemEntry> registryGearPool(int world) {
-        List<ItemEntry> pool = new ArrayList<>();
-        for (Item.ItemRarity rarity : Item.ItemRarity.values()) {
-            pool.addAll(world == ItemEntry.getMaxWorld() ? ItemRegistry.query(world, world, rarity)
-                    : ItemRegistry.queryUpToWorld(world, rarity));
-        }
-        return pool;
+        this(registry, random, ItemRegistry::queryGearPoolForWorld, ItemRegistry::queryConsumablesUpToWorld);
     }
 
     /**
