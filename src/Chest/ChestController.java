@@ -1,6 +1,7 @@
 package Chest;
 
 import Chest.ChestResult.Outcome;
+import Enchantment.EnchantBook;
 import Game.PlayerData;
 import Item.Consumable.Consumable;
 import Item.Item;
@@ -17,11 +18,13 @@ import java.util.function.IntFunction;
 // Opens chests. open() checks, in order: null arguments, the world, that the chest is in the registry,
 // and whether it was already opened (then nothing happens and no random numbers are used). Otherwise it rolls the contents with
 // ChestLoot and the player's luck, pays the gold, puts the item in the pack if it fits (a full pack destroys it), marks the
-// chest opened and returns what happened. The pools are injected by function so tests can use tiny hand made pools.
+// chest opened and returns what happened. An item is gear, a consumable or an enchantment book (the production books are the
+// ones of the chest's own world). The pools are injected by function so tests can use tiny hand made pools.
 public final class ChestController {
     private final ChestRegistry registry;
     private final Random random;
     private final IntFunction<List<ItemEntry>> gearPools;
+    private final IntFunction<List<ItemEntry>> bookPools;
     private final IntFunction<List<ItemEntry>> consumablePools;
 
     /**
@@ -29,13 +32,15 @@ public final class ChestController {
      * @param registry the chest registry
      * @param random the random place for each chest
      * @param gearPools the different kinds of gear that chests can give
+     * @param bookPools the enchantment books that chests can give, asked for the world of the chest
      * @param consumablePools the different kinds of consumables that chests can give
      */
     public ChestController(ChestRegistry registry, Random random, IntFunction<List<ItemEntry>> gearPools,
-                           IntFunction<List<ItemEntry>> consumablePools) {
+                           IntFunction<List<ItemEntry>> bookPools, IntFunction<List<ItemEntry>> consumablePools) {
         this.registry = Objects.requireNonNull(registry, "registry cannot be found");
         this.random = Objects.requireNonNull(random, "random not set");
         this.gearPools = Objects.requireNonNull(gearPools, "gearPools not set");
+        this.bookPools = Objects.requireNonNull(bookPools, "bookPools not set");
         this.consumablePools = Objects.requireNonNull(consumablePools, "consumablePools not set");
     }
 
@@ -46,7 +51,8 @@ public final class ChestController {
      * @param random the random chest location for each chest
      */
     public ChestController(ChestRegistry registry, Random random) {
-        this(registry, random, ItemRegistry::queryGearPoolForWorld, ItemRegistry::queryConsumablesUpToWorld);
+        this(registry, random, ItemRegistry::queryGearPoolForWorld, ItemRegistry::queryBooksForWorld,
+                ItemRegistry::queryConsumablesUpToWorld);
     }
 
     /**
@@ -67,14 +73,17 @@ public final class ChestController {
         if (registry.isOpened(id)) return new ChestResult(Outcome.ALREADY_OPENED, 0, null, null);
 
         ChestContents contents = ChestLoot.rollContents(world, PlayerData.getLuck(), gearPools.apply(world),
-                consumablePools.apply(world), random);
+                bookPools.apply(world), consumablePools.apply(world), random);
         PlayerData.addCurrency(contents.gold());
         registry.markOpened(id);
         if (!contents.hasItem()) return new ChestResult(Outcome.GOLD_ONLY, contents.gold(), null, null);
 
         ItemEntry entry = contents.item();
-        boolean added = entry.itemKind() == ItemKind.GEAR ? inventory.addItem((Item) entry.create())
-                : inventory.addConsumable((Consumable) entry.create());
+        boolean added = switch (entry.itemKind()) {
+            case GEAR -> inventory.addItem((Item) entry.create());
+            case BOOK -> inventory.addBook((EnchantBook) entry.create());
+            case CONSUMABLE -> inventory.addConsumable((Consumable) entry.create());
+        };
         return new ChestResult(added ? Outcome.ITEM_ADDED : Outcome.ITEM_LOST, contents.gold(), entry.id(), entry.rarity());
     }
 }
