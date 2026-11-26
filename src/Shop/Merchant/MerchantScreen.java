@@ -6,11 +6,14 @@ import Engine.Key;
 import Engine.KeyLocker;
 import Engine.Keyboard;
 import Engine.Screen;
+import Enchantment.EnchantBook;
+import Enchantment.EnchantmentConfig;
 import Game.PlayerData;
 import Item.Consumable.Consumable;
 import Item.Item;
 import Item.ItemEntry;
 import Item.Registry.ItemRegistry;
+import inventory.Inventory;
 import Shop.Merchant.IMerchant.SlotView;
 import Shop.PurchaseResult;
 import Shop.ShopController;
@@ -31,7 +34,7 @@ import static Shop.ShopUI.*;
 // MerchantViewModel; this class maps keys to it and draws what it reports. Shown by ShopController, which restocks and
 // calls onOpen(world) first.
 //   LEFT / RIGHT: previous / next item     UP / DOWN: quantity     ENTER: buy     ESC: close
-// Food and water have no sprites yet, so they get a boxed "F" / "W" placeholder
+// Food and water have no sprites yet, so they get a boxed "F" / "W" placeholder, and enchantment books a boxed "B"
 public final class MerchantScreen extends Screen implements ShopController.Panel {
     private static final int COLS = 5;
     private static final int SLOT = 56;
@@ -141,6 +144,8 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
                 BufferedImage sprite = item.getItemLook().getSprite(0, 0);
                 g.drawImage(sprite, x + 4, y + 4, SLOT - 8, SLOT - 8);
             }
+        } else if (slot.kind() == ItemEntry.ItemKind.BOOK) {
+            drawPlaceholderLetter(g, "B", x, y);   // PLACEHOLDER until the enchanted book sprite exists
         } else {
             drawPlaceholderLetter(g, consumableLetter(consumable(slot.id())), x, y);
         }
@@ -198,6 +203,19 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
             }
             ty = line(g, "Attack", String.valueOf(item.getAttack()), tx, ty, width, Color.white, bottom);
             line(g, "Defense", String.valueOf(item.getDefense()), tx, ty, width, Color.white, bottom);
+        } else if (slot.kind() == ItemEntry.ItemKind.BOOK) {
+            EnchantBook book = book(slot.id());
+            if (book == null) return;
+            ty = line(g, "Enchant", book.getEnchantment().getDisplayName(), tx, ty, width, Color.white, bottom);
+            ty = line(g, "Level", String.valueOf(book.getLevel()), tx, ty, width, Color.white, bottom);
+            ty = line(g, "Effect", formatPercent(EnchantmentConfig.getEffect(book.getEnchantment(), book.getLevel())), tx, ty,
+                    width, Color.white, bottom);
+            ty += 6;
+            ty = line(g, "Applies to", "", tx, ty, width, Color.lightGray, bottom);
+            for (Inventory.EquipSlot equipSlot : book.getEnchantment().getSlots().stream()
+                    .sorted(java.util.Comparator.comparingInt(Enum::ordinal)).toList()) {
+                ty = line(g, equipSlot.name().replace('_', ' '), "", tx, ty, width, Color.white, bottom);
+            }
         } else {
             Consumable c = consumable(slot.id());
             if (c == null) return;
@@ -241,6 +259,10 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
         return (Item) details.computeIfAbsent(id, ItemRegistry::createItem);
     }
 
+    private EnchantBook book(final String id) {
+        return (EnchantBook) details.computeIfAbsent(id, ItemRegistry::createBook);
+    }
+
     private Consumable consumable(final String id) {
         return (Consumable) details.computeIfAbsent(id, ItemRegistry::createConsumable);
     }
@@ -248,6 +270,17 @@ public final class MerchantScreen extends Screen implements ShopController.Panel
     // PLACEHOLDER rule: hydration means water, anything else is food (same split MerchantStock uses for its two guaranteed slots)
     static String consumableLetter(final Consumable c) {
         return c != null && c.getHydrationRestore() > 0 ? "W" : "F";
+    }
+
+    // an enchantment effect is a fraction (0.06 -> "+6%")
+    private static String formatPercent(final double fraction) {
+        return "+" + formatBuffPercent(fraction);
+    }
+
+    private static String formatBuffPercent(final double fraction) {
+        String text = String.format(Locale.ROOT, "%.1f", fraction * 100.0);
+        if (text.endsWith(".0")) text = text.substring(0, text.length() - 2);
+        return text + "%";
     }
 
     // flat buffs are stored as value / 100, everything else is a fraction shown as a percentage (same rule as InventoryScreen)

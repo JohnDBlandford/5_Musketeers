@@ -27,6 +27,7 @@ public final class ShopController {
     private final IMerchant merchant;
     private final Panel merchantPanel;
     private final Panel blacksmithPanel;   // null when built without a blacksmith
+    private final Panel enchantPanel; // null when built without an enchant table
     private final Runnable onClosed;
     private Panel activePanel = null;      // the panel that was opened, null while closed
     private boolean open = false;
@@ -37,6 +38,7 @@ public final class ShopController {
         this.merchant = Objects.requireNonNull(merchant, "merchant not set");
         this.merchantPanel = Objects.requireNonNull(merchantPanel, "panel not set");
         this.blacksmithPanel = null;
+        this.enchantPanel = null;
         this.onClosed = Objects.requireNonNull(onClosed, "onClosed not set. Attach a Runnable.");
     }
 
@@ -46,7 +48,19 @@ public final class ShopController {
         this.merchant = Objects.requireNonNull(merchant, "merchant not set");
         this.merchantPanel = Objects.requireNonNull(merchantPanel, "merchant panel not set");
         this.blacksmithPanel = Objects.requireNonNull(blacksmithPanel, "blacksmith panel not set");
+        this.enchantPanel = null;
         this.onClosed = Objects.requireNonNull(onClosed, "onClosed not set. Attach a Runnable. ");
+    }
+
+    // a controller for the enchants
+    public ShopController(GameClock clock, IMerchant merchant, Panel merchantPanel, Panel blacksmithPanel, Panel enchantPanel,
+                          Runnable onClosed) {
+        this.clock = Objects.requireNonNull(clock, "clock not set");
+        this.merchant = Objects.requireNonNull(merchant, "merchant not set");
+        this.merchantPanel = Objects.requireNonNull(merchantPanel, "merchant panel not set");
+        this.blacksmithPanel = Objects.requireNonNull(blacksmithPanel, "blacksmith panel not set");
+        this.enchantPanel = Objects.requireNonNull(enchantPanel, "enchant panel not set");
+        this.onClosed = Objects.requireNonNull(onClosed, "onClosed not set. Attach a Runnable.");
     }
 
     public boolean isOpen() { return open; }
@@ -89,5 +103,15 @@ public final class ShopController {
 
     public void draw(GraphicsHandler graphicsHandler) {
         if (open) activePanel.draw(graphicsHandler);
+    }
+
+    public void openEnchantTable(int world) {
+        if (enchantPanel == null) throw new IllegalStateException("enchant panel cannot be null");
+        if (isOpen()) return;
+        if (world > MAX_WORLD || world < MIN_WORLD) throw new IllegalArgumentException("world " + world + " is too high or too low. " +
+                "Must be between " + MIN_WORLD + "and " + MAX_WORLD);
+        open = true;
+        activePanel = enchantPanel;
+        enchantPanel.onOpen(world);
     }
 }
