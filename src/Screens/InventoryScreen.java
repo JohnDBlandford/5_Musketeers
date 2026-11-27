@@ -1,6 +1,9 @@
 package Screens;
 
 import BattleSystem.BattleUI;
+import Enchantment.Enchantment;
+import Enchantment.Enchantment.EnchantmentType;
+import Enchantment.EnchantmentConfig;
 import Engine.*;
 import Item.Consumable.Consumable;
 import Item.Item;
@@ -12,9 +15,8 @@ import Item.ItemStats;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 // The inventory, drawn with the same pixel font (VCR OSD Mono) as the title screen and the battle screens.
 public final class InventoryScreen extends Screen {
@@ -33,6 +35,7 @@ public final class InventoryScreen extends Screen {
     private static final Color GOLD = new Color(230, 190, 40); // a value that has stopped growing with level
     private static final Color BAR_BACK = new Color(20, 20, 20);
     private static final Color XP_COLOR = new Color(80, 140, 220);
+    private static final Color ENCHANT_COLOR = new Color(175, 130, 235);   // the enchantments on an item, so they stand apart from the base buffs
     private static final Color DURABILITY_HIGH = new Color(80, 170, 80);
     private static final Color DURABILITY_MID = new Color(220, 190, 50);
     private static final Color DURABILITY_LOW = new Color(200, 60, 60);
@@ -201,7 +204,22 @@ public final class InventoryScreen extends Screen {
             y = statLine(graphicsHandler, entry.getKey().toString().replace('_', ' '), formatBuff(entry.getKey(), entry.getValue()),
                     x, y, width, item.isBuffCapped(entry.getKey()) ? GOLD : Color.white);
         }
+        y = drawEnchants(graphicsHandler, item, x, y, width);
         drawStats(graphicsHandler, item, x, y, width);
+    }
+
+    // one line per enchantment the item carries, like "Sharpness II  +12%", in enum order. Nothing is drawn (and y does not move)
+    // for an item with no enchantments. returns the y where the next line starts
+    private static int drawEnchants(GraphicsHandler g, Item item, int x, int y, int width) {
+        Objects.requireNonNull(item, "item cannot be null");
+        List<Map.Entry<EnchantmentType, Integer>> enchants = item.getEnchants().asMap().entrySet().stream()
+                .sorted(Comparator.comparingInt((Map.Entry<EnchantmentType, Integer> entry) -> entry.getKey().ordinal()))
+                .toList();
+        for (Map.Entry<Enchantment.EnchantmentType, Integer> entry : enchants) {
+            y = statLine(g, entry.getKey().getDisplayName() + " " + Enchantment.toRoman(entry.getValue()),
+                    "+" + formatPercent(EnchantmentConfig.getEffect(entry.getKey(), entry.getValue())), x, y, width, ENCHANT_COLOR);
+        }
+        return y;
     }
 
     // this method draws everything below the dividing line: lvl, xp, durability, then atk, def, spd and bhp

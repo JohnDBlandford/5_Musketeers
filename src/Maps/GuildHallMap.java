@@ -8,13 +8,13 @@ import Level.EnhancedMapTile;
 import Level.Map;
 import Scripts.BlacksmithBuildingScript;
 import Scripts.DoorScript;
+import Scripts.EnchantTableBuildingScript;
 import Scripts.ShopBuildingScript;
 
 import Tilesets.*;
 import Utils.Point;
 
 public class GuildHallMap extends Map {
-
     public GuildHallMap() {
         super("guild_hall_map.txt", new TavernTileset());
         this.playerStartPosition = new Point(0, 0); //
@@ -53,6 +53,10 @@ public class GuildHallMap extends Map {
     // merchant's racks). Stand next to one of these tiles and press ENTER. {column, row}
     private static final int[][] BLACKSMITH_TILES = {{15, 8}, {16, 8}, {17, 8}};
 
+    // ENCHANT TABLE: the enchanter's spot is the top wall right next to the merchant's racks (tile ids 38, 38 and 43, all solid).
+    // Stand on the floor row below one of these tiles and press ENTER. {column, row}
+    private static final int[][] ENCHANT_TILES = {{4, 1}, {5, 1}, {6, 1}};
+
     // TEXTBOXES: the engine's Textbox moves to the TOP of the screen whenever Camera.isAtBottomOfMap() is true (so it doesn't
     // cover the player), which put the greeting over the gold display down by the blacksmith's racks. The hall is the only
     // map that needs this, so it swaps in a camera that never reports the bottom: every textbox here draws at the bottom. Only
@@ -75,6 +79,9 @@ public class GuildHallMap extends Map {
         }
         for (int[] tile : BLACKSMITH_TILES) {
             getMapTile(tile[0], tile[1]).setInteractScript(new BlacksmithBuildingScript());
+        }
+        for (int[] tile : ENCHANT_TILES) {
+            getMapTile(tile[0], tile[1]).setInteractScript(new EnchantTableBuildingScript());
         }
     }
 }

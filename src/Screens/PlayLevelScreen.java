@@ -2,6 +2,10 @@ package Screens;
 
 import BattleSystem.Battle;
 import BattleSystem.BattleMath;
+import Enchantment.EnchantOpener;
+import Enchantment.EnchantScreen;
+import Enchantment.EnchantTable;
+import Enchantment.EnchantViewModel;
 import Engine.*;
 import Game.GameState;
 import Game.ScreenCoordinator;
@@ -91,7 +95,7 @@ import Story.StoryState;
 // tablets; while one of those is open the world waits. Battles report wins (kill quests) and story fights back to it,
 // entering a named place can move a quest on, and the story is saved with the game (SaveData.story).
 public class PlayLevelScreen extends Screen implements GameListener, BattleListener, ShopOpener, BlacksmithOpener,
-        ChestOpener, StoryHost {
+        ChestOpener, StoryHost, EnchantOpener {
     protected ScreenCoordinator screenCoordinator;
     protected Map map;
     protected Player player;
@@ -226,20 +230,23 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         attackWindow = new AttackWindow(this);
 
         // initialize currency counter display
-        coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 50, "Arial", 24, Color.YELLOW);
+        coinCountDisplay = new SpriteFont("Gold: " + PlayerData.getCurrency(), 10, 50, "Arial", 24,
+                Color.YELLOW);
         coinCountDisplay.setOutlineColor(Color.BLACK);
         coinCountDisplay.setOutlineThickness(2);
         inventoryScreen = new InventoryScreen(this);
         worldMapScreen = new WorldMapScreen(this);   // WORLD MAP
         story = new StoryDirector(this);              // STORY
-        // SHOP: the merchant, the blacksmith and the clock live here (not on the map) because onMapChange() rebuilds the map and the player
+        // SHOP: the merchant, the blacksmith, the enchant table and the clock live here (not on the map) because onMapChange() rebuilds the map and the player
         GameClock shopClock = new GameClock(Config.TARGET_FPS);
         Merchant merchant = new Merchant(shopClock, new Random());
         MerchantViewModel shopModel = new MerchantViewModel(merchant, () -> inventory);
         BlacksmithViewModel blacksmithModel = new BlacksmithViewModel(new Blacksmith(), () -> inventory);
+        EnchantViewModel enchantModel = new EnchantViewModel(new EnchantTable(), () -> inventory);
         shopController = new ShopController(shopClock, merchant,
                 new MerchantScreen(shopModel, () -> shopController.close()),
                 new BlacksmithScreen(blacksmithModel, () -> inventory, () -> shopController.close()),
+                new EnchantScreen(enchantModel, () -> inventory, () -> shopController.close()),
                 () -> player.unlock());
         // TEMPORARY test inventory. gear uses direct constructors so the compiler checks it, consumables use the Consumables constants
         inventory.addItem(new RustedShortSword(null));
@@ -1016,6 +1023,13 @@ public class PlayLevelScreen extends Screen implements GameListener, BattleListe
         gh.drawFilledRectangleWithBorder(barX, y, SURVIVAL_BAR_W, SURVIVAL_BAR_H, SURVIVAL_BACK, Color.BLACK, 2);
         int fill = (SURVIVAL_BAR_W - 4) * value / 100;
         if (fill > 0) gh.drawFilledRectangle(barX + 2, y + 2, fill, SURVIVAL_BAR_H - 4, value <= SURVIVAL_LOW ? SURVIVAL_LOW_COLOR : color);
+    }
+
+    // SHOP: called by OpenEnchantTableScriptAction (through the map's listeners) once the enchanter's greeting is done.
+    // the world is the highest book level the table can combine up to, and comes from the map the same way the merchant's does
+    @Override
+    public void onOpenEnchantTable() {
+        shopController.openEnchantTable(BattleWorld.fromMapName(shopWorldMapName).ordinal() + 1);
     }
 
     // This enum represents the different states this screen can be in
